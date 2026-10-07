@@ -1,0 +1,79 @@
+# I0FW · 玫瑰花服
+
+> **分类**：不归类　**品质**：—　**类型**：Permanent　**物品等级**：—　**价格**：0 金
+
+**物品 ID**：`I0FW`　·　**原型**：`ckng`（国王之冠 +5）　·　**版本**：v1.0 正式版
+
+## v1.0 正式版 当前数据
+
+### 基础属性
+
+| 属性 | 数值 | 来源能力 | 字段 | 等级 |
+| --- | --- | --- | --- | --- |
+| 每秒生命值回复 | 400 | `A0QN` | `Ihpr` | 1 |
+| 力量奖励 | 233 | `A0DE` | `Istr` | 1 |
+| 敏捷奖励 | 233 | `A0DE` | `Iagi` | 1 |
+| 智力奖励 | 233 | `A0DE` | `Iint` | 1 |
+
+### 物品能力
+
+| 能力 ID | 能力名称 | 关键数值 | 能力说明 |
+| --- | --- | --- | --- |
+| `A0QN` | 继续签约(正)1 | 每秒生命值回复=400 | — |
+| `A0DE` | 全能力增加233 | 力量奖励=233, 敏捷奖励=233, 智力奖励=233 | — |
+
+### 游戏内说明（原文）
+
+> 穹妹专属(不归种类)
+>
+> 筋力:233
+> 敏捷:233
+> 体力:233
+> 继续签约(正)(每秒恢复自身400生命)
+>
+> 非常漂亮的衣服,传上去非常迷人,淡淡的香味
+
+**提示工具（Tip）**：
+
+```text
+玫瑰花服
+```
+
+## 获取方式
+
+**待考证**——尚未在本图 `war3map.j` 中找到该物品的获取证据。
+
+> `war3map.j` 中的获取入口只有 `AddItemToStock`（进货）、`CreateItem`（生成）、`UnitAddItemByIdSwapped`（掉给单位）、`ChooseRandomItemExBJ`（随机掉落）几类；没有命中的物品不等于无法获得，可能由商店菜单、NPC 对话或外部触发器间接给出。
+
+## 合成与材料用途
+
+_（没有其它物品的说明提到本物品）_
+
+??? note "全部对象字段（原始值）"
+
+    - `iico` Art = `ReplaceableTextures\CommandButtons\BTNjj07.blp`　*(界面图标)*
+    - `ides` Description = `|cffff0000穹妹专属(不归种类)|n|n筋力:233|n敏捷:233|n体力:233|n继续签约(正)(每秒恢复自身400生命)|n|n非常漂亮的衣服,传上去非常迷人,淡淡的香味|r`　*(描述)*
+    - `unam` Name = `|cffe9967a玫瑰花服|r`　*(名字)*
+    - `utip` Tip = `|cffe9967a玫瑰花服|r`　*(提示工具 - 基础)*
+    - `utub` Ubertip = `|cffff0000穹妹专属(不归种类)|n|n筋力:233|n敏捷:233|n体力:233|n继续签约(正)(每秒恢复自身400生命)|n|n非常漂亮的衣服,传上去非常迷人,淡淡的香味|r`　*(提示工具 - 扩展的)*
+    - `iabi` abilList = `A0QN,A0DE`　*(技能)*
+    - `icla` class = `Permanent`　*(分类)*
+    - `icid` cooldownID = `A0PH`　*(魔法施放间隔时间组)*
+    - `igol` goldcost = `0`　*(金子消耗)*
+    - `ipaw` pawnable = `0`　*(能被卖给商人)*
+    - `isel` sellable = `0`　*(可以被商人出售)*
+
+
+---
+
+<div class="wiki-source-note" markdown="1">
+
+**数据来源**：`刀剑物语 happy丶FISH v1.0 正式版`（母图 SHA256 `62A1122ACEDA220B746DF730B1625C2AF8E3C149048E26FDC2AF5C37BDA6BD6D`）
+
+本页数值由该图的 `war3map.w3u` / `war3map.w3a` / `war3map.w3t` 与 `war3map.j` 解析生成；**未经过实机验证**——「数据来自哪个成员」不等于「游戏里就是这个表现」。
+
+物品字段：`war3map.w3t`（SHA256 `98164862404eee98a28c5b5ba01f88fceb7fca896b3b06457f1853d75bac896d`）；物品技能：`war3map.w3a`（SHA256 `80675c0549e25604b5b97bb05cd7f6594f92dfec95639cbdf6a6480ba2ffa9d3`）；物品技能字段中文名来自客户端 `War3Patch.mpq` 的 `Units\AbilityMetaData.slk` + `UI\WorldEditStrings.txt`。
+
+**说明文字（Tip/Ubertip）是策划手写的，可能与实际触发器数值不一致**；本页数值列取自对象数据的真实字段。
+
+</div>

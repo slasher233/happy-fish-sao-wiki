@@ -1,0 +1,14 @@
+# 更新日志
+
+记录本 Wiki 与地图版本的对应关系。地图改动记录写到 `posts/` 下。
+
+
+---
+
+<div class="wiki-source-note" markdown="1">
+
+**数据来源**：`刀剑物语 happy丶FISH v1.0 正式版`（母图 SHA256 `62A1122ACEDA220B746DF730B1625C2AF8E3C149048E26FDC2AF5C37BDA6BD6D`）
+
+本页数值由该图的 `war3map.w3u` / `war3map.w3a` / `war3map.w3t` 与 `war3map.j` 解析生成；**未经过实机验证**——「数据来自哪个成员」不等于「游戏里就是这个表现」。
+
+</div>

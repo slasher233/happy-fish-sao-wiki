@@ -1,0 +1,8 @@
+title: 首页
+nav:
+  - index.md
+  - heroes
+  - items
+  - skills
+  - info
+  - changelogs

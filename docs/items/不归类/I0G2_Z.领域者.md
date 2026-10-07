@@ -1,0 +1,81 @@
+# I0G2 · Z.领域者
+
+> **分类**：不归类　**品质**：传说　**类型**：Permanent　**物品等级**：154　**价格**：— 金
+
+**物品 ID**：`I0G2`　·　**原型**：`ckng`（国王之冠 +5）　·　**版本**：v1.0 正式版
+
+## v1.0 正式版 当前数据
+
+### 基础属性
+
+| 属性 | 数值 | 来源能力 | 字段 | 等级 |
+| --- | --- | --- | --- | --- |
+| 伤害减少 | 0.52 | `A0SN` | `isr2` | 1 |
+| 攻击奖励 | 0 | `A0XA` | `Iatt` | 1 |
+| 取得最大生命值 | 5000 | `A0JY` | `Ilif` | 1 |
+
+### 物品能力
+
+| 能力 ID | 能力名称 | 关键数值 | 能力说明 |
+| --- | --- | --- | --- |
+| `A0SN` | 减少魔伤52 | 伤害减少=0.52 | — |
+| `A0ST` | -不死鸟-火焰吹熄 | 魔法消耗=0, 魔法施放时间间隔=20 | 对前方造成极大的伤害 |
+| `A0XA` | 兰斯丘比特的祝福（S） | 攻击奖励=0 | — |
+| `A0JY` | 增加最大生命5000 | 取得最大生命值=5000 | — |
+
+### 游戏内说明（原文）
+
+> 領域之物
+>
+> 能力:零餘者
+> 能力:崩潰之力
+> 能力:迷之祝福
+> 生命值:5000
+> 品质:传说
+>
+> 具备超强的武器,但这个武器而不是由SAO系统所制造,而是由系统入侵者所非法制造
+
+**提示工具（Tip）**：
+
+```text
+Z.领域者
+```
+
+## 获取方式
+
+**待考证**——尚未在本图 `war3map.j` 中找到该物品的获取证据。
+
+> `war3map.j` 中的获取入口只有 `AddItemToStock`（进货）、`CreateItem`（生成）、`UnitAddItemByIdSwapped`（掉给单位）、`ChooseRandomItemExBJ`（随机掉落）几类；没有命中的物品不等于无法获得，可能由商店菜单、NPC 对话或外部触发器间接给出。
+
+## 合成与材料用途
+
+_（没有其它物品的说明提到本物品）_
+
+??? note "全部对象字段（原始值）"
+
+    - `iico` Art = `ReplaceableTextures\CommandButtons\BTNjj013.blp`　*(界面图标)*
+    - `ides` Description = `|cffdaa520領域之物|r|n|n|cffffd700能力:零餘者|n能力:崩潰之力|n能力:迷之祝福|n生命值:5000|n品质:传说|r|n|n|cffff0000具备超强的武器,但这个武器而不是由SAO系统所制造,而是由系统入侵者所非法制造|r`　*(描述)*
+    - `ilev` Level = `154`　*(等级)*
+    - `unam` Name = `|cffffd700Z.领域者|r`　*(名字)*
+    - `utip` Tip = `|cffffd700Z.领域者|r`　*(提示工具 - 基础)*
+    - `utub` Ubertip = `|cffdaa520領域之物|r|n|n|cffffd700能力:零餘者|n能力:崩潰之力|n能力:迷之祝福|n生命值:5000|n品质:传说|r|n|n|cffff0000具备超强的武器,但这个武器而不是由SAO系统所制造,而是由系统入侵者所非法制造|r`　*(提示工具 - 扩展的)*
+    - `iabi` abilList = `A0SN,A0ST,A0XA,A0JY`　*(技能)*
+    - `icla` class = `Permanent`　*(分类)*
+    - `icid` cooldownID = `A0ST`　*(魔法施放间隔时间组)*
+    - `ilvo` oldLevel = `154`　*(等级(无类别的))*
+    - `iusa` usable = `1`　*(主动使用)*
+
+
+---
+
+<div class="wiki-source-note" markdown="1">
+
+**数据来源**：`刀剑物语 happy丶FISH v1.0 正式版`（母图 SHA256 `62A1122ACEDA220B746DF730B1625C2AF8E3C149048E26FDC2AF5C37BDA6BD6D`）
+
+本页数值由该图的 `war3map.w3u` / `war3map.w3a` / `war3map.w3t` 与 `war3map.j` 解析生成；**未经过实机验证**——「数据来自哪个成员」不等于「游戏里就是这个表现」。
+
+物品字段：`war3map.w3t`（SHA256 `98164862404eee98a28c5b5ba01f88fceb7fca896b3b06457f1853d75bac896d`）；物品技能：`war3map.w3a`（SHA256 `80675c0549e25604b5b97bb05cd7f6594f92dfec95639cbdf6a6480ba2ffa9d3`）；物品技能字段中文名来自客户端 `War3Patch.mpq` 的 `Units\AbilityMetaData.slk` + `UI\WorldEditStrings.txt`。
+
+**说明文字（Tip/Ubertip）是策划手写的，可能与实际触发器数值不一致**；本页数值列取自对象数据的真实字段。
+
+</div>

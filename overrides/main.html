@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{#-
+  站点级模板覆盖。当前只做一件事：把母图身份写进 <head>，
+  方便以后核对「这一页的数据是从哪份地图生成的」。
+  参考仓库在这里还挂了 Hero Showtime 与访问统计，本仓库第一版不需要。
+-#}
+
+{% block extrahead %}
+  {{ super() }}
+  {% if config.extra.map_sha256 %}
+    <meta name="w3x-sha256" content="{{ config.extra.map_sha256 }}">
+  {% endif %}
+  {% if page.meta and page.meta.hero_id %}
+    <meta name="hero-id" content="{{ page.meta.hero_id }}">
+  {% endif %}
+{% endblock %}

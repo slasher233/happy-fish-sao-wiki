@@ -1,0 +1,38 @@
+{#-
+  页脚「来源信息」：地图版本（front matter > mkdocs.yml extra）＋ 最后更新 ＋ 贡献者。
+  复刻自 crt106/sao-wiki 的 overrides/partials/source-file.html 的注入逻辑：
+  单页 front matter 的 map_version 优先于全局 extra.map_version。
+-#}
+{% set mv = page.meta.map_version if page.meta and page.meta.map_version else config.extra.map_version %}
+{% set updated = page.meta.git_revision_date_localized or page.meta.revision_date %}
+{% set authors = page.meta.git_authors if page.meta and page.meta.git_authors else [] %}
+{% if mv or updated or authors %}
+  <aside class="md-source-file">
+    {% if mv %}
+      <span class="md-source-file__fact">
+        <span class="md-icon" title="地图版本">
+          {% include ".icons/material/map-marker-outline.svg" %}
+        </span>
+        {{ mv }}
+      </span>
+    {% endif %}
+    {% if updated %}
+      <span class="md-source-file__fact">
+        <span class="md-icon" title="最后更新">
+          {% include ".icons/material/clock-edit-outline.svg" %}
+        </span>
+        {{ updated }}
+      </span>
+    {% endif %}
+    {% if authors %}
+      <span class="md-source-file__fact">
+        <span class="md-icon" title="贡献者">
+          {% include ".icons/material/account-group.svg" %}
+        </span>
+        {% for author in authors %}
+          <span class="md-source-file__author">{{ author }}</span>{% if not loop.last %}, {% endif %}
+        {% endfor %}
+      </span>
+    {% endif %}
+  </aside>
+{% endif %}

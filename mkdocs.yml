@@ -1,0 +1,121 @@
+﻿site_name: happy丶FISH SAO Wiki
+site_description: 刀剑物语 happy丶FISH v1.0 正式版 —— 英雄图鉴、物品图鉴与数据索引
+site_url: https://slasher233.github.io/happy-fish-sao-wiki/
+repo_url: https://github.com/slasher233/happy-fish-sao-wiki
+repo_name: happy-fish-sao-wiki
+edit_uri: edit/master/docs/
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  language: zh
+  custom_dir: overrides
+
+  palette:
+    # 跟随系统：自动模式
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: 切换到亮色模式
+    # 亮色
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: 切换到暗色模式
+    # 暗色
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: 跟随系统
+
+  font: false  # 禁用 Google Fonts，改用 stylesheets/extra.css 里的本地字体栈
+
+  features:
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.indexes
+    - navigation.top
+    - navigation.path
+    - navigation.prune
+    - search.highlight
+    - search.suggest
+    - search.share
+    - content.tooltips
+    - content.code.copy
+    - toc.follow
+
+extra_css:
+  - stylesheets/extra.css
+
+plugins:
+  - search:
+      lang: zh
+      separator: '[\s\u200b\-,，。；：、（）()\[\]「」『』《》<>!！?？/\\|]+|(?<=[\u4e00-\u9fff])(?=[A-Za-z0-9])|(?<=[A-Za-z0-9])(?=[\u4e00-\u9fff])'
+  - awesome-pages
+  - glightbox
+  - git-revision-date-localized:
+      enabled: !ENV [MKDOCS_ENABLE_GIT_META, true]
+      enable_creation_date: false
+      type: date
+      locale: zh
+      fallback_to_build_date: true
+  - git-authors:
+      enabled: !ENV [MKDOCS_ENABLE_GIT_META, true]
+      show_email_address: false
+      enabled_on_serve: false
+      strict: false
+  - blog:
+      blog_dir: changelogs
+      authors_file: changelogs/.authors.yml
+      blog_toc: true
+      post_date_format: yyyy-MM-dd
+      archive_name: 归档
+      categories_name: 分类
+      authors: true
+
+markdown_extensions:
+  - tables
+  - admonition
+  - footnotes
+  - def_list
+  - abbr
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.critic
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.keys
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - toc:
+      permalink: true
+      permalink_title: 复制链接
+      title: 本页目录
+
+extra:
+  map_version: "v1.0 正式版"
+  map_sha256: "62A1122ACEDA220B746DF730B1625C2AF8E3C149048E26FDC2AF5C37BDA6BD6D"
+
+hooks:
+  - hooks/jieba_search.py

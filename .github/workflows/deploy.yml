@@ -1,0 +1,44 @@
+name: deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 两个 Git 元数据插件需要完整历史
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - uses: actions/cache@v4
+        with:
+          key: mkdocs-material-${{ github.ref }}
+          path: .cache
+          restore-keys: |
+            mkdocs-material-
+
+      - name: 安装依赖
+        run: |
+          pip install mkdocs-material \
+                      mkdocs-awesome-pages-plugin \
+                      mkdocs-glightbox \
+                      mkdocs-git-revision-date-localized-plugin \
+                      mkdocs-git-authors-plugin \
+                      jieba
+
+      - name: 构建并发布到 GitHub Pages
+        run: mkdocs gh-deploy --force
