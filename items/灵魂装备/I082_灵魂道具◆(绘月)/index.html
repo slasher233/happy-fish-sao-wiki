@@ -3808,12 +3808,42 @@
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>灵魂道具◆(绘月)
 </span></code></pre></div>
 <h2 id="_4">获取​方式<a class="headerlink" href="#_4" title="复制链接">¶</a></h2>
-<p><strong>待​考证</strong>——尚未在本图 <code>war3map.j</code> 中找到该物品的获取证据。</p>
-<blockquote>
-<p><code>war3map.j</code> 中的获取入口只有 <code>AddItemToStock</code>（进货）、<code>CreateItem</code>（生成）、<code>UnitAddItemByIdSwapped</code>（掉给单位）、<code>ChooseRandomItemExBJ</code>（随机掉落）几类；没有命中的物品不等于无法获得，可能由商店菜单、NPC 对话或外部触发器间接给出。</p>
-</blockquote>
+<p><strong>击杀​成长​（​本​物品​是</strong>升级​后<strong>的​形态​）</strong></p>
+<table>
+<thead>
+<tr>
+<th>另​一​形态</th>
+<th>击杀​阈值</th>
+<th>j​行号</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>I081</code> 灵魂武器◆◆◆(绘月)</td>
+<td><code>Z7</code> ≥ 5</td>
+<td><code>30676</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>触发​时​赠予</strong></p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>给​谁</th>
+<th>j​行号</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>unclassified_give</td>
+<td>GetKillingUnit(</td>
+<td><code>30678</code></td>
+</tr>
+</tbody>
+</table>
 <h2 id="_5">合成​与​材料​用途<a class="headerlink" href="#_5" title="复制链接">¶</a></h2>
-<p><em>（​没有​其它​物品​的​说明​提到​本​物品​）</em></p>
+<p><em>（​没有​找到​本​物品​参与​合成​或​作为​材料​的​证据​）</em></p>
 <details class="note">
 <summary>全部​对象​字​段​（​原始​值​）</summary>
 <ul>

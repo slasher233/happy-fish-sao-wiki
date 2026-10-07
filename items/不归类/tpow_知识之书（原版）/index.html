@@ -8837,12 +8837,375 @@
 <p>增加​英雄​1​点​的​体力​，​敏捷​度​和​筋力​。</p>
 </blockquote>
 <h2 id="_4">获取​方式<a class="headerlink" href="#_4" title="复制链接">¶</a></h2>
-<p><strong>待​考证</strong>——尚未在本图 <code>war3map.j</code> 中找到该物品的获取证据。</p>
-<blockquote>
-<p><code>war3map.j</code> 中的获取入口只有 <code>AddItemToStock</code>（进货）、<code>CreateItem</code>（生成）、<code>UnitAddItemByIdSwapped</code>（掉给单位）、<code>ChooseRandomItemExBJ</code>（随机掉落）几类；没有命中的物品不等于无法获得，可能由商店菜单、NPC 对话或外部触发器间接给出。</p>
-</blockquote>
+<p><strong>掉落​（​掉落​表​/​权重​表​）</strong></p>
+<table>
+<thead>
+<tr>
+<th>来源​单位</th>
+<th>方式</th>
+<th>概率</th>
+<th>j​行号</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nrog</code> LV5:(the spider lord)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>33%</td>
+<td><code>17979</code></td>
+</tr>
+<tr>
+<td><code>nbdm</code> Lv:8(Sly piranha)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18023</code></td>
+</tr>
+<tr>
+<td><code>nsc3</code> ★Lv12(the forest owner)★</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18188</code></td>
+</tr>
+<tr>
+<td><code>nsc3</code> ★Lv12(the forest owner)★</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18196</code></td>
+</tr>
+<tr>
+<td><code>nsc3</code> ★Lv12(the forest owner)★</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18204</code></td>
+</tr>
+<tr>
+<td><code>nscb</code> Lv:11(The Cemetery Guardian)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18312</code></td>
+</tr>
+<tr>
+<td><code>nscb</code> Lv:11(The Cemetery Guardian)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18344</code></td>
+</tr>
+<tr>
+<td><code>nscb</code> Lv:11(The Cemetery Guardian)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18352</code></td>
+</tr>
+<tr>
+<td><code>nscb</code> Lv:11(The Cemetery Guardian)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18360</code></td>
+</tr>
+<tr>
+<td><code>nscb</code> Lv:11(The Cemetery Guardian)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18368</code></td>
+</tr>
+<tr>
+<td><code>ndrh</code> Lv13:(forest guardian)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18512</code></td>
+</tr>
+<tr>
+<td><code>ndrf</code> Lv:11(cruel animals)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18568</code></td>
+</tr>
+<tr>
+<td><code>ndrf</code> Lv:11(cruel animals)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18576</code></td>
+</tr>
+<tr>
+<td><code>ndrf</code> Lv:11(cruel animals)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18584</code></td>
+</tr>
+<tr>
+<td><code>ndrf</code> Lv:11(cruel animals)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18592</code></td>
+</tr>
+<tr>
+<td><code>ndrf</code> Lv:11(cruel animals)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18600</code></td>
+</tr>
+<tr>
+<td><code>ntkf</code> Lv50:(The evil eye)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18688</code></td>
+</tr>
+<tr>
+<td><code>ntkf</code> Lv50:(The evil eye)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18696</code></td>
+</tr>
+<tr>
+<td><code>ntkf</code> Lv50:(The evil eye)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18704</code></td>
+</tr>
+<tr>
+<td><code>ntkf</code> Lv50:(The evil eye)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18712</code></td>
+</tr>
+<tr>
+<td><code>ntkf</code> Lv50:(The evil eye)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18720</code></td>
+</tr>
+<tr>
+<td><code>nenc</code> Lv15:★(The people who visit soul)★</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18764</code></td>
+</tr>
+<tr>
+<td><code>nenc</code> Lv15:★(The people who visit soul)★</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18772</code></td>
+</tr>
+<tr>
+<td><code>nenc</code> Lv15:★(The people who visit soul)★</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18780</code></td>
+</tr>
+<tr>
+<td><code>nenc</code> Lv15:★(The people who visit soul)★</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18788</code></td>
+</tr>
+<tr>
+<td><code>nfod</code> Lv22:(Bone emperor)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>18904</code></td>
+</tr>
+<tr>
+<td><code>nwlg</code> Lv:40伊偌-亚兰·德兹</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>19004</code></td>
+</tr>
+<tr>
+<td><code>nwlg</code> Lv:40伊偌-亚兰·德兹</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>19012</code></td>
+</tr>
+<tr>
+<td><code>nwlg</code> Lv:40伊偌-亚兰·德兹</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>19020</code></td>
+</tr>
+<tr>
+<td><code>nwlg</code> Lv:40伊偌-亚兰·德兹</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>19028</code></td>
+</tr>
+<tr>
+<td><code>nwlg</code> Lv:40伊偌-亚兰·德兹</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>19036</code></td>
+</tr>
+<tr>
+<td><code>nwlg</code> Lv:40伊偌-亚兰·德兹</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>19044</code></td>
+</tr>
+<tr>
+<td><code>nwlg</code> Lv:40伊偌-亚兰·德兹</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>19052</code></td>
+</tr>
+<tr>
+<td><code>nwlg</code> Lv:40伊偌-亚兰·德兹</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>19060</code></td>
+</tr>
+<tr>
+<td><code>nwlg</code> Lv:40伊偌-亚兰·德兹</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>19068</code></td>
+</tr>
+<tr>
+<td><code>nfrl</code> Lv:32(树人中的王者)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>19354</code></td>
+</tr>
+<tr>
+<td><code>nfrl</code> Lv:32(树人中的王者)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>19362</code></td>
+</tr>
+<tr>
+<td><code>nfrl</code> Lv:32(树人中的王者)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>19370</code></td>
+</tr>
+<tr>
+<td><code>nfrl</code> Lv:32(树人中的王者)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>19378</code></td>
+</tr>
+<tr>
+<td><code>nfrl</code> Lv:32(树人中的王者)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>19386</code></td>
+</tr>
+<tr>
+<td><code>ntka</code> Lv65:(Pearl 's Monster)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>34%</td>
+<td><code>19461</code></td>
+</tr>
+<tr>
+<td><code>ntka</code> Lv65:(Pearl 's Monster)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>33%</td>
+<td><code>19462</code></td>
+</tr>
+<tr>
+<td><code>ntka</code> Lv65:(Pearl 's Monster)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>19470</code></td>
+</tr>
+<tr>
+<td><code>ntka</code> Lv65:(Pearl 's Monster)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>19478</code></td>
+</tr>
+<tr>
+<td><code>ndrv</code> 宝物箱子</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>33%</td>
+<td><code>19810</code></td>
+</tr>
+<tr>
+<td><code>Hlgr</code> 魂魄妖梦</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>20379</code></td>
+</tr>
+<tr>
+<td><code>Hlgr</code> 魂魄妖梦</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>20387</code></td>
+</tr>
+<tr>
+<td><code>Hlgr</code> 魂魄妖梦</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>20395</code></td>
+</tr>
+<tr>
+<td><code>Hlgr</code> 魂魄妖梦</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>20403</code></td>
+</tr>
+<tr>
+<td><code>Hlgr</code> 魂魄妖梦</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>20411</code></td>
+</tr>
+<tr>
+<td><code>Hlgr</code> 魂魄妖梦</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>20419</code></td>
+</tr>
+<tr>
+<td><code>Hlgr</code> 魂魄妖梦</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>20427</code></td>
+</tr>
+<tr>
+<td><code>Hlgr</code> 魂魄妖梦</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>20435</code></td>
+</tr>
+<tr>
+<td><code>Hlgr</code> 魂魄妖梦</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>20443</code></td>
+</tr>
+<tr>
+<td><code>nsra</code> Lv69:The monster caused in disaster</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>20507</code></td>
+</tr>
+<tr>
+<td><code>nsra</code> Lv69:The monster caused in disaster</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>34%</td>
+<td><code>20515</code></td>
+</tr>
+<tr>
+<td><code>nfrs</code> Lv65:(asura)</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>21048</code></td>
+</tr>
+<tr>
+<td><code>nrvi</code> 公会:微笑棺材 会长:幽冥</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>24460</code></td>
+</tr>
+<tr>
+<td><code>nrvi</code> 公会:微笑棺材 会长:幽冥</td>
+<td>RandomDist​(​Blizzard​.​j​权重​表​)</td>
+<td>100%</td>
+<td><code>24488</code></td>
+</tr>
+</tbody>
+</table>
 <h2 id="_5">合成​与​材料​用途<a class="headerlink" href="#_5" title="复制链接">¶</a></h2>
-<p><em>（​没有​其它​物品​的​说明​提到​本​物品​）</em></p>
+<p><em>（​没有​找到​本​物品​参与​合成​或​作为​材料​的​证据​）</em></p>
 <details class="note">
 <summary>全部​对象​字​段​（​原始​值​）</summary>
 <ul>

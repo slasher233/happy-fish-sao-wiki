@@ -1528,7 +1528,7 @@
   <a href="#_8" class="md-nav__link">
     <span class="md-ellipsis">
       
-        专属装备（自动推断）
+        专属装备（触发器证据）
       
     </span>
   </a>
@@ -2779,7 +2779,7 @@
   <a href="#_8" class="md-nav__link">
     <span class="md-ellipsis">
       
-        专属装备（自动推断）
+        专属装备（触发器证据）
       
     </span>
   </a>
@@ -3242,8 +3242,29 @@
 </tbody>
 </table>
 </details>
-<h2 id="_8">专属​装备​（​自动​推断​）<a class="headerlink" href="#_8" title="复制链接">¶</a></h2>
-<p><em>（​没有​任何​物品​说明​提到​本​英雄​—​—​可能​确实​没有​专属​装备​，​也​可能​专属​写​死​在​触发器​里​。​）</em></p>
+<h2 id="_8">专属​装备​（​触发器​证据​）<a class="headerlink" href="#_8" title="复制链接">¶</a></h2>
+<p>本图<strong>不​存在</strong>哈希表形式的「英雄→物品」配对；「专属」由唯一白名单函数 <code>EXEQ_Allowed(unit, integer)</code>（<code>war3map.j:87157-87312</code>）判定，拾取时由 <code>EXEQ_InventoryEvent</code>（<code>war3map.j:88094-88112</code>）强制移除不合规物品。下表直接来自该函数的返回值：</p>
+<table>
+<thead>
+<tr>
+<th>物品</th>
+<th>名称</th>
+<th>判定​方式</th>
+<th>j​行号</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../items/%E8%A3%85%E7%94%B2/J0L9_%E7%B2%BE%E8%87%B4%E6%B7%B7%E5%8A%A8%E7%9B%94%E7%94%B2/"><code>J0L9</code></a></td>
+<td>精致​混动​盔甲</td>
+<td>英雄​类型</td>
+<td>L87219</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ 按玩家昵称判定专属的物品（<code>J0H6</code>/<code>J0L4</code>/<code>K001</code>/<code>K002</code>/<code>K004</code>）无法从脚本归属到某个英雄类型，本页不会把它们算作本英雄的专属。</p>
+</blockquote>
 <details class="quote">
 <summary>取证​记录​（​子​智能​体​只读​勘查​）</summary>
 <p>P2SV​_​FillAbilities​L98431​对应​块​+​PH​_​BindUnit​UnitAddAbility</p>

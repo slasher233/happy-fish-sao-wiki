@@ -2150,7 +2150,7 @@
   <a href="#_6" class="md-nav__link">
     <span class="md-ellipsis">
       
-        专属装备（自动推断）
+        专属装备（触发器证据）
       
     </span>
   </a>
@@ -2735,7 +2735,7 @@
   <a href="#_6" class="md-nav__link">
     <span class="md-ellipsis">
       
-        专属装备（自动推断）
+        专属装备（触发器证据）
       
     </span>
   </a>
@@ -3113,8 +3113,35 @@
 </tbody>
 </table>
 </details>
-<h2 id="_6">专属​装备​（​自动​推断​）<a class="headerlink" href="#_6" title="复制链接">¶</a></h2>
-<p><em>（​没有​任何​物品​说明​提到​本​英雄​—​—​可能​确实​没有​专属​装备​，​也​可能​专属​写​死​在​触发器​里​。​）</em></p>
+<h2 id="_6">专属​装备​（​触发器​证据​）<a class="headerlink" href="#_6" title="复制链接">¶</a></h2>
+<p>本图<strong>不​存在</strong>哈希表形式的「英雄→物品」配对；「专属」由唯一白名单函数 <code>EXEQ_Allowed(unit, integer)</code>（<code>war3map.j:87157-87312</code>）判定，拾取时由 <code>EXEQ_InventoryEvent</code>（<code>war3map.j:88094-88112</code>）强制移除不合规物品。下表直接来自该函数的返回值：</p>
+<table>
+<thead>
+<tr>
+<th>物品</th>
+<th>名称</th>
+<th>判定​方式</th>
+<th>j​行号</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../items/%E8%A3%85%E7%94%B2/J0FA_%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85%20Cffff00ff%E5%86%AC%E5%BC%A5%E7%9A%84%E7%99%BD%E8%A3%99/"><code>J0FA</code></a></td>
+<td>★★★★★</td>
+<td>Cffff00ff​冬弥​的​白裙</td>
+<td>英雄​类型</td>
+</tr>
+<tr>
+<td><a href="../../items/%E4%B8%8D%E5%BD%92%E7%B1%BB/K008_%E8%A1%8C%E4%BA%8E%E6%B5%81%E9%80%9D%E7%9A%84%E5%B2%B8/"><code>K008</code></a></td>
+<td>行于​流逝​的​岸</td>
+<td>英雄​类型</td>
+<td>L87255</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ 按玩家昵称判定专属的物品（<code>J0H6</code>/<code>J0L4</code>/<code>K001</code>/<code>K002</code>/<code>K004</code>）无法从脚本归属到某个英雄类型，本页不会把它们算作本英雄的专属。</p>
+</blockquote>
 <details class="quote">
 <summary>取证​记录​（​子​智能​体​只读​勘查​）</summary>
 <p>家族​39​变体​，​无​独立​绑定​，​沿用​H01N​（​未​证实​）</p>

@@ -3430,12 +3430,44 @@
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>水蛇鳞片护手
 </span></code></pre></div>
 <h2 id="_4">获取​方式<a class="headerlink" href="#_4" title="复制链接">¶</a></h2>
-<p><strong>待​考证</strong>——尚未在本图 <code>war3map.j</code> 中找到该物品的获取证据。</p>
-<blockquote>
-<p><code>war3map.j</code> 中的获取入口只有 <code>AddItemToStock</code>（进货）、<code>CreateItem</code>（生成）、<code>UnitAddItemByIdSwapped</code>（掉给单位）、<code>ChooseRandomItemExBJ</code>（随机掉落）几类；没有命中的物品不等于无法获得，可能由商店菜单、NPC 对话或外部触发器间接给出。</p>
-</blockquote>
+<p><strong>打造​/​合成</strong></p>
+<table>
+<thead>
+<tr>
+<th>触发​物</th>
+<th>消耗​材料</th>
+<th>j​行号</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>皮革制造 <code>I00I</code></td>
+<td><code>I02O</code> 水蛇的牙齿</td>
+<td><code>28756</code></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>触发​时​赠予</strong></p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>给​谁</th>
+<th>j​行号</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>unclassified_give</td>
+<td>GetTriggerUnit(</td>
+<td><code>28758</code></td>
+</tr>
+</tbody>
+</table>
 <h2 id="_5">合成​与​材料​用途<a class="headerlink" href="#_5" title="复制链接">¶</a></h2>
-<p>这些​物品​的​游戏​内​说明​里​提到​了​本​物品​（<strong>文本​匹配​，​不​等于​真实​的​合成​配方</strong>）：</p>
+<p><strong>说明​文本​中​提到​本​物品​的​物品</strong>（​文本​匹配​，​不​等于​真实​配方​）​：</p>
 <table>
 <thead>
 <tr>

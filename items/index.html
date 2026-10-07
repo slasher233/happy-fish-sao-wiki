@@ -2675,6 +2675,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      本页目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        获取途径证据覆盖
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -7732,11 +7751,21 @@
 <li><strong>NPC​功能​物品</strong>：​34​个</li>
 <li><strong>不​归类</strong>：​209​个</li>
 </ul>
+<h2 id="_2">获取​途径​证据​覆盖<a class="headerlink" href="#_2" title="复制链接">¶</a></h2>
+<ul>
+<li>物品​对象​总数​：<strong>551</strong></li>
+<li>拿到​至少​一条​获取​途径​证据​：<strong>499</strong></li>
+<li>只有​上下文​证据​（​作为​材料​/​触发​物​被​消耗​）​：<strong>13</strong></li>
+<li>完全​没有​获取​证据​：<strong>39</strong></li>
+</ul>
+<p>每条获取方式都带 <code>war3map.j</code> 行号；证据来自静态分析，<strong>不​代表​游戏​内​一定​如此</strong>（​例如​合成​还​需要​NPC​菜单​配合​）​。</p>
+<p>识别的获取途径类型：<code>vendor</code>、<code>vendor_removed</code>、<code>craft</code>、<code>gacha</code>、<code>drop</code>、<code>gift</code>、<code>spawn</code>、<code>tower_reward</code>、<code>boss_pool</code>、<code>grow</code>、<code>grow_into</code>、<code>vendor_object_data</code></p>
 <hr>
 <div class="wiki-source-note">
 <p><strong>数据​来源</strong>：<code>刀剑物语 happy丶FISH v1.0 正式版</code>（母图 SHA256 <code>62A1122ACEDA220B746DF730B1625C2AF8E3C149048E26FDC2AF5C37BDA6BD6D</code>）</p>
 <p>本页数值由该图的 <code>war3map.w3u</code> / <code>war3map.w3a</code> / <code>war3map.w3t</code> 与 <code>war3map.j</code> 解析生成；<strong>未​经过​实机​验证</strong>—​—​「​数据​来自​哪个​成员​」​不​等于​「​游戏​里​就是​这个​表现​」​。</p>
 <p>物品对象来自 <code>war3map.w3t</code>（SHA256 <code>98164862404eee98a28c5b5ba01f88fceb7fca896b3b06457f1853d75bac896d</code>），物品技能数值来自 <code>war3map.w3a</code>（SHA256 <code>80675c0549e25604b5b97bb05cd7f6594f92dfec95639cbdf6a6480ba2ffa9d3</code>）。</p>
+<p>获取方式来自 <code>war3map.j</code>（SHA256 <code>13bafcf0c1e91848fbf8ee72cbc48017e711cae7b6198e69cb01136c7064a4a2</code>）的静态数据流分析，断言都带行号。</p>
 </div>
 
 
