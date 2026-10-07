@@ -280,8 +280,11 @@ def build_info() -> None:
             fb = load_json(fb_path)
             floor_lines += ["## 触发器取证：楼层、传送与 BOSS", "",
                             "以下数据由只读静态分析从 `war3map.j` 提取，**每条都带行号**；"
-                            "行号见各项的 `evidence` 字段。", ""]
-            floor_lines += md_from_json(fb, depth=3, max_list=60)
+                            "行号见各项的 `evidence` 字段。"
+                            "完整报告（含方法、覆盖率、不确定项逐条说明）："
+                            "`note_log/recon/floors_bosses_报告.md`；机器可读数据："
+                            "`note_log/recon/floors_bosses.json`（schema `floors_bosses/v1`）。", ""]
+            floor_lines += md_from_json(fb, depth=3, max_list=200)
         except Exception as e:  # noqa: BLE001
             floor_lines.append(f"!!! warning \"取证数据解析失败\"\n    {esc(str(e))}\n")
     else:
