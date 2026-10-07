@@ -331,10 +331,24 @@ def main() -> None:
     n_ex = len((excl.get("heroes") or {}))
 
     os.makedirs(HERO_OUT, exist_ok=True)
+    # 该目录完全由本脚本生成：先清掉旧 md，避免改名后留下陈旧页面（连同旧的 index.md 一起重建）
+    import glob as _glob
+    for stale in _glob.glob(os.path.join(HERO_OUT, "*.md")):
+        try:
+            os.remove(stale)
+        except OSError:
+            pass
+    # 文件名去重：本图存在同名英雄（含未改色的重复名，如 H01J/H01K 同为「公会:命运之夜(four*king)」，
+    # 以及 莉莉丝忒拉 / 雷电·忘川守·芽衣 各有一个不可达条目）。重名的加 _<code> 后缀，避免互相覆盖。
+    base_counts = {}
+    for h in heroes:
+        base = safe_name(clean_inline(h.get("name")) or h["code"])
+        base_counts[base] = base_counts.get(base, 0) + 1
     for h in heroes:
         hcode = h["code"]
         hname = clean_inline(h.get("name")) or hcode
-        fn = safe_name(hname) + ".md"
+        base = safe_name(hname)
+        fn = f"{base}_{hcode}.md" if base_counts.get(base, 0) > 1 else base + ".md"
         h["file"] = fn
         write_page(os.path.join(HERO_OUT, fn),
                    render_hero(h, units.get(hcode), abils, fdict, item_pages, item_ub, excl))

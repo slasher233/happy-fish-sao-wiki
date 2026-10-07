@@ -27,8 +27,8 @@
 | [`H00P`](缇娜.md) | 缇娜 | 缇娜 | 体力 | Q:Z0TM　W:Z0TO　E:Z0TL　R:Z0TN　F:—　D:Z0TK |
 | [`H00Q`](喵可莉.md) | 喵可莉 | 喵可莉 | 敏捷 | Q:Z0TP　W:Z0TQ　E:Z0TR　R:Z0TS　F:—　D:Z0TT |
 | [`H00S`](莉伊.md) | 莉伊 | 莉伊 | 体力 | Q:Z0U2　W:Z0TY　E:Z0U1　R:Z0U0　F:—　D:Z0TZ |
-| [`H00T`](莉莉丝忒拉.md) | 莉莉丝忒拉 | 克萝伊·莉莉丝忒拉 | 敏捷 | Q:Z10I　W:Z10J　E:Z10K　R:Z10L　F:—　D:— |
-| [`H00U`](莉莉丝忒拉.md) | 莉莉丝忒拉 | 克萝伊·莉莉丝忒拉(真) | 敏捷 | Q:Z10I　W:Z10J　E:Z10K　R:Z10L　F:—　D:— |
+| [`H00T`](莉莉丝忒拉_H00T.md) | 莉莉丝忒拉 | 克萝伊·莉莉丝忒拉 | 敏捷 | Q:Z10I　W:Z10J　E:Z10K　R:Z10L　F:—　D:— |
+| [`H00U`](莉莉丝忒拉_H00U.md) | 莉莉丝忒拉 | 克萝伊·莉莉丝忒拉(真) | 敏捷 | Q:Z10I　W:Z10J　E:Z10K　R:Z10L　F:—　D:— |
 | [`H00V`](特莉波卡.md) | 特莉波卡 | 特莉波卡 | 敏捷 | Q:Z12F　W:Z12G　E:Z12H　R:Z13I　F:—　D:Z12E |
 | [`H00W`](孤独轮回观测者.md) | 孤独轮回观测者 | 祸灵梦 | 体力 | Q:Z13X　W:Z13Y　E:Z143　R:Z141　F:Z142　D:— |
 | [`H00X`](梦梦.md) | 梦梦 | 贝莉雅·戴比路克 | 体力 | Q:Z16M　W:Z16N　E:Z16O　R:—　F:—　D:Z16H |
@@ -48,10 +48,10 @@
 | [`H01E`](清晨.md) | 清晨 | 艾基尔 | 筋力 | Q:Z0B7　W:Z0B6　E:—　R:Z0FT　F:Z0IN　D:Z1D9 |
 | [`H01F`](就算不笑也很可爱.md) | 就算不笑也很可爱 | 筒隐月子 | 敏捷 | Q:Z0BV　W:Z0BW　E:Z0BU　R:Z0BX　F:—　D:Z0BT |
 | [`H01G`](Six.md) | Six | 黄泉 | 筋力 | Q:Z0IX　W:Z0IT　E:Z0IU　R:Z10Z　F:—　D:Z0IS |
-| [`H01J`](公会 命运之夜(four king).md) | 公会:命运之夜(four*king) | 玩家:CD | 敏捷 | Q:Z095　W:Z09S　E:—　R:—　F:—　D:— |
-| [`H01K`](公会 命运之夜(four king).md) | 公会:命运之夜(four*king) | CD | 体力 | Q:Z095　W:Z096　E:Z097　R:—　F:—　D:Z094 |
-| [`H01N`](雷电·忘川守·芽衣.md) | 雷电·忘川守·芽衣 | 黄泉 | 敏捷 | Q:Z17M　W:Z17N　E:Z17O　R:Z17P　F:—　D:— |
-| [`H01O`](雷电·忘川守·芽衣.md) | 雷电·忘川守·芽衣 | 黄泉 | 敏捷 | Q:Z17M　W:Z17N　E:Z17O　R:Z17P　F:—　D:— |
+| [`H01J`](公会 命运之夜(four king)_H01J.md) | 公会:命运之夜(four*king) | 玩家:CD | 敏捷 | Q:Z095　W:Z09S　E:—　R:—　F:—　D:— |
+| [`H01K`](公会 命运之夜(four king)_H01K.md) | 公会:命运之夜(four*king) | CD | 体力 | Q:Z095　W:Z096　E:Z097　R:—　F:—　D:Z094 |
+| [`H01N`](雷电·忘川守·芽衣_H01N.md) | 雷电·忘川守·芽衣 | 黄泉 | 敏捷 | Q:Z17M　W:Z17N　E:Z17O　R:Z17P　F:—　D:— |
+| [`H01O`](雷电·忘川守·芽衣_H01O.md) | 雷电·忘川守·芽衣 | 黄泉 | 敏捷 | Q:Z17M　W:Z17N　E:Z17O　R:Z17P　F:—　D:— |
 | [`H01P`](穹.md) | 穹 | 冬弥 | 筋力 | Q:Z0P6　W:Z0P7　E:Z0P5　R:Z0D8　F:Z0PA　D:Z0D5 |
 | [`H01Q`](诗乃.md) | 诗乃 | 朝田诗乃 | 筋力 | Q:Z0PL　W:—　E:Z0PM　R:—　F:—　D:— |
 | [`H01R`](AI.md) | AI | 结衣 | 体力 | Q:Z0YA　W:Z0JA　E:Z0JB　R:Z0Y1　F:—　D:Z08V |
