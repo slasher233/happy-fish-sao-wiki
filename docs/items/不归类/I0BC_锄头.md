@@ -32,17 +32,26 @@
 
 ## 获取方式
 
-**待考证**——尚未在本图 `war3map.j` 中找到该物品的获取证据。
+**商店货架（对象数据 `usei`/`umki`）**
 
-> `war3map.j` 中的获取入口只有 `AddItemToStock`（进货）、`CreateItem`（生成）、`UnitAddItemByIdSwapped`（掉给单位）、`ChooseRandomItemExBJ`（随机掉落）几类；没有命中的物品不等于无法获得，可能由商店菜单、NPC 对话或外部触发器间接给出。
+| 商店 | 商店单位 | 字段 | 字段名 | 证据位置 |
+| --- | --- | --- | --- | --- |
+| NPC:俺妹不可能这么可爱 | `nckb` | `usei` | Sellitems 售出的物品 | note_log/index/w3u_verify.txt:13811 |
+
 
 ## 合成与材料用途
 
-这些物品的游戏内说明里提到了本物品（**文本匹配，不等于真实的合成配方**）：
+**被收走后消失（`RemoveItem`）**：
+
+- j 行 49430：`call RemoveItem(GetItemOfTypeFromUnitBJ(GetTriggerUnit(),'I0BC'))`
+- j 行 49434：`call RemoveItem(GetItemOfTypeFromUnitBJ(GetTriggerUnit(),'I0BC'))`
+
+**说明文本中提到本物品的物品**（文本匹配，不等于真实配方）：
 
 | 物品 ID | 物品名称 |
 | --- | --- |
 | `I05S` | 锄头 |
+
 
 ??? note "全部对象字段（原始值）"
 

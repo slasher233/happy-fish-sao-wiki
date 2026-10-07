@@ -30,18 +30,25 @@ _（该物品没有属性类物品技能）_
 
 ## 获取方式
 
-**待考证**——尚未在本图 `war3map.j` 中找到该物品的获取证据。
+**掉落（掉落表 / 权重表）**
 
-> `war3map.j` 中的获取入口只有 `AddItemToStock`（进货）、`CreateItem`（生成）、`UnitAddItemByIdSwapped`（掉给单位）、`ChooseRandomItemExBJ`（随机掉落）几类；没有命中的物品不等于无法获得，可能由商店菜单、NPC 对话或外部触发器间接给出。
+| 来源单位 | 方式 | 概率 | j 行号 |
+| --- | --- | --- | --- |
+| `ndqp` Lv50:(.The killer of Massacre 2) | RandomDist (Blizzard.j 权重表) | 100% | `20676` |
+| `ndqp` Lv50:(.The killer of Massacre 2) | RandomDist (Blizzard.j 权重表) | 100% | `20684` |
+| `ndqp` Lv50:(.The killer of Massacre 2) | RandomDist (Blizzard.j 权重表) | 100% | `20692` |
+| `ndqp` Lv50:(.The killer of Massacre 2) | RandomDist (Blizzard.j 权重表) | 100% | `20700` |
+
 
 ## 合成与材料用途
 
-这些物品的游戏内说明里提到了本物品（**文本匹配，不等于真实的合成配方**）：
+**说明文本中提到本物品的物品**（文本匹配，不等于真实配方）：
 
 | 物品 ID | 物品名称 |
 | --- | --- |
 | `I0HI` | 传送湖底之城 |
 | `I0IT` | 传送湖底之城 |
+
 
 ??? note "全部对象字段（原始值）"
 

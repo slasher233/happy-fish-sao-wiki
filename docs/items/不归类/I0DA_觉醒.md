@@ -33,17 +33,34 @@ _（无 `iabi` 绑定）_
 
 ## 获取方式
 
-**待考证**——尚未在本图 `war3map.j` 中找到该物品的获取证据。
+**商店货架（对象数据 `usei`/`umki`）**
 
-> `war3map.j` 中的获取入口只有 `AddItemToStock`（进货）、`CreateItem`（生成）、`UnitAddItemByIdSwapped`（掉给单位）、`ChooseRandomItemExBJ`（随机掉落）几类；没有命中的物品不等于无法获得，可能由商店菜单、NPC 对话或外部触发器间接给出。
+| 商店 | 商店单位 | 字段 | 字段名 | 证据位置 |
+| --- | --- | --- | --- | --- |
+| 玩家:明日菜 | `h015` | `usei` | Sellitems 售出的物品 | note_log/index/w3u_verify.txt:51445 |
+
+
+**拾取 / 使用触发**
+
+| 方式 | 产出 | j 行号 |
+| --- | --- | --- |
+| recipe_scroll_used | `I0D9` 觉醒.绯梦 | `29508` |
+| recipe_scroll_used | `I0DR` 觉醒.寂静之戒 | `29514` |
+| recipe_scroll_used | `I0F6` 觉醒.暗夜星纱 | `29520` |
+| recipe_scroll_used | `I0F7` 觉醒.白色礼服 | `29526` |
+| recipe_scroll_used | `I0GZ` 觉醒.邪王真眼 | `29532` |
+| recipe_scroll_used | `I0GY` 觉醒.伊偌帝皇剑 | `29538` |
+| recipe_scroll_used | `I0GY` 觉醒.伊偌帝皇剑 | `29544` |
+
 
 ## 合成与材料用途
 
-这些物品的游戏内说明里提到了本物品（**文本匹配，不等于真实的合成配方**）：
+**说明文本中提到本物品的物品**（文本匹配，不等于真实配方）：
 
 | 物品 ID | 物品名称 |
 | --- | --- |
 | `I0IR` | 觉醒 |
+
 
 ??? note "全部对象字段（原始值）"
 

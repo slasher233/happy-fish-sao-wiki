@@ -26,13 +26,26 @@ _（无 `iabi` 绑定）_
 
 ## 获取方式
 
-**待考证**——尚未在本图 `war3map.j` 中找到该物品的获取证据。
+**掉落（掉落表 / 权重表）**
 
-> `war3map.j` 中的获取入口只有 `AddItemToStock`（进货）、`CreateItem`（生成）、`UnitAddItemByIdSwapped`（掉给单位）、`ChooseRandomItemExBJ`（随机掉落）几类；没有命中的物品不等于无法获得，可能由商店菜单、NPC 对话或外部触发器间接给出。
+| 来源单位 | 方式 | 概率 | j 行号 |
+| --- | --- | --- | --- |
+| `nrog` LV5:(the spider lord) | RandomDist (Blizzard.j 权重表) | 33% | `17978` |
+| `nenf` ★Lv:7（Early three head snake)★ | RandomDist (Blizzard.j 权重表) | 25% | `18107` |
+| `ndrh` Lv13:(forest guardian) | RandomDist (Blizzard.j 权重表) | 100% | `18488` |
+| `nmdr` Lv55:(The indifferent giant) | RandomDist (Blizzard.j 权重表) | 100% | `20234` |
+| `nmdr` Lv55:(The indifferent giant) | RandomDist (Blizzard.j 权重表) | 100% | `20242` |
+| `nmdr` Lv55:(The indifferent giant) | RandomDist (Blizzard.j 权重表) | 100% | `20250` |
+| `nmdr` Lv55:(The indifferent giant) | RandomDist (Blizzard.j 权重表) | 100% | `20258` |
+| `nmdr` Lv55:(The indifferent giant) | RandomDist (Blizzard.j 权重表) | 100% | `20266` |
+| `ndqs` Lv50:(The killer of Massacre) | RandomDist (Blizzard.j 权重表) | 100% | `20760` |
+| `ndqs` Lv50:(The killer of Massacre) | RandomDist (Blizzard.j 权重表) | 100% | `20768` |
+| `ndqs` Lv50:(The killer of Massacre) | RandomDist (Blizzard.j 权重表) | 100% | `20776` |
+
 
 ## 合成与材料用途
 
-_（没有其它物品的说明提到本物品）_
+_（没有找到本物品参与合成或作为材料的证据）_
 
 ??? note "全部对象字段（原始值）"
 

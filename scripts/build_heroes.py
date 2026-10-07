@@ -30,6 +30,7 @@ UNITS_JSON = os.path.join(WIKI_DATA, "units.json")
 ABIL_JSON = os.path.join(WIKI_DATA, "abilities.json")
 ITEMS_JSON = os.path.join(WIKI_DATA, "items.json")
 ABIL_FIELDS = os.path.join(INDEX_DIR, "field_dict_abilities.tsv")
+EXCL_JSON = os.path.join(RECON_DIR, "hero_exclusive.json")
 
 SLOTS = ["Q", "W", "E", "R", "F", "D", "T"]
 ATTR_ZH = {"STR": "筋力（力量）", "AGI": "敏捷", "INT": "体力（智力）"}
@@ -164,7 +165,7 @@ def render_skill(slot: str, scode: str, sbind: str, abils: dict, fdict: dict) ->
 
 
 def render_hero(h: dict, unit: dict, abils: dict, fdict: dict, item_pages: dict,
-                item_ub: dict) -> str:
+                item_ub: dict, excl: dict) -> str:
     hcode = h["code"]
     hname = clean_inline(h.get("name")) or hcode
     proper = clean_inline(h.get("proper_name"))
@@ -247,25 +248,56 @@ def render_hero(h: dict, unit: dict, abils: dict, fdict: dict, item_pages: dict,
         lines.append("_（无）_")
         lines.append("")
 
-    # 专属装备（文本匹配，明确标注为推断）
+    # 专属装备：以触发器白名单函数 EXEQ_Allowed 的证据为准
+    ex = (excl.get("heroes") or {}).get(hcode) if excl else None
+    ex_items = (ex or {}).get("items") or []
+    lines += ["## 专属装备（触发器证据）", ""]
+    if ex_items:
+        lines.append("本图**不存在**哈希表形式的「英雄→物品」配对；「专属」由唯一白名单函数 "
+                     "`EXEQ_Allowed(unit, integer)`（`war3map.j:87157-87312`）判定，拾取时由 "
+                     "`EXEQ_InventoryEvent`（`war3map.j:88094-88112`）强制移除不合规物品。"
+                     "下表直接来自该函数的返回值：")
+        lines.append("")
+        irows = []
+        for it in ex_items:
+            ic = it.get("item_code") or ""
+            cat, rel = item_pages.get(ic, ("?", ""))
+            label = f"[`{ic}`](../items/{rel})" if rel else code(ic)
+            gate = it.get("gate")
+            gate_txt = {
+                "unit_type": "英雄类型",
+                "legacy_unit_var": "英雄类型（旧版硬编码触发器）",
+                "player_nickname": "⚠️ 玩家昵称",
+            }.get(gate, gate or "—")
+            ev = it.get("evidence") or {}
+            irows.append([label, blank(clean_inline(it.get("item_name"))), gate_txt,
+                          f"L{ev.get('line')}" if ev.get("line") else "—"])
+        lines.append(table(["物品", "名称", "判定方式", "j 行号"], irows))
+        lines.append("")
+    else:
+        lines.append("_`EXEQ_Allowed` 的白名单里**没有本英雄**的条目，也没有对应的旧版硬编码触发器"
+                     "（本图 60 个英雄条目里只有 34 个英雄类型有专属证据）。_")
+        lines.append("")
+    lines.append("> ⚠️ 按玩家昵称判定专属的物品（`J0H6`/`J0L4`/`K001`/`K002`/`K004`）无法从脚本归属到某个英雄类型，"
+                 "本页不会把它们算作本英雄的专属。")
+    lines.append("")
+
+    # 说明文本里提到英雄名的物品（弱证据，仅作线索）
     hits = []
     for icode, text in item_ub.items():
         if hname and len(hname) >= 2 and hname in text:
             hits.append(icode)
-    lines += ["## 专属装备（自动推断）", ""]
     if hits:
-        lines.append("下面这些物品的游戏内说明里出现了本英雄的名字。**这只是文本匹配，不等于专属绑定**，"
-                     "真实专属关系要看触发器。")
-        lines.append("")
+        lines += ["## 相关物品（说明文本提到本英雄）", "",
+                  "下面这些物品的游戏内说明里出现了本英雄的名字。**这只是文本匹配，不等于专属绑定**，"
+                  "仅供参考；真实专属关系以上一节的触发器证据为准。", ""]
         irows = []
         for ic in sorted(hits):
             cat, rel = item_pages.get(ic, ("?", ""))
             label = f"[`{ic}`](../items/{rel})" if rel else code(ic)
             irows.append([label, cat])
         lines.append(table(["物品", "分类"], irows))
-    else:
-        lines.append("_（没有任何物品说明提到本英雄——可能确实没有专属装备，也可能专属写死在触发器里。）_")
-    lines.append("")
+        lines.append("")
 
     if h.get("evidence"):
         lines += ['??? quote "取证记录（子智能体只读勘查）"', "", f"    {esc(h['evidence'])}", ""]
@@ -288,6 +320,16 @@ def main() -> None:
     for it in load_json(ITEMS_JSON):
         item_ub[obj_code(it)] = clean_text(first(it["fields"], "Ubertip"))
 
+    excl = {}
+    if os.path.exists(EXCL_JSON):
+        try:
+            excl = load_json(EXCL_JSON)
+        except Exception as e:  # noqa: BLE001
+            print(f"  ! hero_exclusive.json 解析失败：{e}")
+    else:
+        print("  · hero_exclusive.json 尚不存在 → 专属装备章节只写「无证据」")
+    n_ex = len((excl.get("heroes") or {}))
+
     os.makedirs(HERO_OUT, exist_ok=True)
     for h in heroes:
         hcode = h["code"]
@@ -295,7 +337,7 @@ def main() -> None:
         fn = safe_name(hname) + ".md"
         h["file"] = fn
         write_page(os.path.join(HERO_OUT, fn),
-                   render_hero(h, units.get(hcode), abils, fdict, item_pages, item_ub))
+                   render_hero(h, units.get(hcode), abils, fdict, item_pages, item_ub, excl))
 
     # 英雄总览
     rows = []
@@ -317,7 +359,8 @@ def main() -> None:
            "开局在选人区把单位**双击**即可选中（触发器 `Lz` / `iy4`）。", "",
            "| 说明 | 内容 |", "| --- | --- |",
            "| 可选中英雄 | 58 |", "| 选人方式 | 双击 `Player(15)` 所属的选人单位 |",
-           "| 技能键位 | Q/W/E/R/F/D（对象数据 `abpx/abpy` 判定） |", "",
+           "| 技能键位 | Q/W/E/R/F/D（对象数据 `abpx/abpy` 判定） |",
+           f"| 有专属装备证据的英雄 | {n_ex} / {len(heroes)}（判定函数 `EXEQ_Allowed`，`war3map.j:87157-87312`） |", "",
            table(["ID", "名称", "称号", "主属性", "技能绑定"], rows), ""]
     idx.append(source_footer())
     write_page(os.path.join(HERO_OUT, "index.md"), "\n".join(idx))

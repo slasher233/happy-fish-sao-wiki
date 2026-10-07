@@ -16,6 +16,7 @@ import collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from wiki_common import (  # noqa: E402
     DOCS, WIKI_DATA, INDEX_DIR, WIKI_DIR, MAP_VERSION, MAP_NAME, MEMBER_SHA,
+    RECON_DIR,
     utf8, load_json, load_tsv, clean_text, clean_inline, esc, code, safe_name,
     write_page, table, source_footer, blank, obj_code,
 )
@@ -24,6 +25,8 @@ utf8()
 
 ITEMS_JSON = os.path.join(WIKI_DATA, "items.json")
 ABIL_JSON = os.path.join(WIKI_DATA, "abilities.json")
+UNITS_JSON = os.path.join(WIKI_DATA, "units.json")
+EXCL_JSON = os.path.join(RECON_DIR, "hero_exclusive.json")
 ITEM_SRC = os.path.join(WIKI_DATA, "item_sources.json")
 ABIL_FIELDS = os.path.join(INDEX_DIR, "field_dict_abilities.tsv")
 ITEM_OUT = os.path.join(DOCS, "items")
@@ -160,9 +163,12 @@ def main() -> None:
     fdict = load_field_dict(ABIL_FIELDS)
     base_names = load_base_names()
     sources = {}
+    cov = {}
     if os.path.exists(ITEM_SRC):
         try:
-            sources = load_json(ITEM_SRC).get("items", {})
+            _src = load_json(ITEM_SRC)
+            sources = _src.get("items", {})
+            cov = _src.get("coverage", {}) or {}
         except Exception as e:  # noqa: BLE001
             print(f"  ! item_sources.json 解析失败：{e}")
     else:
@@ -212,6 +218,26 @@ def main() -> None:
     cat_count = collections.Counter()
     no_name = []
 
+    item_names = {p["code"]: p["display"] for p in parsed}
+    unit_names = {}
+    try:
+        for u in load_json(UNITS_JSON):
+            c = str(u.get("code") or "").replace("\x00", "")
+            if len(c) != 4:
+                c = u.get("base") or ""
+            nm = clean_inline((u.get("fields") or {}).get("Name", [{}])[0].get("value") if (u.get("fields") or {}).get("Name") else "")
+            if len(c) == 4 and nm:
+                unit_names[c] = nm
+    except Exception as e:  # noqa: BLE001
+        print(f"  ! units.json 读取失败（掉落来源单位名将留空）：{e}")
+
+    excl_items = {}
+    if os.path.exists(EXCL_JSON):
+        try:
+            excl_items = load_json(EXCL_JSON).get("exclusive_items", {}) or {}
+        except Exception as e:  # noqa: BLE001
+            print(f"  ! hero_exclusive.json 解析失败（专属标记将缺失）：{e}")
+
     for p in parsed:
         cat_count[p["cat"]] += 1
         if not p["name"]:
@@ -219,7 +245,8 @@ def main() -> None:
         d = os.path.join(ITEM_OUT, p["cat"])
         fn = f"{p['code']}_{safe_name(p['display'])}.md"
         p["file"] = f"{p['cat']}/{fn}"
-        write_page(os.path.join(d, fn), render_item(p, abils, fdict, sources, used_in))
+        write_page(os.path.join(d, fn),
+                   render_item(p, abils, fdict, sources, used_in, item_names, unit_names, excl_items))
     for c in CATEGORY_ORDER:
         os.makedirs(os.path.join(ITEM_OUT, c), exist_ok=True)
 
@@ -245,9 +272,25 @@ def main() -> None:
         if cat_count.get(c):
             idx.append(f"- **{c}**：{cat_count[c]} 个")
     idx.append("")
+
+    # 获取途径统计（来自 item_sources.json）
+    if cov:
+        idx += ["## 获取途径证据覆盖", "",
+                f"- 物品对象总数：**{cov.get('items_total', '—')}**",
+                f"- 拿到至少一条获取途径证据：**{cov.get('items_with_acquisition_evidence', '—')}**",
+                f"- 只有上下文证据（作为材料/触发物被消耗）：**{cov.get('items_with_context_only_evidence', '—')}**",
+                f"- 完全没有获取证据：**{cov.get('items_without_any_evidence', '—')}**", "",
+                "每条获取方式都带 `war3map.j` 行号；证据来自静态分析，**不代表游戏内一定如此**（例如合成还需要 NPC 菜单配合）。", ""]
+        kinds = cov.get("acquisition_kinds") or []
+        if kinds:
+            idx.append("识别的获取途径类型：" + "、".join(f"`{k}`" for k in kinds))
+            idx.append("")
+
     idx.append(source_footer([
         f"物品对象来自 `war3map.w3t`（SHA256 `{MEMBER_SHA['war3map.w3t']}`），"
-        f"物品技能数值来自 `war3map.w3a`（SHA256 `{MEMBER_SHA['war3map.w3a']}`）。"
+        f"物品技能数值来自 `war3map.w3a`（SHA256 `{MEMBER_SHA['war3map.w3a']}`）。",
+        "获取方式来自 `war3map.j`（SHA256 `13bafcf0c1e91848fbf8ee72cbc48017e711cae7b6198e69cb01136c7064a4a2`）"
+        "的静态数据流分析，断言都带行号。",
     ]))
     write_page(os.path.join(ITEM_OUT, "index.md"), "\n".join(idx))
 
@@ -263,7 +306,8 @@ def main() -> None:
     print(f"   无名称: {len(no_name)} {no_name}")
 
 
-def render_item(p, abils, fdict, sources, used_in) -> str:
+def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
+                excl_items=None) -> str:
     f = p["fields"]
     icla = p["icla"] or "—"
     lines = [f"# {p['code']} · {p['display']}", ""]
@@ -284,6 +328,25 @@ def render_item(p, abils, fdict, sources, used_in) -> str:
     lines.append("")
     if first(f, "Hotkey"):
         lines.append(f"**热键**：`{clean_inline(first(f, 'Hotkey'))}`")
+        lines.append("")
+
+    ex = (excl_items or {}).get(p["code"])
+    if ex:
+        allowed = ex.get("allowed_unit_types") or []
+        nicks = ex.get("allowed_nicknames") or []
+        ev = (ex.get("evidence") or {}).get("line")
+        at = f"（`war3map.j:{ev}`）" if ev else ""
+        if nicks and not allowed:
+            lines.append("> ⚠️ **限定使用（按玩家昵称）**：仅玩家昵称 "
+                         + "、".join(f"`{n}`" for n in nicks) + f" 可以使用{at}。")
+        elif allowed:
+            who = "、".join(f"{unit_names.get(u) or ''}(`{u}`)".strip() for u in allowed)
+            lines.append(f"> 🔒 **英雄专属**：仅 {who} 可以拾取，其他英雄拾取会被立即移除{at}。")
+        if nicks and allowed:
+            lines.append("> 另有按玩家昵称的判定：" + "、".join(f"`{n}`" for n in nicks) + "。")
+        if ex.get("drop_pool_index") is not None:
+            lines.append(f"> 同时属于 `EXEQ_DropPool[{ex['drop_pool_index']}]`（英雄专属掉落池，"
+                         "`war3map.j:88781-88814`）。")
         lines.append("")
 
     lines += [f"## {MAP_VERSION} 当前数据", "", "### 基础属性", ""]
@@ -343,7 +406,7 @@ def render_item(p, abils, fdict, sources, used_in) -> str:
     lines += ["## 获取方式", ""]
     src = sources.get(p["code"]) if sources else None
     if src:
-        lines.append(render_sources(src))
+        lines.append(render_sources(src, item_names, unit_names))
     else:
         lines.append("**待考证**——尚未在本图 `war3map.j` 中找到该物品的获取证据。")
         lines.append("")
@@ -353,15 +416,7 @@ def render_item(p, abils, fdict, sources, used_in) -> str:
         lines.append("")
 
     lines += ["## 合成与材料用途", ""]
-    uses = used_in.get(p["code"]) or []
-    if uses:
-        rows = [[code(c), esc(n)] for c, n in sorted(set(uses))]
-        lines.append("这些物品的游戏内说明里提到了本物品（**文本匹配，不等于真实的合成配方**）：")
-        lines.append("")
-        lines.append(table(["物品 ID", "物品名称"], rows))
-    else:
-        lines.append("_（没有其它物品的说明提到本物品）_")
-        lines.append("")
+    lines.append(render_materials(src, used_in.get(p["code"]) or [], item_names))
 
     lines += ['??? note "全部对象字段（原始值）"', ""]
     for ini_key in sorted(f.keys()):
@@ -381,33 +436,171 @@ def render_item(p, abils, fdict, sources, used_in) -> str:
     return "\n".join(lines)
 
 
-def render_sources(src: dict) -> str:
+def _nm(codes, names, limit=12) -> str:
+    """把 code 列表渲染成「`ID` 名称」形式。"""
     out = []
-    kinds = [("vendor", "商店出售"), ("craft", "打造/合成"), ("drop", "掉落"), ("shop_menu", "NPC菜单")]
-    for key, label in kinds:
-        entries = src.get(key)
-        if not entries:
+    for c in codes if isinstance(codes, list) else [codes]:
+        if not c:
             continue
-        out.append(f"**{label}**")
+        n = names.get(c) or ""
+        out.append(f"`{c}`" + (f" {esc(n)}" if n else ""))
+    if len(out) > limit:
+        out = out[:limit] + [f"…等 {len(out)} 项"]
+    return "、".join(out)
+
+
+def render_sources(src: dict, item_names: dict, unit_names: dict) -> str:
+    out = []
+
+    def section(title, rows, head):
+        out.append(f"**{title}**")
         out.append("")
+        out.append(table(head, rows))
+        out.append("")
+
+    # 1) 商店出售（触发器进货）
+    if src.get("vendor"):
         rows = []
-        for e in entries:
-            if isinstance(e, dict):
-                rows.append([
-                    esc(e.get("what") or e.get("snippet") or ""),
-                    code(e.get("line")) if e.get("line") else "—",
-                    "`" + clean_inline(e.get("snippet") or "")[:120].replace("`", "'") + "`",
-                ])
-            else:
-                rows.append([esc(e), "—", "—"])
-        out.append(table(["说明", "j 行号", "原始片段"], rows))
+        for e in src["vendor"]:
+            shop = e.get("shop_name") or unit_names.get(e.get("shop_unit") or "", "") or e.get("shop_unit") or "—"
+            rows.append([esc(shop), code(e.get("api")), blank(e.get("stock_cur")), blank(e.get("stock_max")), code(e.get("line"))])
+        section("商店出售（`AddItemToStock` 进货）", rows, ["商店", "接口", "当前库存", "最大库存", "j 行号"])
+
+    # 2) 商店货架（对象数据）
+    if src.get("vendor_object_data"):
+        rows = []
+        for e in src["vendor_object_data"]:
+            shop = e.get("shop_name") or unit_names.get(e.get("shop_unit") or "", "") or e.get("shop_unit") or "—"
+            rows.append([esc(shop), code(e.get("shop_unit")), code(e.get("field")), esc(e.get("field_name") or ""), esc(e.get("line_ref") or "")])
+        section("商店货架（对象数据 `usei`/`umki`）", rows, ["商店", "商店单位", "字段", "字段名", "证据位置"])
+
+    if src.get("vendor_removed"):
+        rows = [[code(e.get("shop_unit")), code(e.get("line")), "`" + clean_inline(e.get("snippet") or "")[:110].replace("`", "'") + "`"] for e in src["vendor_removed"]]
+        section("该物品被从商店移除（`RemoveItemFromStock`）", rows, ["商店单位", "j 行号", "原始片段"])
+
+    # 3) 抽奖机
+    if src.get("gacha"):
+        rows = []
+        for e in src["gacha"]:
+            mat = e.get("consumed_material_names") or e.get("consumed_materials") or []
+            rows.append([
+                esc(e.get("trigger_item_name") or "") + " " + code(e.get("trigger_item")),
+                esc(_nm([e.get("result")], item_names)),
+                esc(f"{len(mat)} × " + (mat[0] if mat and isinstance(mat[0], str) else "")),
+                code(e.get("line")),
+            ])
+        section("抽奖 / 扭蛋", rows, ["触发物", "产出", "消耗", "j 行号"])
+
+    # 4) 打造 / 合成
+    if src.get("craft"):
+        rows = []
+        for e in src["craft"]:
+            trig = (esc(e.get("trigger_item_name") or "") + " " + code(e.get("trigger_item"))) if e.get("trigger_item") else "（自动合成）"
+            mats = e.get("consumed_materials") or e.get("checked_materials") or []
+            rows.append([trig, _nm(mats, item_names), code(e.get("cond_line") or e.get("line")),
+                         "⚠️ 材料不符" if e.get("material_mismatch") else "—"])
+        section("打造 / 合成", rows, ["触发物", "消耗材料", "j 行号", "备注"])
+
+    # 5) 掉落
+    if src.get("drop"):
+        rows = []
+        for e in src["drop"]:
+            su = e.get("source_unit") or ""
+            sun = e.get("source_unit_name") or unit_names.get(su, "")
+            chance = e.get("chance_pct")
+            rows.append([
+                (f"`{su}`" + (f" {esc(sun)}" if sun else "")) if su else "（未标注来源单位）",
+                esc(e.get("method") or e.get("kind") or ""),
+                (f"{chance}%" if chance is not None else "—"),
+                code(e.get("line") or e.get("choose_line")),
+            ])
+        section("掉落（掉落表 / 权重表）", rows, ["来源单位", "方式", "概率", "j 行号"])
+
+    # 6) BOSS 掉落池
+    if src.get("boss_pool"):
+        rows = []
+        for e in src["boss_pool"]:
+            bu = e.get("boss_unit") or ""
+            bn = e.get("boss_name") or unit_names.get(bu, "")
+            rows.append([esc(e.get("pool") or ""), blank(e.get("index")),
+                         (f"`{bu}`" + (f" {esc(bn)}" if bn else "")) if bu else "—",
+                         code(e.get("pool_line")), code(e.get("drop_line"))])
+        section("BOSS 专属掉落池（`HF22SD_Pool`）", rows, ["池", "序号", "来源 BOSS", "池定义行", "掉落行"])
+
+    # 7) 击杀成长
+    for key, label in (("grow", "击杀成长（本物品是**升级后**的形态）"), ("grow_into", "击杀成长（本物品会**升级为**下一形态）")):
+        if not src.get(key):
+            continue
+        rows = []
+        for e in src[key]:
+            th = e.get("kill_threshold") or {}
+            rows.append([
+                _nm([e.get("from_item")], item_names) if key == "grow" else _nm([e.get("to_item")], item_names),
+                code(th.get("var")) + f" ≥ {blank(th.get('value'))}",
+                code(th.get("line")),
+            ])
+        section(label, rows, ["另一形态", "击杀阈值", "j 行号"])
+
+    # 8) 塔层奖励
+    if src.get("tower_reward"):
+        rows = [[blank(e.get("tower_stage")), code(e.get("line")), code(e.get("grant_line"))] for e in src["tower_reward"]]
+        section("通天塔层奖励", rows, ["层数", "定义行", "发奖行"])
+
+    # 9) 事件生成
+    if src.get("spawn"):
+        rows = []
+        for e in src["spawn"]:
+            cond = ", ".join(e.get("cond_rawcodes") or [])
+            rows.append([esc(e.get("kind") or ""), _nm(cond.split(", ") if cond else [], unit_names), code(e.get("line"))])
+        section("事件生成（`CreateItemLoc`）", rows, ["方式", "触发单位", "j 行号"])
+
+    # 10) 赠送
+    if src.get("gift"):
+        rows = [[esc(e.get("kind") or ""), esc(clean_inline(str(e.get("to") or ""))), code(e.get("line"))] for e in src["gift"]]
+        section("触发时赠予", rows, ["方式", "给谁", "j 行号"])
+
+    # 11) 拾取 / 使用触发
+    if src.get("trigger_use"):
+        rows = []
+        for e in src["trigger_use"]:
+            rows.append([esc(e.get("kind") or ""), _nm(e.get("produces") or [], item_names), code(e.get("used_at_line"))])
+        section("拾取 / 使用触发", rows, ["方式", "产出", "j 行号"])
+
+    # 12) 作为材料被消耗
+    if src.get("used_as_material"):
+        rows = []
+        for e in src["used_as_material"]:
+            rows.append([esc(e.get("trigger_item_name") or "") + " " + code(e.get("trigger_item")),
+                         _nm([e.get("result")], item_names), code(e.get("line"))])
+        section("作为材料被消耗", rows, ["触发卷轴/菜单", "合成结果", "j 行号"])
+
     if not out:
-        out.append("**待考证**——`item_sources.json` 中没有该物品的记录。")
+        out.append("**待考证**——`item_sources.json` 中没有该物品的获取途径记录（它可能只作为材料被消耗）。")
         out.append("")
-    extra = src.get("note")
-    if extra:
-        out += [f"> {clean_inline(extra)}", ""]
     return "\n".join(out)
+
+
+def render_materials(src, text_uses, item_names) -> str:
+    parts = []
+    if src and src.get("used_as_material"):
+        rows = []
+        for e in src["used_as_material"]:
+            rows.append([esc(e.get("trigger_item_name") or "") + " " + code(e.get("trigger_item")),
+                         _nm([e.get("result")], item_names), code(e.get("line"))])
+        parts += ["**作为材料参与合成（触发器证据）**：", "", table(["触发卷轴/菜单", "合成结果", "j 行号"], rows), ""]
+    if src and src.get("consumed_only"):
+        parts += ["**被收走后消失（`RemoveItem`）**：", ""]
+        for e in src["consumed_only"]:
+            parts.append(f"- j 行 {e.get('line')}：`{clean_inline(e.get('snippet') or '')[:130]}`")
+        parts.append("")
+    if text_uses:
+        rows = [[code(c), esc(n)] for c, n in sorted(set(text_uses))]
+        parts += ["**说明文本中提到本物品的物品**（文本匹配，不等于真实配方）：", "",
+                  table(["物品 ID", "物品名称"], rows), ""]
+    if not parts:
+        parts.append("_（没有找到本物品参与合成或作为材料的证据）_")
+        parts.append("")
+    return "\n".join(parts)
 
 
 if __name__ == "__main__":

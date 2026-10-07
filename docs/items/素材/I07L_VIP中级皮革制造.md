@@ -32,13 +32,26 @@ VIP中级皮革制造
 
 ## 获取方式
 
-**待考证**——尚未在本图 `war3map.j` 中找到该物品的获取证据。
+**商店货架（对象数据 `usei`/`umki`）**
 
-> `war3map.j` 中的获取入口只有 `AddItemToStock`（进货）、`CreateItem`（生成）、`UnitAddItemByIdSwapped`（掉给单位）、`ChooseRandomItemExBJ`（随机掉落）几类；没有命中的物品不等于无法获得，可能由商店菜单、NPC 对话或外部触发器间接给出。
+| 商店 | 商店单位 | 字段 | 字段名 | 证据位置 |
+| --- | --- | --- | --- | --- |
+| 工会:命运之夜 玩家:雪雪 | `orai` | `usei` | Sellitems 售出的物品 | note_log/index/w3u_verify.txt:6222 |
+
+
+**拾取 / 使用触发**
+
+| 方式 | 产出 | j 行号 |
+| --- | --- | --- |
+| recipe_scroll_used | `I07E` | `29236` |
+| recipe_scroll_used | `I08H` | `29241` |
+| recipe_scroll_used | `I08L` | `29246` |
+| recipe_scroll_used | `I08P` | `29251` |
+
 
 ## 合成与材料用途
 
-_（没有其它物品的说明提到本物品）_
+_（没有找到本物品参与合成或作为材料的证据）_
 
 ??? note "全部对象字段（原始值）"
 

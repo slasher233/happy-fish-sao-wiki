@@ -572,6 +572,17 @@
 - **NPC功能物品**：34 个
 - **不归类**：209 个
 
+## 获取途径证据覆盖
+
+- 物品对象总数：**551**
+- 拿到至少一条获取途径证据：**499**
+- 只有上下文证据（作为材料/触发物被消耗）：**13**
+- 完全没有获取证据：**39**
+
+每条获取方式都带 `war3map.j` 行号；证据来自静态分析，**不代表游戏内一定如此**（例如合成还需要 NPC 菜单配合）。
+
+识别的获取途径类型：`vendor`、`vendor_removed`、`craft`、`gacha`、`drop`、`gift`、`spawn`、`tower_reward`、`boss_pool`、`grow`、`grow_into`、`vendor_object_data`
+
 
 ---
 
@@ -582,5 +593,7 @@
 本页数值由该图的 `war3map.w3u` / `war3map.w3a` / `war3map.w3t` 与 `war3map.j` 解析生成；**未经过实机验证**——「数据来自哪个成员」不等于「游戏里就是这个表现」。
 
 物品对象来自 `war3map.w3t`（SHA256 `98164862404eee98a28c5b5ba01f88fceb7fca896b3b06457f1853d75bac896d`），物品技能数值来自 `war3map.w3a`（SHA256 `80675c0549e25604b5b97bb05cd7f6594f92dfec95639cbdf6a6480ba2ffa9d3`）。
+
+获取方式来自 `war3map.j`（SHA256 `13bafcf0c1e91848fbf8ee72cbc48017e711cae7b6198e69cb01136c7064a4a2`）的静态数据流分析，断言都带行号。
 
 </div>

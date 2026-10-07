@@ -51,13 +51,23 @@
 
 ## 获取方式
 
-**待考证**——尚未在本图 `war3map.j` 中找到该物品的获取证据。
+**商店货架（对象数据 `usei`/`umki`）**
 
-> `war3map.j` 中的获取入口只有 `AddItemToStock`（进货）、`CreateItem`（生成）、`UnitAddItemByIdSwapped`（掉给单位）、`ChooseRandomItemExBJ`（随机掉落）几类；没有命中的物品不等于无法获得，可能由商店菜单、NPC 对话或外部触发器间接给出。
+| 商店 | 商店单位 | 字段 | 字段名 | 证据位置 |
+| --- | --- | --- | --- | --- |
+| 工会:命运之夜 玩家:CD | `u0KG` | `usei` | Sellitems 售出的物品 | note_log/index/w3u_verify.txt:525415 |
+
+
+**掉落（掉落表 / 权重表）**
+
+| 来源单位 | 方式 | 概率 | j 行号 |
+| --- | --- | --- | --- |
+| `n029` Lv30:沙漠害虫 | ChooseRandomItemExBJ(level, itemClass) | — | `33426` |
+
 
 ## 合成与材料用途
 
-_（没有其它物品的说明提到本物品）_
+_（没有找到本物品参与合成或作为材料的证据）_
 
 ??? note "全部对象字段（原始值）"
 

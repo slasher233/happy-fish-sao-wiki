@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import collections
 import csv
+import json
 import os
 import re
 import sys
@@ -140,6 +141,63 @@ def build_skills() -> None:
     write_page(os.path.join(out, ".pages"), "title: 技能总览\n")
 
 
+def fmt_evidence(ev) -> str:
+    """把 {line,snippet} / {file,line,snippet} 之类的取证对象渲染成一行。"""
+    if not isinstance(ev, dict):
+        return esc(str(ev))
+    bits = []
+    f = ev.get("file")
+    ln = ev.get("line") or ev.get("line_ref")
+    if f:
+        bits.append(f"`{f}`")
+    if ln:
+        bits.append(f"`L{ln}`")
+    if bits:
+        s = ev.get("snippet") or ev.get("role") or ""
+        return " ".join(bits) + (f" {esc(str(s)[:160])}" if s else "")
+    return esc(str(ev)[:200])
+
+
+def md_from_json(obj, depth: int = 2, max_list: int = 40) -> list[str]:
+    """把任意 JSON 结构渲染成朴素 markdown（用于子智能体产出的取证数据）。"""
+    lines: list[str] = []
+    pad = "#" * depth
+    if isinstance(obj, dict):
+        for k, val in obj.items():
+            if isinstance(val, (dict, list)):
+                n = len(val)
+                lines += [f"{pad} {k}（{n}）", ""]
+                lines += md_from_json(val, min(depth + 1, 6), max_list)
+            else:
+                lines.append(f"- **{k}**：{esc(str(val))}")
+        if lines and lines[-1].startswith("- "):
+            lines.append("")
+    elif isinstance(obj, list):
+        if all(isinstance(x, (str, int, float)) for x in obj):
+            lines += ["、".join(f"`{esc(str(x))}`" for x in obj[:max_list]) or "—", ""]
+        else:
+            for i, x in enumerate(obj[:max_list]):
+                if isinstance(x, dict):
+                    head = (x.get("name") or x.get("code") or x.get("item_code")
+                            or x.get("function") or x.get("id") or f"#{i + 1}")
+                    lines.append(f"- **{esc(str(head))}**")
+                    for k, val in x.items():
+                        if k in ("name", "code", "item_code", "function", "id"):
+                            continue
+                        if isinstance(val, (dict, list)):
+                            lines.append(f"    - {k}：{esc(json.dumps(val, ensure_ascii=False)[:400])}")
+                        else:
+                            lines.append(f"    - {k}：{esc(str(val))}")
+                else:
+                    lines.append(f"- {esc(str(x))}")
+            if len(obj) > max_list:
+                lines.append(f"- _（另有 {len(obj) - max_list} 条未显示）_")
+            lines.append("")
+    else:
+        lines.append(esc(str(obj)))
+    return lines
+
+
 def build_info() -> None:
     items = load_json(ITEMS_JSON)
     out = os.path.join(DOCS, "info")
@@ -207,7 +265,7 @@ def build_info() -> None:
         source_footer(),
     ]))
 
-    write_page(os.path.join(out, "楼层信息.md"), "\n".join([
+    floor_lines = [
         "# 迷宫楼层线索",
         "",
         f"下表由物品名里的「传送迷宫 N 层」与说明文本**自动提取**，共 {len(floors)} 条。"
@@ -215,10 +273,23 @@ def build_info() -> None:
         "",
         table(["物品 ID", "物品名", "说明首行"], frows) if frows else "_（未提取到楼层物品）_",
         "",
-        source_footer(),
-    ]))
+    ]
+    fb_path = os.path.join(RECON_DIR, "floors_bosses.json")
+    if os.path.exists(fb_path):
+        try:
+            fb = load_json(fb_path)
+            floor_lines += ["## 触发器取证：楼层、传送与 BOSS", "",
+                            "以下数据由只读静态分析从 `war3map.j` 提取，**每条都带行号**；"
+                            "行号见各项的 `evidence` 字段。", ""]
+            floor_lines += md_from_json(fb, depth=3, max_list=60)
+        except Exception as e:  # noqa: BLE001
+            floor_lines.append(f"!!! warning \"取证数据解析失败\"\n    {esc(str(e))}\n")
+    else:
+        floor_lines += ["> 楼层/传送/BOSS 的触发器取证数据仍在生成中。", ""]
+    floor_lines.append(source_footer())
+    write_page(os.path.join(out, "楼层信息.md"), "\n".join(floor_lines))
 
-    write_page(os.path.join(out, "存档与读档.md"), "\n".join([
+    save_lines = [
         "# 存档与读档",
         "",
         "本图包含 3 个存档相关 Lua 模块（`hf16_save_core.lua`、`hf16_save_runtime.lua`、"
@@ -232,12 +303,45 @@ def build_info() -> None:
             ["`hf22_stability.lua`", "775", f"`{MEMBER_SHA['hf22_stability.lua']}`"],
         ]),
         "",
-        "!!! warning \"待补充\"",
-        "    存档格式、对象编码、分卷与读取入口**尚未解析**，本页目前只有模块指纹。",
-        "    改图涉及存档字段前，必须先读懂现有格式，不要拿真实玩家存档做破坏性测试。",
-        "",
-        source_footer(),
-    ]))
+    ]
+    ss_path = os.path.join(RECON_DIR, "save_schema.json")
+    if os.path.exists(ss_path):
+        try:
+            ss = load_json(ss_path)
+            save_lines += ["## 取证的存档结构", "",
+                           "以下内容由只读静态分析得出，**每条断言都带 `war3map.j` 行号或 Lua 文件行号**。", ""]
+            if ss.get("entry_points"):
+                save_lines += ["### 入口函数", "",
+                               table(["类型", "函数", "位置", "证据"],
+                                     [[esc(str(e.get("kind", "—"))), code(e.get("function") or "—"),
+                                       f"`L{e.get('line')}`" if e.get("line") else "—",
+                                       fmt_evidence(e.get("evidence"))]
+                                      for e in ss["entry_points"]]), ""]
+            if (ss.get("format") or {}).get("sections"):
+                save_lines += ["### 数据结构", "",
+                               table(["字段", "序号", "编码", "说明", "证据"],
+                                     [[esc(str(s.get("name", "—"))), esc(str(s.get("index", "—"))),
+                                       esc(str(s.get("encoding", "—"))), esc(str(s.get("description", ""))[:200]),
+                                       fmt_evidence(s.get("evidence"))]
+                                      for s in ss["format"]["sections"]]), ""]
+            if (ss.get("load") or {}).get("steps"):
+                save_lines += ["### 读档步骤", ""]
+                for i, st in enumerate(ss["load"]["steps"], 1):
+                    save_lines.append(f"{i}. {esc(str(st))}")
+                save_lines.append("")
+            save_lines += ["### 其余取证字段", ""]
+            rest = {k: v for k, v in ss.items()
+                    if k not in ("entry_points", "format", "load", "schema", "map_sha256")}
+            save_lines += md_from_json(rest, depth=4, max_list=40)
+        except Exception as e:  # noqa: BLE001
+            save_lines.append(f"!!! warning \"存档取证数据解析失败\"\n    {esc(str(e))}\n")
+    else:
+        save_lines += ['!!! warning "待补充"',
+                       "    存档格式、对象编码、分卷与读取入口的取证**仍在进行中**，本页目前只有模块指纹。",
+                       "    改图涉及存档字段前，必须先读懂现有格式，不要拿真实玩家存档做破坏性测试。",
+                       ""]
+    save_lines.append(source_footer())
+    write_page(os.path.join(out, "存档与读档.md"), "\n".join(save_lines))
 
 
 def build_changelogs() -> None:
