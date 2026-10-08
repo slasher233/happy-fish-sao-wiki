@@ -82,6 +82,15 @@ KIND_ZH = {
     "gacha": "抽奖机", "single_weight": "单条权重掉落", "weighted_table": "权重掉落表",
     "consumed_only": "被收走后消失",
 }
+
+# `note_log/wiki_data/item_sources.json` 的 `acquisition_kinds` 原始键名 → 中文
+# （审计问题 W011：内部键名不能直接印进正文；中文沿用下面各获取方式小节的既有标题）
+ACQ_KIND_ZH = {
+    "vendor": "商店出售", "vendor_removed": "被从商店移除", "vendor_object_data": "商店货架（对象数据）",
+    "craft": "打造 / 合成", "gacha": "抽奖 / 扭蛋", "drop": "掉落", "gift": "触发时赠予",
+    "spawn": "事件生成", "tower_reward": "通天塔层奖励", "boss_pool": "BOSS 专属掉落池",
+    "grow": "击杀成长（升级后形态）", "grow_into": "击杀成长（升级为下一形态）",
+}
 _UNIT_EXPR_ZH = {
     "GetTriggerUnit": "触发事件的单位（击杀者或进入区域的单位）",
     "GetKillingUnit": "击杀者",
@@ -97,14 +106,18 @@ def kind_zh(k) -> str:
 
 
 def type_zh(icla) -> str:
-    """`class`（字段 `icla`）枚举 → 中文；缺失/未收录时写清依据（审计问题 W002）。"""
+    """`class`（字段 `icla`）枚举 → 中文。
+
+    正文只写读者能懂的中文，不印内部字段名与原始枚举值——原始值一律在物品页的
+    「全部对象字段（原始值）」折叠块里可查（审计问题 W011）。
+    """
     s = (icla or "").strip()
     if not s:
-        return "未设置（对象数据 `icla` 字段为空）"
+        return "未设置（对象数据里没有这一项）"
     zh = CLASS_ZH.get(s)
     if zh:
-        return f"{zh}（原始枚举 `{s}`）"
-    return f"`{s}`（未收录的枚举值，站内暂未译）"
+        return zh
+    return "未收录的类型（原始枚举见下方「全部对象字段（原始值）」）"
 
 
 def who_zh(t) -> str:
@@ -705,10 +718,23 @@ def main() -> None:
             blank(clean_inline(first(p["fields"], "Level"))),
             code(p["base"]),
         ])
-    head = ["ID", "名称", "分类", "品质", "价格", "物品等级", "原型"]
+    head = ["物品 ID", "名称", "分类", "品质", "价格", "物品等级", "原型"]
+    # 名称口径（审计问题 W029）：原来只写「没有自定义名称的 N 个」一个数字，读者拿它去和
+    # 「缺名称对象数」的其它口径对比就会觉得矛盾。这里按「名称由原型补全」与「完全没有名称」
+    # 分开统计，并说清为什么按地图原始数据统计出来的数字会比本页大。
+    _nn_base = [p for p in parsed if not p["name"] and (p["base_name"] or "").strip()]
+    _nn_none = [p for p in parsed if not p["name"] and not (p["base_name"] or "").strip()]
+    _nn_base_txt = "、".join(f"`{p['code']}`（原型名「{p['base_name']}」）" for p in _nn_base) or "无"
     idx = [f"# 物品总览", "",
-           f"共 **{len(parsed)}** 个物品对象（没有自定义名称的 {len(no_name)} 个显示为「未设置名称（原型 …）」："
-           f"{'、'.join(no_name) or '无'}）。", ""]
+           f"共 **{len(parsed)}** 个物品对象。名称按两种口径分别统计——两个数字口径不同，"
+           "不要直接相加，也不要拿去和按地图原始数据统计的「缺名称对象数」对比：",
+           "",
+           f"- **名称由原型补全**：对象数据里没有自定义名称，但取得到**原型名**，页面标题显示为"
+           f"「未设置名称（原型 …）」——**{len(_nn_base)}** 个（{_nn_base_txt}）。",
+           f"- **完全没有名称**：既没有自定义名称、也没有原型名可以回退——**{len(_nn_none)}** 个；"
+           "这类对象即使存在于地图数据里也不会生成页面，所以按地图原始数据统计「没有自定义名称的对象」时，"
+           "数字会比本页大（多出来的正是这类没有页面的对象）。",
+           ""]
     _new_items = [p for p in parsed if p.get("new_item")]
     if _new_items:
         idx += [f"其中 **{len(_new_items)}** 件是**本版本新增**物品"
@@ -739,7 +765,10 @@ def main() -> None:
                 "需要恢复时从该清单删掉条目、重跑生成器即可。", ""]
         kinds = cov.get("acquisition_kinds") or []
         if kinds:
-            idx.append("识别的获取途径类型：" + "、".join(f"`{k}`" for k in kinds))
+            # 审计问题 W011：不把 item_sources.json 的内部键名单独印给读者；
+            # 中文 + 原始键名并列，读者看得懂，也能按原键名去查数据。
+            idx.append("识别的获取途径类型（括号里是 `item_sources.json` 里的原始键名）："
+                       + "、".join(f"{ACQ_KIND_ZH.get(k, '未收录的途径类型')}（`{k}`）" for k in kinds) + "。")
             idx.append("")
 
     idx.append(source_footer([
@@ -858,16 +887,37 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
 
     lines += ["### 物品能力", ""]
     if ability_rows:
-        # 能力说明整列都取不到时不要留一个空列（审计问题 W032）
-        if all((r[3] in ("—", "", "（对象不存在）")) for r in ability_rows):
-            for r in ability_rows:
-                r.pop(3)
-            lines.append(table(["能力 ID", "能力名称", "关键数值"], ability_rows))
+        # 审计问题 W032：原来只判断「能力说明」整列是否全空，且删列后不再看剩下的最后一列，
+        # 于是「说明为空 + 关键数值也全空」的页面仍会渲染出一张每格都是「—」的表。
+        # 现在逐列判断有没有值，没有值的列一律不列；「（对象不存在）」写在「能力名称」列上
+        # 本身就是有信息量的断言，所以这一列始终保留；整张表只剩 ID 时才索性不列表。
+        _empty = ("—", "", "（对象不存在）")
+        _has_name = any(r[1] not in _empty for r in ability_rows)
+        _has_num = any(r[2] not in _empty for r in ability_rows)
+        _has_desc = any(r[3] not in _empty for r in ability_rows)
+        if not (_has_name or _has_num or _has_desc):
+            lines.append(f"_（本节无内容：本物品绑定的 {len(ability_rows)} 个能力对象在本图 "
+                         "`war3map.w3a` 里取不到名称、关键数值与说明文字——这类对象多半是魔兽原版技能"
+                         "（本图没有把它们复制成自定义对象）；若其中确有本图缺失的对象，下方会有「数据异常」提示。）_")
             lines.append("")
-            lines.append("> 对象数据没有给出这些能力的说明文字（`Ubertip` 为空），所以只列绑定关系与关键数值。")
+            lines.append("绑定能力：" + "、".join(r[0] for r in ability_rows) + "。")
+            lines.append("")
         else:
-            lines.append(table(["能力 ID", "能力名称", "关键数值", "能力说明"], ability_rows))
-        lines.append("")
+            heads, cols = ["能力 ID", "能力名称"], [0, 1]
+            if _has_num:
+                heads.append("关键数值")
+                cols.append(2)
+            if _has_desc:
+                heads.append("能力说明")
+                cols.append(3)
+            lines.append(table(heads, [[r[c] for c in cols] for r in ability_rows]))
+            lines.append("")
+            if not _has_num:
+                lines.append("> 这些能力对象在本图 `war3map.w3a` 里没有可提取的关键数值字段，所以不列「关键数值」列。")
+                lines.append("")
+            if not _has_desc:
+                lines.append("> 对象数据没有给出这些能力的说明文字（`Ubertip` 为空），所以不列「能力说明」列。")
+                lines.append("")
     else:
         lines.append("_（本节无内容：对象数据的 `abilList`（字段 `iabi`）为空，本物品没有绑定任何能力对象。）_")
         lines.append("")
@@ -923,6 +973,10 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
             if val == "":
                 val = "（对象数据中此字段为空字符串）"
             lines.append(f"    - `{fid}` **{esc(zh)}**（{ini_key}）{lv} = `{val}`")
+    if not (p.get("icla") or "").strip():
+        # 正文「类型」不再印内部字段名 `icla`；而这个字段在对象数据里根本不存在时，
+        # 折叠块里也不会出现它，所以补一行原始记录，保证正文改成人话后仍可回溯（审计问题 W011）。
+        lines.append("    - `icla` **分类**（class） = `（对象数据里没有这个字段）`")
     lines.append("")
 
     # 属性用词说明放在页首（审计问题 W016：同一页里两套叫法都出现时说明一次）
@@ -1404,9 +1458,18 @@ def render_materials(src, text_uses, item_names) -> str:
         parts += ["**作为材料参与合成**：明细与证据见上面「获取方式 → 作为材料被消耗」一节"
                   "（同一份 `item_sources.used_as_material` 数据，这里不再重复列表）。", ""]
     if src and src.get("consumed_only"):
-        parts += ["**被收走后消失（`RemoveItem`）**：", ""]
+        # 审计问题 W012：这些 `j 行` 是正当的 JASS 证据引用，不能删；但原来是裸行内代码，
+        # 容易被误读成本站正文，所以收进带标题的 admonition + jass 代码块，原样保留片段。
+        parts += ["**被收走后消失（`RemoveItem`）**：", "",
+                  '!!! note "JASS 证据片段（`war3map.j` 原文，不是本站正文）"', "",
+                  "    下面是 `war3map.j` 里的原始片段，用于核对，阅读正文时不必看。", ""]
         for e in src["consumed_only"]:
-            parts.append(f"- j 行 {e.get('line')}：`{clean_inline(e.get('snippet') or '')[:130]}`")
+            parts.append(f"    **j 行 {e.get('line')}**：")
+            parts.append("")
+            parts.append("    ```jass")
+            parts.append("    " + clean_inline(e.get("snippet") or "")[:130])
+            parts.append("    ```")
+            parts.append("")
         parts.append("")
     if text_uses:
         rows = [[code(c), esc(n)] for c, n in sorted(set(text_uses))]

@@ -1,6 +1,6 @@
 # I0BC · 锄头
 
-> **分类**：不归类　**品质**：无数据（说明里没写品质）　**类型**：杂项（原始枚举 `Miscellaneous`）　**物品等级**：未设置（对象数据里没有这一项）　**价格**：未设置（对象数据里没有这一项）
+> **分类**：不归类　**品质**：无数据（说明里没写品质）　**类型**：杂项　**物品等级**：未设置（对象数据里没有这一项）　**价格**：未设置（对象数据里没有这一项）
 
 **物品 ID**：`I0BC`　·　**原型**：`ckng`（国王之冠 +5）　·　**版本**：v1.0 正式版
 
@@ -75,8 +75,22 @@ _（本节无内容：`item_sources.json` 里这件物品的来源没有记到�
 
 **被收走后消失（`RemoveItem`）**：
 
-- j 行 49430：`call RemoveItem(GetItemOfTypeFromUnitBJ(GetTriggerUnit(),'I0BC'))`
-- j 行 49434：`call RemoveItem(GetItemOfTypeFromUnitBJ(GetTriggerUnit(),'I0BC'))`
+!!! note "JASS 证据片段（`war3map.j` 原文，不是本站正文）"
+
+    下面是 `war3map.j` 里的原始片段，用于核对，阅读正文时不必看。
+
+    **j 行 49430**：
+
+    ```jass
+    call RemoveItem(GetItemOfTypeFromUnitBJ(GetTriggerUnit(),'I0BC'))
+    ```
+
+    **j 行 49434**：
+
+    ```jass
+    call RemoveItem(GetItemOfTypeFromUnitBJ(GetTriggerUnit(),'I0BC'))
+    ```
+
 
 **说明文本中提到本物品的物品**（文本匹配，不等于真实配方）：
 
