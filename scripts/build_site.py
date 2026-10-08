@@ -91,12 +91,23 @@ def first(fields, key):
     return rows[0].get("value")
 
 
+def count_item_pages() -> int:
+    """docs/items 下实际生成的物品页数（不含 index.md）。"""
+    n = 0
+    for _root, _dirs, files in os.walk(os.path.join(DOCS, "items")):
+        for f in files:
+            if f.endswith(".md") and f != "index.md":
+                n += 1
+    return n
+
+
 def build_index() -> None:
     heroes = load_tsv(HERO_TSV)
     items = load_json(ITEMS_JSON)
     abils = load_json(ABIL_JSON)
     units = load_json(UNITS_JSON)
     n_ok, n_no, n_total = hero_scope(heroes)
+    n_item_pages = count_item_pages()
     lines = [
         "# happy丶FISH Wiki",
         "",
@@ -119,7 +130,7 @@ def build_index() -> None:
         "",
         table(["类别", "对象数", "本 Wiki 覆盖"], [
             ["英雄", f"{n_total} 条数据", f"{n_ok} 个可选 + {n_no} 个地图上无此单位"],
-            ["物品", str(len(items)), "全部生成独立页面"],
+            ["物品", f"{n_item_pages} 页（母图 {len(items)} 件对象）", "已生成独立页面"],
             ["技能", f"{len(abils):,}", "英雄技能逐条展开；未绑定技能见技能总览"],
             ["单位", f"{len(units):,}", "英雄单位已收录，其余单位暂未展开"],
         ]),

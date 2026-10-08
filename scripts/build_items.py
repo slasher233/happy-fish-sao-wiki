@@ -43,6 +43,14 @@ PLAN_ITEM_TEXT = os.path.join(PLAN_DATA, "item_text.csv")
 PLAN_ITEM_SOURCE = os.path.join(PLAN_DATA, "items_source.csv")
 PLAN_DROPS_BY_BOSS = os.path.join(PLAN_DATA, "drops_by_boss.csv")
 PLAN_ITEM_ABILITY = os.path.join(PLAN_DATA, "item_ability_data.csv")
+# 本版新增物品（issue #2）：物品字段 + 新建技能副本
+PLAN_ITEMS_CSV = os.path.join(PLAN_DATA, "items.csv")
+PLAN_ISSUE2_JSON = os.path.join(PLAN_DATA, "issue2_plan.json")
+# 只有这两个需求单的 new_value 才是「本版计划值」
+PLAN_CHANGE_REQS = ("issue2", "issue3")
+NEW_ITEM_BANNER = "🆕 **本版本新增物品**"
+# 需求单（2.61 源）里的类别用词 → 站内已有分类；不新增目录，避免无关页面跟着变
+EXTRA_CLASS_CAT = {"装备道具": "灵魂装备"}
 # 本版本无法获得的物品清单（由 note_log/tools/make_removed_manifest.py 生成）；
 # 这些物品已从数据层与图鉴删除，生成器读它过滤，避免重新生成时又冒出来。
 REMOVED_JSON = os.path.join(PLAN_DATA, "removed_items.json")
@@ -113,6 +121,216 @@ CATEGORY_ORDER = [
     "武器", "装甲", "副武器", "头部道具", "灵魂装备", "觉醒装备",
     "消耗品", "素材", "任务物品", "传送与关卡", "NPC功能物品", "不归类",
 ]
+
+# 新物品的字段 id → 母图快照里的字段分组（`fields` 按 ini_key 存）
+NEW_ITEM_FIELDS = (
+    ("unam", "Name"), ("utip", "Tip"), ("utub", "Ubertip"), ("ides", "Description"),
+    ("iico", "Art"), ("iabi", "abilList"), ("icla", "class"), ("igol", "goldcost"),
+)
+
+
+def load_plan_change_rows(path: str) -> dict:
+    """`item_code` → [本版计划改动行]（`req_id` ∈ issue2/issue3 且 `new_value` 非空）。
+
+    需求单里 `new_value` 就是「这一版要改成多少」；没有计划行的物品页不会出现任何计划内容。
+    """
+    out: dict[str, list] = {}
+    for r in load_csv(path):
+        if (r.get("req_id") or "").strip() not in PLAN_CHANGE_REQS:
+            continue
+        if not (r.get("new_value") or "").strip():
+            continue
+        c = (r.get("item_code") or "").strip()
+        if c:
+            out.setdefault(c, []).append(r)
+    return out
+
+
+def load_plan_items_csv(path: str) -> dict:
+    """`item_code` → `items.csv` 行（本版本带 `new_*` 计划值的那些，用来读 `new_iabi`）。"""
+    out: dict[str, dict] = {}
+    for r in load_csv(path):
+        c = (r.get("item_code") or "").strip()
+        if c and (r.get("req_id") or "").strip() in PLAN_CHANGE_REQS:
+            out[c] = r
+    return out
+
+
+def _plan_key(ability, field, level) -> tuple:
+    """计划行与现值行的对应键：`(ability_code, field, level)`（等级统一成字符串再比）。"""
+    return ((ability or "").strip(), (field or "").strip(),
+            str("" if level is None else level).strip())
+
+
+def _plan_new_value(row: dict, scale: str = "") -> str:
+    """计划值的显示文本。
+
+    百分比类字段（`x100`）的 `new_value` 存的是**原始小数**（0.2 = 20%），
+    现值列用的是换算后的百分数，所以这里也要换算，否则会印成 `50 → 0.2`。
+    """
+    raw = (row.get("new_value") or "").strip()
+    if not raw:
+        return ""
+    if scale == "x100":
+        try:
+            return fmt_num(str(float(raw) * 100))
+        except (TypeError, ValueError):
+            return raw
+    return fmt_num(raw)
+
+
+def _plan_cell(cur_text: str, new_text: str) -> str:
+    """「本版计划值」单元格：能对上现值就写 `现值 → 计划值`，对不上（新增字段）只写计划值。"""
+    if not new_text:
+        return "—"
+    if cur_text in ("", "—"):
+        return f"**{esc(new_text)}**"
+    return f"**{esc(cur_text)} → {esc(new_text)}**"
+
+
+def plan_infer_scale(raw, text: str) -> str:
+    """需求单行没有现成 `scale` 时（计划新增的字段 / 新物品），按物品说明里的数字反推是不是 ×100。
+
+    说明里出现的数才是玩家看到的数：`0.5` 不在说明里、`50` 在 → 这是百分比字段（×100）。
+    `100.0` 这种说明里写的是 `100`，那就不换算。说明里两个都找不到就按原样显示。
+    """
+    raw = str(raw or "").strip()
+    text = text or ""
+    if not raw or not text:
+        return ""
+    try:
+        n = float(raw)
+    except (TypeError, ValueError):
+        return ""
+    if fmt_num(str(n)) in text:
+        return ""
+    if fmt_num(str(n * 100)) in text:
+        return "x100"
+    return ""
+
+
+def _synthetic_row(fid: str, val, fdict: dict, level) -> dict:
+    """按母图快照的字段行形状造一行（`field`/`ini_key`/`zh`/`type`/`level`/`value`）。"""
+    d = fdict.get(fid) or {}
+    return {"field": fid, "ini_key": d.get("ini_key") or "", "zh": d.get("zh_label") or fid,
+            "type": d.get("type"), "level": level, "value": v(val)}
+
+
+def build_issue2_new_items(plan_path: str, plan_csv: dict, base_names: dict, fdict: dict):
+    """把 `issue2_plan.json` 里 issue #2 的 10 件新物品造成 `parsed` 记录 + 它们的新建技能。
+
+    母图快照（`items.json` / `abilities.json`）里**没有**这些对象（applier 会用模板深拷贝新建），
+    所以这里按快照的逻辑形状手工合成物品字段 `fields`、技能列表 `abilList` 和 30 个新建技能对象，
+    `render_item` 才能正常渲染。返回 `(记录列表, code → 技能对象)`。
+    """
+    if not os.path.exists(plan_path):
+        print(f"  ! {os.path.basename(plan_path)} 不存在 → 本版新增物品不会进图鉴")
+        return [], {}
+    try:
+        plan = load_json(plan_path)
+    except Exception as e:  # noqa: BLE001
+        print(f"  ! {os.path.basename(plan_path)} 解析失败（本版新增物品将缺失）：{e}")
+        return [], {}
+
+    new_abils: dict[str, dict] = {}
+    for a in plan.get("abilities") or []:
+        ac = str(a.get("new") or "").strip()
+        if not ac:
+            continue
+        fields: dict[str, list] = {}
+        for fid, val in (a.get("overrides") or {}).items():
+            ini = (fdict.get(fid) or {}).get("ini_key") or "Other"
+            fields.setdefault(ini, []).append(
+                _synthetic_row(fid, val, fdict, 1 if ini == "Data" else None))
+        new_abils[ac] = {"code": ac, "base": str(a.get("template") or ""), "fields": fields}
+
+    out = []
+    for it in plan.get("items") or []:
+        c = str(it.get("new") or "").strip()
+        if not c:
+            continue
+        crow = plan_csv.get(c) or {}
+        mods = it.get("mods") or {}
+        name = clean_inline(mods.get("unam") or crow.get("name") or it.get("name") or "")
+        tip_raw = str(mods.get("utip") or "")
+        ub_raw = str(mods.get("utub") or mods.get("ides") or "")
+        iabi = str(mods.get("iabi") or crow.get("new_iabi") or "")
+        fields: dict[str, list] = {}
+        for fid, ini in NEW_ITEM_FIELDS:
+            val = mods.get(fid)
+            if val in (None, ""):
+                continue
+            fields.setdefault(ini, []).append(_synthetic_row(fid, val, fdict, None))
+        if (crow.get("new_ilev") or "").strip():
+            fields.setdefault("Level", []).append(_synthetic_row("ilev", crow["new_ilev"], fdict, None))
+        cls_zh = str(it.get("cls") or "").strip()
+        cls_zh = EXTRA_CLASS_CAT.get(cls_zh, cls_zh)
+        origin = str(it.get("old") or "").strip()
+        tpl = str(it.get("template") or crow.get("base") or "").strip()
+        obname = base_names.get(origin, "") or base_names.get(origin.lower(), "")
+        abil_list = [x.strip() for x in iabi.split(",") if x.strip()]
+        # 母图里没有这件物品，所以 recon 的 anchors 也没有它：手工造一份，让「功能描述（人话版）」
+        # 不至于印成「说明文字为空 / 没有可机械改写的数值项」。计划值走 render_changeable 的计划表。
+        nvals = []
+        for ac in abil_list:
+            for rr in ((new_abils.get(ac) or {}).get("fields") or {}).get("Data") or []:
+                nvals.append(f"{(rr.get('zh') or rr.get('field') or '').strip()}={rr.get('value')}")
+        nl_desc = "本版新增物品（母图 v1.0 正式版里还没有，随下一版补丁上线）"
+        nl_desc += ("：" + "、".join(nvals) + "。") if nvals else "。"
+        out.append({
+            "code": c,
+            "base": tpl,
+            "base_name": obname,
+            "name": name,
+            "display": name or f"未设置名称（新增 {c}）",
+            "tip": clean_text(tip_raw),
+            "ubertip": clean_text(ub_raw),
+            "icla": clean_inline(mods.get("icla")),
+            "cat": cls_zh if cls_zh in CATEGORY_ORDER else classify(
+                name, tip_raw, ub_raw, clean_inline(mods.get("icla"))),
+            "quality": clean_inline(it.get("quality") or "") or quality_of(clean_text(ub_raw)),
+            "fields": fields,
+            "abil": abil_list,
+            "anchor": {
+                "code": c,
+                "name": name,
+                "item_name": name,
+                "item_class": clean_inline(mods.get("icla")),
+                "has_abil": bool(abil_list),
+                "abil_list": abil_list,
+                "tip_raw": tip_raw,
+                "ubertip_raw": ub_raw,
+                "ubertip_clean": clean_text(ub_raw),
+                "nl_desc": nl_desc,
+                "values": [],
+                "mismatches": [],
+                "confidence": None,
+            },
+            "new_item": True,
+            "template": tpl,
+            "origin": origin,
+            "origin_name": obname,
+            "issue_code": str(it.get("issue_code") or "").strip(),
+        })
+    return out, new_abils
+
+
+def render_new_item_banner(p, plan_csv_row=None) -> list:
+    """新增物品页顶部的醒目提示：母图 v1.0 正式版里还没有这件物品。"""
+    tpl = p.get("template") or p.get("base") or ""
+    origin = p.get("origin") or ""
+    iv = str((plan_csv_row or {}).get("new_iabi") or "")
+    src = f"由母图模板 `{tpl}` 深拷贝新建" if tpl else "按需求单新建"
+    if origin:
+        src += f"（原始原型 `{origin}`{(' ' + p.get('origin_name')) if p.get('origin_name') else ''}）"
+    out = [f"> {NEW_ITEM_BANNER}（**随下一版补丁上线**，母图 v1.0 正式版里还没有这件物品）：{src}。", ""]
+    abilities = [x.strip() for x in iv.split(",") if x.strip()]
+    if abilities:
+        out += [f"> 本版新建的技能对象：{'、'.join(code(x) for x in abilities)}。"
+                "页内数值取自需求单 `patch_plan/data/issue2_plan.json` 与 "
+                "`patch_plan/data/item_ability_data.csv`（`req_id=issue2`），"
+                "掉落取自 `patch_plan/data/drops_by_boss.csv`；本页**未经实机验证**。", ""]
+    return out
 
 # 说明里第一个染色片段 → 分类（排除单字母热键标签）
 TAG_MAP = {
@@ -300,7 +518,30 @@ def main() -> None:
             "quality": quality_of(ubertip),
             "fields": f,
             "abil": [x.strip() for x in str(first(f, "abilList") or "").split(",") if x.strip()],
+            "new_item": False,
         })
+
+    # ── 本版需求单：计划改动行（issue2/issue3）+ issue #2 的 10 件新物品 ──
+    # 计划行：item_ability_data.csv 里 new_value 非空的行，页面显示「现值 → 本版计划值」
+    plan_rows = load_plan_change_rows(PLAN_ITEM_ABILITY)
+    plan_csv = load_plan_items_csv(PLAN_ITEMS_CSV)
+    # 新物品：母图快照里不存在，用 issue2_plan.json 合成记录 + 新建技能对象
+    new_items, new_abils = build_issue2_new_items(PLAN_ISSUE2_JSON, plan_csv, base_names, fdict)
+    _have = {x["code"] for x in parsed}
+    _dup = [x["code"] for x in new_items if x["code"] in _have]
+    if _dup:
+        print(f"  ! 新增物品 {'、'.join(_dup)} 已存在于母图快照 → 跳过，避免重复页面")
+        new_items = [x for x in new_items if x["code"] not in _have]
+    for _c, _a in new_abils.items():
+        if _c in abils:
+            print(f"  ! 新建技能 {_c} 与母图 abilities.json 里的对象同名 → 保留母图对象")
+        else:
+            abils[_c] = _a
+    parsed += new_items
+    print(f"  · 本版计划改动行：{sum(len(x) for x in plan_rows.values())} 行 / {len(plan_rows)} 件物品"
+          "（item_ability_data.csv，req_id ∈ issue2/issue3 且 new_value 非空）")
+    print(f"  · 本版新增物品：{len(new_items)} 件（issue #2，母图快照里不存在）；"
+          f"新建技能对象 {len(new_abils)} 个")
 
     # 材料用途反查：其它物品的说明里出现了本物品的名字
     used_in = collections.defaultdict(list)
@@ -393,10 +634,11 @@ def main() -> None:
         p["file"] = f"{p['cat']}/{fn}"
         write_page(os.path.join(d, fn),
                    render_item(p, abils, fdict, sources, used_in, item_names, unit_names, excl_items,
-                               anchors.get(p["code"]) or anchors.get("#" + p["name"]) or anchors.get("#" + p["display"]),
+                               anchors.get(p["code"]) or anchors.get("#" + p["name"]) or anchors.get("#" + p["display"]) or p.get("anchor"),
                                text_rows.get(p["code"]), src_rows.get(p["code"]),
                                boss_rows.get(p["code"]) or [], zh_to_fid,
-                               hdr_rows.get(p["code"]) or []))
+                               hdr_rows.get(p["code"]) or [],
+                               plan_rows.get(p["code"]) or [], plan_csv.get(p["code"])))
 
     for c in CATEGORY_ORDER:
         os.makedirs(os.path.join(ITEM_OUT, c), exist_ok=True)
@@ -416,9 +658,15 @@ def main() -> None:
     head = ["ID", "名称", "分类", "品质", "价格", "物品等级", "原型"]
     idx = [f"# 物品总览", "",
            f"共 **{len(parsed)}** 个物品对象（没有自定义名称的 {len(no_name)} 个显示为「原版名（原版）」："
-           f"{'、'.join(no_name) or '无'}）。", "",
-           "分类由游戏内说明里的类型标签与名称规则**自动推断**，推断结果可能有误——以每页的说明原文为准。", "",
-           table(head, rows), ""]
+           f"{'、'.join(no_name) or '无'}）。", ""]
+    _new_items = [p for p in parsed if p.get("new_item")]
+    if _new_items:
+        idx += [f"其中 **{len(_new_items)}** 件是**本版本新增**物品"
+                "（随下一版补丁上线，母图 v1.0 正式版里还没有）："
+                + "、".join(f"{link(p['file'], '`%s`' % p['code'])} {esc(p['display'])}"
+                            for p in sorted(_new_items, key=lambda x: x["code"])) + "。", ""]
+    idx += ["分类由游戏内说明里的类型标签与名称规则**自动推断**，推断结果可能有误——以每页的说明原文为准。", "",
+            table(head, rows), ""]
     for c in CATEGORY_ORDER:
         if cat_count.get(c):
             idx.append(f"- **{c}**：{cat_count[c]} 个")
@@ -466,10 +714,13 @@ def main() -> None:
 
 def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
                 excl_items=None, anchor=None, text_row=None, src_row=None,
-                boss_rows=None, zh_to_fid=None, hdr_rows=None) -> str:
+                boss_rows=None, zh_to_fid=None, hdr_rows=None,
+                plan_rows=None, plan_csv_row=None) -> str:
     f = p["fields"]
     icla = (p["icla"] or "").strip()
     lines = [f"# {p['code']} · {p['display']}", ""]
+    if p.get("new_item"):
+        lines += render_new_item_banner(p, plan_csv_row)
 
     price = clean_inline(first(f, "goldcost"))
     meta = [
@@ -485,11 +736,12 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
     proto = f"`{p['base']}`"
     if p["base_name"]:
         proto += f"（{p['base_name']}）"
-    lines.append(f"**物品 ID**：`{p['code']}`　·　**原型**：{proto}　·　**版本**：{MAP_VERSION}")
+    ver = MAP_VERSION + ("（本版新增，母图 v1.0 正式版中尚无此对象）" if p.get("new_item") else "")
+    lines.append(f"**物品 ID**：`{p['code']}`　·　**原型**：{proto}　·　**版本**：{ver}")
     lines.append("")
 
     lines += render_natural_language(p, anchor, text_row, src_row)
-    lines += render_changeable(p, anchor, zh_to_fid or {}, hdr_rows)
+    lines += render_changeable(p, anchor, zh_to_fid or {}, hdr_rows, plan_rows, plan_csv_row)
     if first(f, "Hotkey"):
         lines.append(f"**热键**：`{clean_inline(first(f, 'Hotkey'))}`")
         lines.append("")
@@ -747,16 +999,43 @@ def _synth_desc(p, anchor, src_row) -> list:
     return out
 
 
-def render_changeable(p, anchor, zh_to_fid, hdr_rows=None) -> list:
-    """## 可改数值项——玩家/策划说要改哪个数，就改这里列的哪个字段。"""
+def render_changeable(p, anchor, zh_to_fid, hdr_rows=None, plan_rows=None, plan_csv_row=None) -> list:
+    """## 可改数值项——玩家/策划说要改哪个数，就改这里列的哪个字段。
+
+    `plan_rows` 是本版需求单（`patch_plan/data/item_ability_data.csv`）里 `new_value` 非空的行。
+    有计划值的物品会多一列**本版计划值**：能按 `(ability_code, field, level)` 对上现有行的就地写
+    「现值 → 计划值」；对不上的（计划新增的字段/技能）单独列在下面，不丢。
+    没有计划行的物品页与改动前**逐字节一致**。
+    """
     out = ["## 可改数值项（改这些值会写进地图对象）", ""]
     vals = [v for v in ((anchor or {}).get("values") or []) if isinstance(v, dict)]
     hdr_rows = [r for r in (hdr_rows or []) if isinstance(r, dict)]
-    if not vals and not hdr_rows:
+    plan_rows = [r for r in (plan_rows or []) if isinstance(r, dict)]
+    if not vals and not hdr_rows and not plan_rows:
         out += ["_（这件物品没有可机械修改的数值项。）_", "",
                 "> 常见原因：它没绑定物品技能，或只挂标准暴雪技能（`AIxx`）——"
                 "这类数值由魔兽原版决定，要改必须先把技能对象复制成自定义技能再改。", ""]
         return out
+
+    show_plan = bool(plan_rows)
+    plan_index = collections.defaultdict(list)
+    for i, r in enumerate(plan_rows):
+        plan_index[_plan_key(r.get("ability_code"), r.get("field"), r.get("level"))].append(i)
+    claimed: set = set()
+
+    def take_plan(ability, field, level):
+        """取一条还没被其它行认领的计划行（同一 (技能,字段,等级) 有多条时按顺序取）。"""
+        for i in plan_index.get(_plan_key(ability, field, level), []):
+            if i not in claimed:
+                claimed.add(i)
+                return plan_rows[i]
+        return None
+
+    def cell(cur_text: str, pr, scale: str = "") -> list:
+        """有计划的物品才多这一格「本版计划值」。"""
+        if not show_plan:
+            return []
+        return [_plan_cell(cur_text, _plan_new_value(pr, scale)) if pr else "—"]
 
     rows = []
     for v in vals:
@@ -768,9 +1047,11 @@ def render_changeable(p, anchor, zh_to_fid, hdr_rows=None) -> list:
         unit = (v.get("unit") or "").strip()
         if unit and unit != "%":
             extra.append(f"单位：{unit}")
+        cur = esc(fmt_num(v.get("value")))
         rows.append([
             ("✔ " if v.get("in_desc") else "") + esc(zh),
-            esc(fmt_num(v.get("value"))),
+            cur,
+        ] + cell(cur, take_plan(v.get("ability"), fid, v.get("level")), v.get("scale") or "") + [
             code(fid),
             blank(v.get("level"), ""),
             "每级数值",
@@ -778,23 +1059,73 @@ def render_changeable(p, anchor, zh_to_fid, hdr_rows=None) -> list:
         ])
     # 表头字段（冷却/耗魔/距离/范围/持续）来自需求单长表，与等级无关 → 等级列留空
     for r in hdr_rows:
+        cur = esc(r.get("cur_value") or "") or "—"
         rows.append([
             esc(r.get("zh") or ""),
-            esc(r.get("cur_value") or "") or "—",
+            cur,
+        ] + cell(cur, take_plan(r.get("ability_code"), (r.get("field") or "").strip(),
+                                 (r.get("level") or "").strip())) + [
             code((r.get("field") or "").strip()),
             blank((r.get("level") or "").strip(), ""),
             "表头字段",
             esc(r.get("note") or "") or "—",
         ])
+
+    # 计划里有、但上面现值表里没有对应行的（本版新增的字段/技能）单独列出，不丢
+    _ptext = (p.get("ubertip") or "") + "\n" + (p.get("tip") or "")
+    plan_extra = []
+    for i, r in enumerate(plan_rows):
+        if i in claimed:
+            continue
+        fid = (r.get("field") or "").strip()
+        if fid == "anam":
+            continue  # 技能显示名（如「增加最大生命值12000」），不是玩家可改的数值
+        plan_extra.append([
+            esc((r.get("zh") or "").strip() or field_zh(fid) or fid),
+            _plan_cell("", _plan_new_value(r, plan_infer_scale(r.get("new_value"), _ptext))),
+            code(fid),
+            blank((r.get("level") or "").strip(), ""),
+            code((r.get("ability_code") or "").strip())
+            + ((" " + esc(r.get("ability_name"))) if (r.get("ability_name") or "").strip() else ""),
+            esc(r.get("note") or "") or "—",
+        ])
+
     out += ["**类别**列里「每级数值」是技能对象 `Data` 里的分级数值，"
-            "「表头字段」是技能级的冷却/耗魔/距离/范围/持续（与等级无关）。", "",
-            table(["数值项", "当前值", "字段 id", "等级", "类别", "备注"], rows), "",
-            "**怎么改**：到需求单仓库 `happy-fish-patch-plan` 打开 `data/item_ability_data.csv`，"
+            "「表头字段」是技能级的冷却/耗魔/距离/范围/持续（与等级无关）。", ""]
+    if show_plan:
+        reqs = sorted({(r.get("req_id") or "").strip() for r in plan_rows if (r.get("req_id") or "").strip()})
+        out += ["**本版计划改动**：「本版计划值」列来自需求单 `patch_plan/data/item_ability_data.csv`"
+                + (f"（本页改动行 `req_id` = {'、'.join('`%s`' % x for x in reqs)}）" if reqs else "")
+                + "；把目标值写进 `new_value` **即生效，随下一版补丁上线**。"
+                "单元格 `50 → 20` 读作「现值 50，本版上线后为 20」。", ""]
+        nb = str((plan_csv_row or {}).get("new_iabi") or "").strip()
+        ob = str((plan_csv_row or {}).get("cur_iabi") or "").strip()
+        if nb and nb != ob:
+            out += [f"> 本版还会把技能列表从 `{ob or '（空）'}` 换成 `{nb}`"
+                    "（换上的技能是母图技能的副本，见 `patch_plan/data/items.csv` 的 `new_iabi`）。", ""]
+    if rows:
+        head = ["数值项", "当前值", "本版计划值", "字段 id", "等级", "类别", "备注"] if show_plan else \
+               ["数值项", "当前值", "字段 id", "等级", "类别", "备注"]
+        out += [table(head, rows), ""]
+    if plan_extra:
+        out += ["### 本版计划新增的数值（上面现值表里没有对应行）", "",
+                table(["数值项", "本版计划值", "字段 id", "等级", "来源技能", "备注"], plan_extra), "",
+                "> 这些是需求单里**新增**的字段/技能（母图现在还没有这一行）；"
+                "写 `new_value` 即生效，随下一版补丁上线。", ""]
+    out += ["**怎么改**：到需求单仓库 `happy-fish-patch-plan` 打开 `data/item_ability_data.csv`，"
             "按 `item_code` + `ability_code` + `field` + `level` 找到对应行，把目标值写进 `new_value`，"
             "同行补 `req_id` 与 `note`；或者直接在「口语需求（自然语言）」Issue 里说人话，由我落表。", "",
             "> ✔ = 该数值在游戏内说明里出现过（说明与对象数值对得上）。"
             "标 `x100` 的百分比项：CSV 里的 `cur_value` 存的是**原始小数**（0.1 = 10%），`new_value` 也要填小数。", ""]
     return out
+
+
+def _cur_or_plan(r: dict, name: str) -> str:
+    """掉落表的现值格：母图里没有现值（本版新增的掉落行）时回落到计划值 `new_*`，其余原样输出。"""
+    cur = r.get("cur_" + name)
+    if cur not in (None, ""):
+        return blank(cur, "")
+    return blank(r.get("new_" + name), "")
 
 
 def render_acquisition_human(p, src_row, boss_rows) -> list:
@@ -843,15 +1174,18 @@ def render_acquisition_human(p, src_row, boss_rows) -> list:
                     (esc(where) if first else ""),
                     code(r.get("item_code")),
                     esc(r.get("item_name") or ""),
-                    blank(r.get("cur_chance_pct"), ""),
-                    blank(r.get("cur_weight"), ""),
-                    blank(r.get("cur_amount"), ""),
+                    _cur_or_plan(r, "chance_pct"),
+                    _cur_or_plan(r, "weight"),
+                    _cur_or_plan(r, "amount"),
                     esc(clean_inline(r.get("证据") or "")),
                 ])
                 first = False
         out += ["### 按来源聚合的掉落（同一 BOSS/宝箱的多件掉落并排列出）", "",
                 table(["来源（组号）", "所在层", "物品 ID", "物品名", "概率%", "权重", "数量", "证据"], rows), "",
                 "> 组号 = `drops_by_boss.csv` 里的一格来源；同一组的继续行留空，表示它们来自同一个来源。", ""]
+        if p.get("new_item"):
+            out += ["> 本物品是**本版新增**：上面的掉落行来自 `patch_plan/data/drops_by_boss.csv`"
+                    "（`req_id=issue2`，概率% 列是**本版计划值**，母图里还没有这条掉落），随下一版补丁上线。", ""]
     elif (src_row or {}).get("可获得性", "").startswith("可获得"):
         out += ["_（这件物品的获取方式没有按来源聚合成组，见下方证据明细。）_", ""]
     return out
