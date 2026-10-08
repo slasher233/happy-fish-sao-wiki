@@ -1251,7 +1251,7 @@
 <td>筋力</td>
 <td><code>ustr</code> / <code>ustp</code> / <code>Istr</code></td>
 <td>力量​/​Strength</td>
-<td>本图​对象​数据​的​中文​标注​就是​「​筋力​」</td>
+<td>地图​说明​原文​（​Tip​/​Ubertip​）​写​「​筋力​」​；<strong>客户端​/​编辑器</strong>里​这个​字段​的​标准​中文名​是​「​力量​」</td>
 </tr>
 <tr>
 <td>敏捷</td>
@@ -1263,7 +1263,7 @@
 <td>体力</td>
 <td><code>uint</code> / <code>uinp</code> / <code>Iint</code></td>
 <td>智力​/​Intelligence</td>
-<td><strong>本图​把​「​智力​」​写作​「​体力​」</strong>，不是生命值上限；生命值上限是 <code>uhpm</code></td>
+<td>地图​说明​原文​写​「​体力​」​；<strong>客户端​/​编辑器</strong>里​的​标准​中文名​是​「​智力​」​，<strong>不是​生命​值​上限</strong>（生命值上限是 <code>uhpm</code>）</td>
 </tr>
 </tbody>
 </table>
@@ -1283,6 +1283,22 @@
 <tr>
 <td>「​（​对象​数据​中此​字​段​为​空​字符串​）​」</td>
 <td>字​段​存在​但值​为​空串​，​常见于​原版​改名​的​对象</td>
+</tr>
+<tr>
+<td><code>—（对象数据中此字段为空）</code></td>
+<td>英雄​页​对​空值​的​写法​，​与​上​一条​同义​（​只是​句式​更​短​，​避免​整表​被​长句​撑开​）</td>
+</tr>
+<tr>
+<td>「​（​未​设置​名称​）​」</td>
+<td>对象​数据​里<strong>名称​字​段​真的​是​空值</strong>（​不是​抓取​失败​）​；​技能​总览​、​物品​页​都​会​这样​标</td>
+</tr>
+<tr>
+<td>「​（​无​原型​字​段​）​」</td>
+<td>该​对象​连​「​原型​」​都​没有​，​无法​回退​取名字​或​ID​，​只能​用​ID​检索</td>
+</tr>
+<tr>
+<td><code>_未绑定英雄_</code></td>
+<td>技能绑定的英雄在 <code>war3map.w3u</code> 里找不到（多为原版遗留技能对象）</td>
 </tr>
 <tr>
 <td>✔</td>
@@ -1307,7 +1323,7 @@
 <hr>
 <div class="wiki-source-note">
 <p><strong>数据​来源</strong>：<code>刀剑物语 happy丶FISH v1.0 正式版</code>（母图 SHA256 <code>62A1122ACEDA220B746DF730B1625C2AF8E3C149048E26FDC2AF5C37BDA6BD6D</code>）</p>
-<p>本页数值由该图的 <code>war3map.w3u</code> / <code>war3map.w3a</code> / <code>war3map.w3t</code> 与 <code>war3map.j</code> 解析生成；<strong>未​经过​实机​验证</strong>—​—​「​数据​来自​哪个​成员​」​不​等于​「​游戏​里​就是​这个​表现​」​。</p>
+<p>本页数值由该图的 <code>war3map.w3u</code> / <code>war3map.w3a</code> / <code>war3map.w3t</code> 与 <code>war3map.j</code> 解析生成；<strong>未​经过​实机​验证</strong>—​—​「​数据​来自​哪个​成员​」​不​等于​「​游戏​里​就是​这个​表现​」​。​哪些​内容​已​被​交叉​验证​、​有​哪些​已知​限制​，​见<a href="../%E5%9C%B0%E5%9B%BE%E8%BA%AB%E4%BB%BD/">地图​身份</a>；本页符号（<code>—</code> / <code>未判定（证据不足）</code> / <code>⚠️ 不可选</code>）的含义见 <a href="./">术语​与​用语</a>。</p>
 </div>
 
 
@@ -1327,7 +1343,7 @@
         <span class="md-icon" title="最后更新">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
         </span>
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月8日 05:09:39 UTC">2026年10月8日</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月8日 16:35:00 UTC">2026年10月8日</span>
       </span>
     
     

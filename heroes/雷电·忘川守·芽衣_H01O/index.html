@@ -24,7 +24,7 @@
     
     
       
-        <title>H01O · 雷电·忘川守·芽衣（黄泉） - happy丶FISH Wiki</title>
+        <title>H01O · 雷电·忘川守·芽衣（黄泉）（地图上无此单位） - happy丶FISH Wiki</title>
       
     
     
@@ -123,7 +123,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              H01O · 雷电·忘川守·芽衣（黄泉）
+              H01O · 雷电·忘川守·芽衣（黄泉）（地图上无此单位）
             
           </span>
         </div>
@@ -2119,7 +2119,7 @@
   <span class="md-ellipsis">
     
   
-    H01O · 雷电·忘川守·芽衣（黄泉）
+    H01O · 雷电·忘川守·芽衣（黄泉）（地图上无此单位）
   
 
     
@@ -2137,7 +2137,7 @@
   <span class="md-ellipsis">
     
   
-    H01O · 雷电·忘川守·芽衣（黄泉）
+    H01O · 雷电·忘川守·芽衣（黄泉）（地图上无此单位）
   
 
     
@@ -3078,13 +3078,13 @@
   
 
 
-<h1 id="h01o">H01O​·​雷电​·​忘川守​·​芽衣​（​黄泉​）<a class="headerlink" href="#h01o" title="复制链接">¶</a></h1>
+<h1 id="h01o">H01O​·​雷电​·​忘川守​·​芽衣​（​黄泉​）​（​地图​上无此​单位​）<a class="headerlink" href="#h01o" title="复制链接">¶</a></h1>
 <blockquote>
-<p><strong>主​属性</strong>：​敏捷​·<strong>英雄​ID</strong>：<code>H01O</code>　·　<strong>原型</strong>：<code>Hpal</code>　·　<strong>可选性</strong>：❌ 地图上无此单位（<code>reachable=NO(地图上无此单位)</code>）</p>
+<p><strong>主​属性</strong>：​敏捷​·<strong>英雄​ID</strong>：<code>H01O</code>　·　<strong>原型</strong>：<code>Hpal</code>　·　<strong>可选性</strong>：​❌​地图​上无此​单位</p>
 </blockquote>
 <div class="admonition warning">
 <p class="admonition-title">本​英雄​在​地图​上​不可​选</p>
-<p><code>note_log/recon/heroes.tsv</code> 的 <code>reachable</code> 字段为 <code>NO(地图上无此单位)</code>（该行 <code>portinit_line=91851</code>），且选人注册表 <code>PH_PortInit</code>（<code>war3map.j</code>）<strong>不​包含</strong> <code>H01O</code>。</p>
+<p><code>note_log/recon/heroes.tsv</code> 把本行标为「地图上无此单位」（原始备注 <code>NO(地图上无此单位)</code>；该行 <code>portinit_line</code> 为 <code>91851</code>），且选人注册表 <code>PH_PortInit</code>（<code>war3map.j</code>）<strong>不​包含</strong> <code>H01O</code>。</p>
 <p>本页数据全部来自对象文件（<code>war3map.w3u</code>）：<strong>对象​存在​≠​游戏​里​能​选到</strong>，​这个​英雄​在​选人​区​不会​出现​。</p>
 </div>
 <h2 id="_1">基础​属性<a class="headerlink" href="#_1" title="复制链接">¶</a></h2>
@@ -3156,7 +3156,7 @@
 </table>
 <blockquote>
 <p>本图​把​「​力量​」​写作<strong>筋力</strong>、​把​「​智力​」​写作<strong>体力</strong>（依据：对象数据里 <code>ustr</code>/<code>uint</code> 的中文标注与说明文本用语）。
-⚠️ 本页「英雄属性成长技能」= <code>Z065,Z063,Z064</code>，<strong>不是</strong>多数英雄用的 <code>Z063</code>/<code>Z064</code>/<code>Z065</code> 三件套，该英雄的属性成长走的是别的技能对象。</p>
+本页「英雄属性成长技能」= <code>Z065,Z063,Z064</code>（本图多数英雄用的 <code>Z063</code>/<code>Z064</code>/<code>Z065</code> 三件套；对象数据里的顺序各页不同）。</p>
 </blockquote>
 <h2 id="_2">技能​取得<a class="headerlink" href="#_2" title="复制链接">¶</a></h2>
 <p><em>本图技能对象全部只有 1 级（<code>alev=1</code>，<code>arlv</code> 多为 1），<strong>解锁​与​升级​由​触发器​控制</strong>：对象数据里没有「解锁等级」字段（<code>reqLevel</code> 多为 0），所以下表不写等级，只写「解锁等级由 <code>war3map.j</code> 触发器决定」。要考证某个技能，可在 <code>war3map.j</code> 里搜技能 ID （例如 <code>Z1UR</code>）与 <code>SetUnitAbilityLevel</code> / <code>SelectHeroSkill</code> 附近的判断。</em></p>
@@ -3167,7 +3167,7 @@
 <th>技能​ID</th>
 <th>技能​名</th>
 <th>类型</th>
-<th>解锁​等级</th>
+<th>解锁​等级​（​对象​数据​无此​字​段​，​由​触发器​控制​）</th>
 <th>说明​摘要</th>
 </tr>
 </thead>
@@ -3177,7 +3177,7 @@
 <td><code>Z17M</code></td>
 <td>三途​枯​榷</td>
 <td>主动</td>
-<td>由​触发器​控制​（​对象​无此​字​段​）</td>
+<td>—</td>
 <td>闪身​至​敌人​身后​发动​砍击​/​能力​:​获得​1​点​【​残梦​】​，​为​指定​敌方​附上​1​层​【​集真​赤​】​，​造成​(​所有​攻击力​*​1.3​)​混乱​伤害​/​伤​…​（​完整​说明​见​下面​技能​数据​块​）</td>
 </tr>
 <tr>
@@ -3185,7 +3185,7 @@
 <td><code>Z17N</code></td>
 <td>四相断​我</td>
 <td>主动</td>
-<td>由​触发器​控制​（​对象​无此​字​段​）</td>
+<td>—</td>
 <td>闪身​至​敌人​身后​发动​砍击​3​段​砍​击​/​能力​:​获得​2​点​【​残梦​】​，​对​敌方​全体​(​范围​500​码​)​造成​三次​(​所有​攻击力​*​4​)​混乱​伤害​，​…​（​完整​说明​见​下面​技能​数据​块​）</td>
 </tr>
 <tr>
@@ -3193,7 +3193,7 @@
 <td><code>Z17O</code></td>
 <td>红叶​时​雨​·​万倾​一空</td>
 <td>未​判定</td>
-<td>由​触发器​控制​（​对象​无此​字​段​）</td>
+<td>—</td>
 <td>效果​:​【​残梦​】​达到​9​点时​下​一次​攻击​触发​，​对​其​范围​500​码内​的​目标​造成​八次​(​所有​攻击力​*​2.2​)​混乱​伤害​，​随后​收刀​时​造成​(​…​（​完整​说明​见​下面​技能​数据​块​）</td>
 </tr>
 <tr>
@@ -3201,7 +3201,7 @@
 <td><code>Z17P</code></td>
 <td>残梦​尽染​·​一刀​缭断</td>
 <td>主动</td>
-<td>由​触发器​控制​（​对象​无此​字​段​）</td>
+<td>—</td>
 <td>能力​:​发动​【​啼泽雨​斩​】​，​对​指定​区域​500​码内​造成​六次​(​所有​攻击力​*​3​)​混乱​伤害​，​每次​消去​1​层​【​集真​赤​】​时​，​追加​(​所有​攻击​…​（​完整​说明​见​下面​技能​数据​块​）</td>
 </tr>
 </tbody>
@@ -3941,13 +3941,13 @@
 <p>⚠️ 按玩家昵称判定专属的物品（<code>J0H6</code>/<code>J0L4</code>/<code>K001</code>/<code>K002</code>/<code>K004</code>）无法从脚本归属到某个英雄类型，本页不会把它们算作本英雄的专属。</p>
 </blockquote>
 <details class="quote">
-<summary>取证​记录​（​子​智能​体​只读​勘查​）</summary>
+<summary>取证​记录​（​对象​数据​与​触发器​摘录​）</summary>
 <p>家族​39​变体​，​无​独立​绑定​，​沿用​H01N​（​未​证实​）</p>
 </details>
 <hr>
 <div class="wiki-source-note">
 <p><strong>数据​来源</strong>：<code>刀剑物语 happy丶FISH v1.0 正式版</code>（母图 SHA256 <code>62A1122ACEDA220B746DF730B1625C2AF8E3C149048E26FDC2AF5C37BDA6BD6D</code>）</p>
-<p>本页数值由该图的 <code>war3map.w3u</code> / <code>war3map.w3a</code> / <code>war3map.w3t</code> 与 <code>war3map.j</code> 解析生成；<strong>未​经过​实机​验证</strong>—​—​「​数据​来自​哪个​成员​」​不​等于​「​游戏​里​就是​这个​表现​」​。</p>
+<p>本页数值由该图的 <code>war3map.w3u</code> / <code>war3map.w3a</code> / <code>war3map.w3t</code> 与 <code>war3map.j</code> 解析生成；<strong>未​经过​实机​验证</strong>—​—​「​数据​来自​哪个​成员​」​不​等于​「​游戏​里​就是​这个​表现​」​。​哪些​内容​已​被​交叉​验证​、​有​哪些​已知​限制​，​见<a href="../../info/%E5%9C%B0%E5%9B%BE%E8%BA%AB%E4%BB%BD/">地图​身份</a>；本页符号（<code>—</code> / <code>未判定（证据不足）</code> / <code>⚠️ 不可选</code>）的含义见 <a href="../../info/%E6%9C%AF%E8%AF%AD%E4%B8%8E%E7%94%A8%E8%AF%AD/">术语​与​用语</a>。</p>
 <p>英雄单位对象来自 <code>war3map.w3u</code>（SHA256 <code>e8612c55afc5219e30c45c19dcff26b63cd8966a94d740853c5ef39085804294</code>），技能对象来自 <code>war3map.w3a</code>（SHA256 <code>80675c0549e25604b5b97bb05cd7f6594f92dfec95639cbdf6a6480ba2ffa9d3</code>）。技能绑定关系由 <code>war3map.j</code> 的 <code>PH_BindUnit</code> / <code>P2SV_FillAbilities</code> 取证得出。</p>
 </div>
 
@@ -3968,7 +3968,7 @@
         <span class="md-icon" title="最后更新">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
         </span>
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月8日 05:58:56 UTC">2026年10月8日</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月8日 16:35:00 UTC">2026年10月8日</span>
       </span>
     
     

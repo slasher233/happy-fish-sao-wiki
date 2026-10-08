@@ -2374,7 +2374,7 @@
   <span class="md-ellipsis">
     
   
-    H01O · 雷电·忘川守·芽衣（黄泉）
+    H01O · 雷电·忘川守·芽衣（黄泉）（地图上无此单位）
   
 
     
@@ -3239,7 +3239,7 @@
 </table>
 <blockquote>
 <p>本图​把​「​力量​」​写作<strong>筋力</strong>、​把​「​智力​」​写作<strong>体力</strong>（依据：对象数据里 <code>ustr</code>/<code>uint</code> 的中文标注与说明文本用语）。
-⚠️ 本页「英雄属性成长技能」= <code>Z063,Z065,Z064</code>，<strong>不是</strong>多数英雄用的 <code>Z063</code>/<code>Z064</code>/<code>Z065</code> 三件套，该英雄的属性成长走的是别的技能对象。</p>
+本页「英雄属性成长技能」= <code>Z063,Z065,Z064</code>（本图多数英雄用的 <code>Z063</code>/<code>Z064</code>/<code>Z065</code> 三件套；对象数据里的顺序各页不同）。</p>
 </blockquote>
 <h2 id="_2">技能​取得<a class="headerlink" href="#_2" title="复制链接">¶</a></h2>
 <p><em>本图技能对象全部只有 1 级（<code>alev=1</code>，<code>arlv</code> 多为 1），<strong>解锁​与​升级​由​触发器​控制</strong>：对象数据里没有「解锁等级」字段（<code>reqLevel</code> 多为 0），所以下表不写等级，只写「解锁等级由 <code>war3map.j</code> 触发器决定」。要考证某个技能，可在 <code>war3map.j</code> 里搜技能 ID （例如 <code>Z1UR</code>）与 <code>SetUnitAbilityLevel</code> / <code>SelectHeroSkill</code> 附近的判断。</em></p>
@@ -3250,7 +3250,7 @@
 <th>技能​ID</th>
 <th>技能​名</th>
 <th>类型</th>
-<th>解锁​等级</th>
+<th>解锁​等级​（​对象​数据​无此​字​段​，​由​触发器​控制​）</th>
 <th>说明​摘要</th>
 </tr>
 </thead>
@@ -3260,7 +3260,7 @@
 <td><code>Z0ES</code></td>
 <td>夏娜​/​贽​殿​遮​那</td>
 <td>主动</td>
-<td>由​触发器​控制​（​对象​无此​字​段​）</td>
+<td>—</td>
 <td>夏娜​所用​的​武器​贽​殿​遮​那​,​能​瞬间​散发出​火焰​的​气息​/​能力​:​对​前面​300​范围​的​敌人​造成​敏捷​×​5​伤害​/​伤害​类型​:​混乱​伤害​/​C​…​（​完整​说明​见​下面​技能​数据​块​）</td>
 </tr>
 <tr>
@@ -3268,7 +3268,7 @@
 <td><code>Z0EW</code></td>
 <td>夏娜​/​火雾​战士</td>
 <td>主动</td>
-<td>由​触发器​控制​（​对象​无此​字​段​）</td>
+<td>—</td>
 <td>可以​让​自己​的​力量​战斗能力​增强​,​更能​应付​战斗​/​能力​:​增加​攻击速度​,​移动​速度​,​战斗​技能​30%​,​(​这个​效果​持续​10​秒​)​/​伤​…​（​完整​说明​见​下面​技能​数据​块​）</td>
 </tr>
 <tr>
@@ -3276,7 +3276,7 @@
 <td><code>Z0EX</code></td>
 <td>夏娜​/​天破壤​碎</td>
 <td>主动</td>
-<td>由​触发器​控制​（​对象​无此​字​段​）</td>
+<td>—</td>
 <td>毁​尽​一切​/​能力​1​:​让​自己​飞在​天空​,​并​无敌​,​之后​向​地面​反击​,​造成​350​范围​内​的​敌人​敏捷​×​80​的​伤害​/​能力​2​:​让​自身​散发出​…​（​完整​说明​见​下面​技能​数据​块​）</td>
 </tr>
 <tr>
@@ -3284,7 +3284,7 @@
 <td><code>Z0EY</code></td>
 <td>夏娜​/​断罪</td>
 <td>主动</td>
-<td>由​触发器​控制​（​对象​无此​字​段​）</td>
+<td>—</td>
 <td>砍断​那些​罪恶​之源​的​一切​/​能力​;​对​敌人​进行​15​次​的​斩击​,​每次​攻击​造成​x100​敏捷​的​伤害​,​最后​三下​造成​x200​敏捷​/​伤害​…​（​完整​说明​见​下面​技能​数据​块​）</td>
 </tr>
 <tr>
@@ -3292,7 +3292,7 @@
 <td><code>Z0EU</code></td>
 <td>夏娜​/​赤炎​积聚</td>
 <td>被动</td>
-<td>由​触发器​控制​（​对象​无此​字​段​）</td>
+<td>—</td>
 <td>将​敌人​的​仇恨​化为​自己​的​能量​,​变为​那​烈焰​之火​/​能力​:​每​受到​5​次​攻击​,​会​散发出​强大​的​火焰​,​火焰​的​伤害​造成​人物​等级​x30​(​筋​…​（​完整​说明​见​下面​技能​数据​块​）</td>
 </tr>
 </tbody>
@@ -3980,13 +3980,13 @@
 <p>⚠️ 按玩家昵称判定专属的物品（<code>J0H6</code>/<code>J0L4</code>/<code>K001</code>/<code>K002</code>/<code>K004</code>）无法从脚本归属到某个英雄类型，本页不会把它们算作本英雄的专属。</p>
 </blockquote>
 <details class="quote">
-<summary>取证​记录​（​子​智能​体​只读​勘查​）</summary>
+<summary>取证​记录​（​对象​数据​与​触发器​摘录​）</summary>
 <p>P2SV​_​FillAbilities​L98431​对应​块​+​PH​_​BindUnit​UnitAddAbility</p>
 </details>
 <hr>
 <div class="wiki-source-note">
 <p><strong>数据​来源</strong>：<code>刀剑物语 happy丶FISH v1.0 正式版</code>（母图 SHA256 <code>62A1122ACEDA220B746DF730B1625C2AF8E3C149048E26FDC2AF5C37BDA6BD6D</code>）</p>
-<p>本页数值由该图的 <code>war3map.w3u</code> / <code>war3map.w3a</code> / <code>war3map.w3t</code> 与 <code>war3map.j</code> 解析生成；<strong>未​经过​实机​验证</strong>—​—​「​数据​来自​哪个​成员​」​不​等于​「​游戏​里​就是​这个​表现​」​。</p>
+<p>本页数值由该图的 <code>war3map.w3u</code> / <code>war3map.w3a</code> / <code>war3map.w3t</code> 与 <code>war3map.j</code> 解析生成；<strong>未​经过​实机​验证</strong>—​—​「​数据​来自​哪个​成员​」​不​等于​「​游戏​里​就是​这个​表现​」​。​哪些​内容​已​被​交叉​验证​、​有​哪些​已知​限制​，​见<a href="../../info/%E5%9C%B0%E5%9B%BE%E8%BA%AB%E4%BB%BD/">地图​身份</a>；本页符号（<code>—</code> / <code>未判定（证据不足）</code> / <code>⚠️ 不可选</code>）的含义见 <a href="../../info/%E6%9C%AF%E8%AF%AD%E4%B8%8E%E7%94%A8%E8%AF%AD/">术语​与​用语</a>。</p>
 <p>英雄单位对象来自 <code>war3map.w3u</code>（SHA256 <code>e8612c55afc5219e30c45c19dcff26b63cd8966a94d740853c5ef39085804294</code>），技能对象来自 <code>war3map.w3a</code>（SHA256 <code>80675c0549e25604b5b97bb05cd7f6594f92dfec95639cbdf6a6480ba2ffa9d3</code>）。技能绑定关系由 <code>war3map.j</code> 的 <code>PH_BindUnit</code> / <code>P2SV_FillAbilities</code> 取证得出。</p>
 </div>
 
@@ -4007,7 +4007,7 @@
         <span class="md-icon" title="最后更新">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
         </span>
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月8日 05:58:56 UTC">2026年10月8日</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月8日 16:35:00 UTC">2026年10月8日</span>
       </span>
     
     
