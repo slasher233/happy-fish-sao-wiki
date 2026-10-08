@@ -43,6 +43,9 @@ PLAN_ITEM_TEXT = os.path.join(PLAN_DATA, "item_text.csv")
 PLAN_ITEM_SOURCE = os.path.join(PLAN_DATA, "items_source.csv")
 PLAN_DROPS_BY_BOSS = os.path.join(PLAN_DATA, "drops_by_boss.csv")
 PLAN_ITEM_ABILITY = os.path.join(PLAN_DATA, "item_ability_data.csv")
+# 本版本无法获得的物品清单（由 note_log/tools/make_removed_manifest.py 生成）；
+# 这些物品已从数据层与图鉴删除，生成器读它过滤，避免重新生成时又冒出来。
+REMOVED_JSON = os.path.join(PLAN_DATA, "removed_items.json")
 
 # 技能「表头字段」在 AbilityData.slk 里的列名（slk_col）：冷却/耗魔/距离/范围/持续/等级数。
 # 它们不是 `Data` 每级数值，但同样是玩家能感知、说明里常出现的数（以前完全没进需求单）。
@@ -243,6 +246,19 @@ def load_base_names() -> dict:
 
 def main() -> None:
     items = load_json(ITEMS_JSON)
+    removed_items = {}
+    if os.path.exists(REMOVED_JSON):
+        try:
+            for _r in (load_json(REMOVED_JSON).get("removed") or []):
+                if _r.get("code"):
+                    removed_items[str(_r["code"])] = _r
+        except Exception as e:  # noqa: BLE001
+            print(f"  ! removed_items.json 解析失败：{e}")
+    if removed_items:
+        _before = len(items)
+        items = [it for it in items if obj_code(it) not in removed_items]
+        print(f"  · 本版本无法获得的物品：剔除 {_before - len(items)} 件"
+              f"（清单 patch_plan/data/removed_items.json，共 {len(removed_items)} 条）")
     abils = {a["code"]: a for a in load_json(ABIL_JSON)}
     fdict = load_field_dict(ABIL_FIELDS)
     base_names = load_base_names()
@@ -310,6 +326,10 @@ def main() -> None:
     no_name = []
 
     item_names = {p["code"]: p["display"] for p in parsed}
+    # 交叉引用里若出现已删除的物品（例如某装备的说明里写着「奶酪」），
+    # 不要只留一个裸 code —— 明确标出它本版本不可获得、已从图鉴删除。
+    for _c, _r in removed_items.items():
+        item_names.setdefault(_c, "%s（本版本不可获得，已从图鉴删除）" % (_r.get("name") or _c))
     unit_names = {}
     try:
         for u in load_json(UNITS_JSON):
@@ -406,12 +426,19 @@ def main() -> None:
 
     # 获取途径统计（来自 item_sources.json）
     if cov:
+        n_rm = len(removed_items)
         idx += ["## 获取途径证据覆盖", "",
-                f"- 物品对象总数：**{cov.get('items_total', '—')}**",
+                f"- 图鉴收录的物品对象：**{len(parsed)}**"
+                + (f"（地图数据里另有 {n_rm} 件本版本完全无法获得，已从图鉴删除）" if n_rm else ""),
+                "",
+                "下面几行是**删除前**整张 `war3map.w3t` 的静态统计（来自 `note_log/wiki_data/item_sources.json`，未随删除重算）：",
+                f"- 对象总数：**{cov.get('items_total', '—')}**",
                 f"- 拿到至少一条获取途径证据：**{cov.get('items_with_acquisition_evidence', '—')}**",
                 f"- 只有上下文证据（作为材料/触发物被消耗）：**{cov.get('items_with_context_only_evidence', '—')}**",
                 f"- 完全没有获取证据：**{cov.get('items_without_any_evidence', '—')}**", "",
-                "每条获取方式都带 `war3map.j` 行号；证据来自静态分析，**不代表游戏内一定如此**（例如合成还需要 NPC 菜单配合）。", ""]
+                "每条获取方式都带 `war3map.j` 行号；证据来自静态分析，**不代表游戏内一定如此**（例如合成还需要 NPC 菜单配合）。",
+                f"被删除的 {n_rm} 件物品（含 code、名称与原文判定理由）保留在 `patch_plan/data/removed_items.json`，"
+                "需要恢复时从该清单删掉条目、重跑生成器即可。", ""]
         kinds = cov.get("acquisition_kinds") or []
         if kinds:
             idx.append("识别的获取途径类型：" + "、".join(f"`{k}`" for k in kinds))
