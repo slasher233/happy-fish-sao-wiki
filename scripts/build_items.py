@@ -96,8 +96,23 @@ def kind_zh(k) -> str:
     return KIND_ZH.get(s, s or "未知方式")
 
 
+def type_zh(icla) -> str:
+    """`class`（字段 `icla`）枚举 → 中文；缺失/未收录时写清依据（审计问题 W002）。"""
+    s = (icla or "").strip()
+    if not s:
+        return "未设置（对象数据 `icla` 字段为空）"
+    zh = CLASS_ZH.get(s)
+    if zh:
+        return f"{zh}（原始枚举 `{s}`）"
+    return f"`{s}`（未收录的枚举值，站内暂未译）"
+
+
 def who_zh(t) -> str:
-    """把 unclassified 的「给谁」表达式翻成人话。"""
+    """把 unclassified 的「给谁」表达式翻成人话。
+
+    认得出函数名就只写人话（审计问题 W012：`GetTriggerUnit(` 这种没写完的函数残片
+    不能印给用户；行尾已有 `j 行号` 可回溯）；认不出的也只保留函数名 + 省略号。
+    """
     s = clean_inline(str(t or ""))
     if not s or s in ("None", "—"):
         return "（无法确定目标）"
@@ -105,10 +120,45 @@ def who_zh(t) -> str:
     if not m:
         return s
     who = _UNIT_EXPR_ZH.get(m.group(1))
-    raw = s.replace("`", "'")
     if who:
-        return f"{who}（原表达式 `{raw}`）"
-    return f"（无法确定目标；原表达式 `{raw}`）"
+        return who
+    fn = m.group(1).replace("`", "'")
+    return f"（无法确定目标：触发器片段 `{fn}(...)`）"
+
+
+# 同一属性在站内有两套叫法（审计问题 W016）：**客户端/编辑器的标准中文名**写「力量」「智力」，
+# **本图说明原文与策划习惯**写「筋力」「体力」。每页首次出现写成「筋力（力量）」，
+# 其后统一用图内叫法；原文引用块保留作者原文，另用 ATTR_NOTE 在页内说明一次。
+ATTR_PAIRS = (("力量", "筋力"), ("智力", "体力"))
+_ATTR_WORD_PAIR = {w: pair for pair in ATTR_PAIRS for w in pair}
+_ATTR_REGEX = re.compile("|".join(w for pair in ATTR_PAIRS for w in pair))
+_ATTR_ALIASED = tuple(f"{g}（{f}）" for f, g in ATTR_PAIRS)
+ATTR_NOTE = ("用词说明：**客户端/编辑器**里这两个字段的标准中文名是「力量」「智力」，"
+             "**本图说明原文**写「筋力」「体力」，说的是同一组属性；"
+             "本站正文统一用图内叫法，必要时在括号里补标准名。")
+
+
+def attr_unify(text, seen=None) -> str:
+    """按 `seen`（每页一个 set）统一属性的两套叫法（审计问题 W016）。"""
+    if seen is None:
+        return str(text or "")
+
+    def rep(m):
+        pair = _ATTR_WORD_PAIR[m.group(0)]
+        if pair[0] in seen:
+            return pair[1]
+        seen.add(pair[0])
+        return f"{pair[1]}（{pair[0]}）"
+
+    return _ATTR_REGEX.sub(rep, str(text or ""))
+
+
+def attr_needs_note(lines) -> bool:
+    """页面上（除「筋力（力量）」这种对照写法外）还出现过属性词时，加一行用词说明。"""
+    body = "\n".join(lines)
+    for alias in _ATTR_ALIASED:
+        body = body.replace(alias, "")
+    return any(w in body for pair in ATTR_PAIRS for w in pair)
 
 
 def load_csv(path: str) -> list[dict]:
@@ -718,6 +768,7 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
                 plan_rows=None, plan_csv_row=None) -> str:
     f = p["fields"]
     icla = (p["icla"] or "").strip()
+    attr_seen: set = set()  # 属性用词对照（W016）：每页一份，首次出现写「筋力（力量）」
     lines = [f"# {p['code']} · {p['display']}", ""]
     if p.get("new_item"):
         lines += render_new_item_banner(p, plan_csv_row)
@@ -726,10 +777,9 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
     meta = [
         f"**分类**：{p['cat']}",
         f"**品质**：{val_or(p['quality'], '无数据（说明里没写品质）')}",
-        f"**类型**：{(CLASS_ZH.get(icla, icla) if icla else '未设置')}"
-        + (f"（原始枚举 `{icla}`）" if icla and CLASS_ZH.get(icla) else ""),
-        f"**物品等级**：{val_or(clean_inline(first(f, 'Level')), '未设置')}",
-        f"**价格**：{val_or(price, '未设置')}" + (" 金" if price else ""),
+        f"**类型**：{type_zh(icla)}",
+        f"**物品等级**：{val_or(clean_inline(first(f, 'Level')), '未设置（对象数据里没有这一项）')}",
+        f"**价格**：{val_or(price, '未设置（对象数据里没有这一项）')}" + (" 金" if price else ""),
     ]
     lines.append("> " + "\u3000".join(meta))
     lines.append("")
@@ -740,8 +790,9 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
     lines.append(f"**物品 ID**：`{p['code']}`　·　**原型**：{proto}　·　**版本**：{ver}")
     lines.append("")
 
-    lines += render_natural_language(p, anchor, text_row, src_row)
-    lines += render_changeable(p, anchor, zh_to_fid or {}, hdr_rows, plan_rows, plan_csv_row)
+    lines += render_natural_language(p, anchor, text_row, src_row, attr_seen)
+    lines += render_changeable(p, anchor, zh_to_fid or {}, hdr_rows, plan_rows, plan_csv_row,
+                               attr_seen)
     if first(f, "Hotkey"):
         lines.append(f"**热键**：`{clean_inline(first(f, 'Hotkey'))}`")
         lines.append("")
@@ -785,7 +836,7 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
                 fid = r.get("field", "")
                 d = fdict.get(fid, {})
                 if d.get("ini_key") == "Data":
-                    zh = d.get("zh_label") or fid
+                    zh = attr_unify(d.get("zh_label") or fid, attr_seen)
                     stat_rows.append([
                         esc(zh),
                         esc(v(r.get("value"))),
@@ -795,13 +846,14 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
                     ])
                     keybits.append(f"{zh}={v(r.get('value'))}")
                 elif d.get("ini_key") in ("Cost", "Cool") and r.get("level") in (1, "1", None):
-                    keybits.append(f"{d.get('zh_label') or fid}={v(r.get('value'))}")
+                    keybits.append(f"{attr_unify(d.get('zh_label') or fid, attr_seen)}={v(r.get('value'))}")
         ability_rows.append([code(ac), esc(anam) or "—", esc(", ".join(keybits)) or "—", esc(aub) or "—"])
 
     if stat_rows:
         lines.append(table(["属性", "数值", "来源能力", "字段", "等级"], stat_rows))
     else:
-        lines.append("_（该物品没有属性类物品技能）_")
+        lines.append("_（本节无内容：本物品的 `abilList`（字段 `iabi`）里没有带 `Data` 数值字段的物品技能，"
+                     "对象数据里确实没有属性数值可列。）_")
         lines.append("")
 
     lines += ["### 物品能力", ""]
@@ -817,7 +869,7 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
             lines.append(table(["能力 ID", "能力名称", "关键数值", "能力说明"], ability_rows))
         lines.append("")
     else:
-        lines.append("_（无 `iabi` 绑定）_")
+        lines.append("_（本节无内容：对象数据的 `abilList`（字段 `iabi`）为空，本物品没有绑定任何能力对象。）_")
         lines.append("")
     if missing_abils:
         lines += ["!!! warning \"数据异常：引用了本图不存在的能力对象\"",
@@ -864,13 +916,19 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
     for ini_key in sorted(f.keys()):
         for r in f[ini_key]:
             fid = r.get("field", "")
-            zh = field_zh(fid) if fid else clean_inline(r.get("zh") or "")
+            zh = attr_unify(field_zh(fid) if fid else clean_inline(r.get("zh") or ""), attr_seen)
             lv = f" (Lv{r['level']})" if r.get("level") not in (None, "") else ""
             val = detoken(clean_inline(v(r.get("value"))))
             if val == "":
                 val = "（对象数据中此字段为空字符串）"
             lines.append(f"    - `{fid}` **{esc(zh)}**（{ini_key}）{lv} = `{val}`")
     lines.append("")
+
+    # 属性用词说明放在页首（审计问题 W016：同一页里两套叫法都出现时说明一次）
+    if attr_needs_note(lines):
+        i = next((k for k, s in enumerate(lines) if s.startswith("**物品 ID**：")), None)
+        if i is not None:
+            lines[i + 2:i + 2] = [f"> {ATTR_NOTE}", ""]
 
     lines.append(source_footer([
         f"物品字段：`war3map.w3t`（SHA256 `{MEMBER_SHA['war3map.w3t']}`）；"
@@ -892,7 +950,7 @@ def _mismatch_summary(anchor) -> str:
     return "、".join(f"{k} {n} 处" for k, n in cnt.most_common())
 
 
-def render_natural_language(p, anchor, text_row, src_row=None) -> list:
+def render_natural_language(p, anchor, text_row, src_row=None, attr_seen=None) -> list:
     """## 功能描述（人话版）——把物品技能数值转写成一句自然语言。
 
     没有数值可转写时（本图 220 件物品没有绑定物品技能），**不写占位符**，而是改成
@@ -906,7 +964,7 @@ def render_natural_language(p, anchor, text_row, src_row=None) -> list:
         desc = auto.replace("✔", "（说明里出现过）") if auto else ""
     synthesized = not desc
     if desc:
-        out += [desc, ""]
+        out += [attr_unify(desc, attr_seen), ""]
     else:
         out += _synth_desc(p, anchor, src_row)
 
@@ -999,7 +1057,8 @@ def _synth_desc(p, anchor, src_row) -> list:
     return out
 
 
-def render_changeable(p, anchor, zh_to_fid, hdr_rows=None, plan_rows=None, plan_csv_row=None) -> list:
+def render_changeable(p, anchor, zh_to_fid, hdr_rows=None, plan_rows=None, plan_csv_row=None,
+                      attr_seen=None) -> list:
     """## 可改数值项——玩家/策划说要改哪个数，就改这里列的哪个字段。
 
     `plan_rows` 是本版需求单（`patch_plan/data/item_ability_data.csv`）里 `new_value` 非空的行。
@@ -1012,7 +1071,9 @@ def render_changeable(p, anchor, zh_to_fid, hdr_rows=None, plan_rows=None, plan_
     hdr_rows = [r for r in (hdr_rows or []) if isinstance(r, dict)]
     plan_rows = [r for r in (plan_rows or []) if isinstance(r, dict)]
     if not vals and not hdr_rows and not plan_rows:
-        out += ["_（这件物品没有可机械修改的数值项。）_", "",
+        lack = ("对象数据的 `abilList`（字段 `iabi`）为空" if not (p.get("abil") or "")
+                else "它绑定的技能里没有 `Data` 数值字段")
+        out += [f"_（本节无内容：{lack} —— 对象数据里没有可机械修改的数值项。）_", "",
                 "> 常见原因：它没绑定物品技能，或只挂标准暴雪技能（`AIxx`）——"
                 "这类数值由魔兽原版决定，要改必须先把技能对象复制成自定义技能再改。", ""]
         return out
@@ -1049,7 +1110,7 @@ def render_changeable(p, anchor, zh_to_fid, hdr_rows=None, plan_rows=None, plan_
             extra.append(f"单位：{unit}")
         cur = esc(fmt_num(v.get("value")))
         rows.append([
-            ("✔ " if v.get("in_desc") else "") + esc(zh),
+            ("✔ " if v.get("in_desc") else "") + esc(attr_unify(zh, attr_seen)),
             cur,
         ] + cell(cur, take_plan(v.get("ability"), fid, v.get("level")), v.get("scale") or "") + [
             code(fid),
@@ -1061,7 +1122,7 @@ def render_changeable(p, anchor, zh_to_fid, hdr_rows=None, plan_rows=None, plan_
     for r in hdr_rows:
         cur = esc(r.get("cur_value") or "") or "—"
         rows.append([
-            esc(r.get("zh") or ""),
+            esc(attr_unify(r.get("zh") or "", attr_seen)),
             cur,
         ] + cell(cur, take_plan(r.get("ability_code"), (r.get("field") or "").strip(),
                                  (r.get("level") or "").strip())) + [
@@ -1081,7 +1142,7 @@ def render_changeable(p, anchor, zh_to_fid, hdr_rows=None, plan_rows=None, plan_
         if fid == "anam":
             continue  # 技能显示名（如「增加最大生命值12000」），不是玩家可改的数值
         plan_extra.append([
-            esc((r.get("zh") or "").strip() or field_zh(fid) or fid),
+            esc(attr_unify((r.get("zh") or "").strip() or field_zh(fid) or fid, attr_seen)),
             _plan_cell("", _plan_new_value(r, plan_infer_scale(r.get("new_value"), _ptext))),
             code(fid),
             blank((r.get("level") or "").strip(), ""),
@@ -1187,7 +1248,8 @@ def render_acquisition_human(p, src_row, boss_rows) -> list:
             out += ["> 本物品是**本版新增**：上面的掉落行来自 `patch_plan/data/drops_by_boss.csv`"
                     "（`req_id=issue2`，概率% 列是**本版计划值**，母图里还没有这条掉落），随下一版补丁上线。", ""]
     elif (src_row or {}).get("可获得性", "").startswith("可获得"):
-        out += ["_（这件物品的获取方式没有按来源聚合成组，见下方证据明细。）_", ""]
+        out += ["_（本节无内容：`item_sources.json` 里这件物品的来源没有记到具体 BOSS/宝箱/店，"
+                "只有「可获得」这一条笼统记录；逐条证据见下方「全部证据明细」。）_", ""]
     return out
 
 
@@ -1265,7 +1327,7 @@ def render_sources(src: dict, item_names: dict, unit_names: dict) -> str:
             chance = e.get("chance_pct")
             rows.append([
                 (f"`{su}`" + (f" {esc(sun)}" if sun else "")) if su else "（未标注来源单位）",
-                esc(e.get("method") or e.get("kind") or ""),
+                esc(kind_zh(e.get("method") or e.get("kind")) if (e.get("method") or e.get("kind")) else ""),
                 (f"{chance}%" if chance is not None else "—"),
                 code(e.get("line") or e.get("choose_line")),
             ])
@@ -1350,7 +1412,10 @@ def render_materials(src, text_uses, item_names) -> str:
         parts += ["**说明文本中提到本物品的物品**（文本匹配，不等于真实配方）：", "",
                   table(["物品 ID", "物品名称"], rows), ""]
     if not parts:
-        parts.append("_（没有找到本物品参与合成或作为材料的证据）_")
+        # 审计问题 W014：空章节要写清「查了什么、所以为空」，不能只丢一句「没有证据」
+        parts.append("_（本节无内容：`item_sources.json` 里这件物品既没有 `used_as_material`、"
+                     "也没有 `consumed_only` 记录，全物品的说明文本（Tip/Ubertip）里也没有任何物品"
+                     "提到它（文本匹配，不等于真实配方）；逐条证据见下方「全部证据明细」。）_")
         parts.append("")
     return "\n".join(parts)
 

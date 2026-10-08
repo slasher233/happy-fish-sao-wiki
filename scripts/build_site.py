@@ -189,7 +189,8 @@ def build_skills() -> None:
     rows = []
     for a in sorted(abils, key=obj_code):
         c = obj_code(a)
-        name = clean_inline(a.get("name"))
+        name = esc(clean_inline(a.get("name")))
+        bname = esc(clean_inline(a.get("base_name")))
         owner = bound.get(c, "")
         st = stext.get(c)
         n_ad = len(adata.get(c, []))
@@ -197,9 +198,17 @@ def build_skills() -> None:
             note_flag = "未收录"
         else:
             note_flag = "有" if (st.get("cur_ubertip") or "").strip() else "无"
-        rows.append([code(c), esc(name) or "（对象无名称）", esc(owner) or "_未绑定英雄_",
+        # 名称空的分三种措辞（审计问题 W019）：只有名称空 → 指到同一行的「原型名称」；
+        # 名称与原型名都空 → 整行没有可读信息，必须提示读者改按「技能 ID」检索。
+        if name:
+            name_cell = name
+        elif bname:
+            name_cell = "（未设置名称）"
+        else:
+            name_cell = "该技能对象未设置名称与原型名，请用 ID 检索"
+        rows.append([code(c), name_cell, esc(owner) or "_未绑定英雄_",
                      code(str(a.get("base") or "").replace("\x00", "")) or "（无原型字段）",
-                     esc(clean_inline(a.get("base_name"))) or "（原型无名称）",
+                     bname or "（未设置名称）",
                      str(n_ad), note_flag])
     lines = [
         "# 技能总览",
@@ -215,8 +224,11 @@ def build_skills() -> None:
         "「说明（原文）」= `patch_plan/data/hero_skill_text.csv` 里 `cur_ubertip` 的状态"
         "（`有` / `无` = 该技能有行但原文为空 / `未收录` = 该表没有这行）。",
         "",
-        "> 表里的「（对象无名称）」「（原型无名称）」「（无原型字段）」是**对象数据里真的没有这个值**，"
-        "不是抓取失败；详见 [术语与用语](../info/术语与用语.md)。",
+        "> 表里的「（未设置名称）」= 对象数据里**这个字段真的是空值**，不是抓取失败；"
+        "「（无原型字段）」= 连原型对象都没有，无法回退取 ID。"
+        "名称为「该技能对象未设置名称与原型名，请用 ID 检索」的行请按第一列「技能 ID」检索。"
+        "符号 `—` 表示对象数据里该字段为空字符串（不是 0，也不是未知），"
+        "全站口径见 [术语与用语](../info/术语与用语.md)。",
         "",
         table(["技能 ID", "名称", "绑定", "原型", "原型名称", "可改数值项数", "说明（原文）"], rows),
         "",
@@ -446,9 +458,9 @@ def build_info() -> None:
         "## 属性三围",
         "",
         table(["本图用语", "本图字段", "常见叫法", "说明"], [
-            ["筋力", "`ustr` / `ustp` / `Istr`", "力量 / Strength", "本图对象数据的中文标注就是「筋力」"],
+            ["筋力", "`ustr` / `ustp` / `Istr`", "力量 / Strength", "地图说明原文（Tip/Ubertip）写「筋力」；**客户端/编辑器**里这个字段的标准中文名是「力量」"],
             ["敏捷", "`uagi` / `uagp` / `Iagi`", "敏捷 / Agility", "与常见叫法一致"],
-            ["体力", "`uint` / `uinp` / `Iint`", "智力 / Intelligence", "**本图把「智力」写作「体力」**，不是生命值上限；生命值上限是 `uhpm`"],
+            ["体力", "`uint` / `uinp` / `Iint`", "智力 / Intelligence", "地图说明原文写「体力」；**客户端/编辑器**里的标准中文名是「智力」，**不是生命值上限**（生命值上限是 `uhpm`）"],
         ]),
         "",
         "## 本站符号",
@@ -456,6 +468,10 @@ def build_info() -> None:
         table(["符号", "含义"], [
             ["`—`", "对象数据里该字段为空（不是 0，也不是未知）"],
             ["「（对象数据中此字段为空字符串）」", "字段存在但值为空串，常见于原版改名的对象"],
+            ["`—（对象数据中此字段为空）`", "英雄页对空值的写法，与上一条同义（只是句式更短，避免整表被长句撑开）"],
+            ["「（未设置名称）」", "对象数据里**名称字段真的是空值**（不是抓取失败）；技能总览、物品页都会这样标"],
+            ["「（无原型字段）」", "该对象连「原型」都没有，无法回退取名字或 ID，只能用 ID 检索"],
+            ["`_未绑定英雄_`", "技能绑定的英雄在 `war3map.w3u` 里找不到（多为原版遗留技能对象）"],
             ["✔", "该数值在游戏内说明文本里出现过（说明与数值能对上）"],
             ["`未判定（证据不足）`", "对象数据既没有主动施法信号（耗魔/冷却/施法距离/范围），也没有 `Order`，无法判断主动还是被动"],
             ["`⚠️ 不可选`", "该英雄存在于对象数据，但不在 `PH_PortInit` 注册表里，游戏里选不到"],
@@ -488,8 +504,11 @@ def build_changelogs() -> None:
     out = os.path.join(DOCS, "changelogs")
     posts = os.path.join(out, "posts")
     os.makedirs(posts, exist_ok=True)
-    # 口径与 docs/index.md、docs/heroes/index.md、docs/skills/index.md 保持一致（审计问题 W010）
+    # 口径与 docs/index.md、docs/heroes/index.md、docs/skills/index.md 保持一致（审计问题 W010）：
+    # 三处数字都从同一份数据现算，不在正文里写死，避免下次数据变了又对不上。
     c_ok, c_no, c_total = hero_scope(load_tsv(HERO_TSV))
+    n_items = len(load_json(ITEMS_JSON))
+    n_abils = len(load_json(ABIL_JSON))
     write_page(os.path.join(out, ".pages"), "title: 更新日志\n")
     # blog 插件的作者表必须放在 blog_dir 根（docs/changelogs/.authors.yml）
     # mkdocs-material 9.7 的 schema 是 `authors:` → {id: {name, description}}
@@ -534,8 +553,8 @@ def build_changelogs() -> None:
         "| 项目 | 内容 |",
         "| --- | --- |",
         f"| 英雄条目 | {c_total} 条数据（{c_ok} 个可选 + {c_no} 个地图上无此单位） |",
-        "| 物品条目 | 551 |",
-        "| 技能对象 | 2,199 |",
+        f"| 物品条目 | {n_items} 件对象 |",
+        f"| 技能对象 | {n_abils:,} |",
         "",
         "## 已知问题",
         "",

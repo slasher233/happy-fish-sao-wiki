@@ -10,6 +10,7 @@ import json
 import os
 import re
 import sys
+from urllib.parse import quote
 
 # ── 路径 ────────────────────────────────────────────────────────────────
 # 本文件在 <W>\\wiki\\scripts\\ 下，W 是干活目录（含 note_log 与 wiki）
@@ -203,27 +204,104 @@ def nl_values_text(pairs, limit: int = 14) -> str:
     return "；".join(out) if out else ""
 
 
+def q(target: str) -> str:
+    """markdown 链接目标的百分号编码（审计问题 W024）。
+
+    `docs\\` 下大量文件名直接来自显示名，含**空格与半角括号**
+    （例如 `公会 命运之夜(four king)_H01J.md`）。裸拼 `[label](公会 命运之夜(four king)_H01J.md)`
+    会被 CommonMark/Python-Markdown 在**空格或第一个 `)`**处截断，链接指向不存在的路径。
+
+    做法：
+    - `urllib.parse.quote(..., safe="/%")`：`/` 保留成分隔符，已编码的 `%`（`%20`/`%E5…`）
+      不二次编码；其余（空格、`(`、`)`、`#`、`?`、非 ASCII 文件名）全部百分号编码。
+    - **只编码链接目标**，显示文本原样返回（调用方负责 markdown 转义）。
+    - 统一转成 `/` 分隔，并去掉首尾空白与尖括号（避免调用方传 `<…>` 造成 `<<…>>`）。
+
+    MkDocs 解析时会 `unquote` 回真实文件名，所以编码后的链接仍命中磁盘上的文件；
+    想直接复制 URL 分享时也不会被空格/括号断掉。
+    """
+    p = (target or "").replace("\\", "/").strip().strip("<>").strip()
+    return quote(p, safe="/%")
+
+
 def link(path: str, label: str) -> str:
-    """markdown 链接：目标用尖括号包住，避免空格/括号把链接截断（审计问题 W024）。"""
-    p = (path or "").replace("\\", "/").strip()
-    p = p.replace(" ", "%20").replace("(", "%28").replace(")", "%29")
-    return "[%s](<%s>)" % (label, p)
+    """统一 markdown 内链：`[label](<百分号编码后的目标>)`（审计问题 W024）。
+
+    尖括号 + `q()` 双重保护：`<>` 让 CommonMark 允许目标里有空格，`q()` 让 URL 合法，
+    所以带空格/括号的文件名（`公会 命运之夜(four king)_H01J.md`）不会再被截断。
+    **所有**拼接站内链接的地方都应走本函数，不要在生成器里手写 `](...)`。
+    """
+    return "[%s](<%s>)" % (label, q(path))
 
 
 # ── 文件名 ───────────────────────────────────────────────────────────────
-_BAD = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
+# Windows 非法字符 + 控制字符（含 \x7f DEL）：`< > : " / \ | ? *` 与 \x00-\x1f \x7f。
+_BAD = re.compile(r'[<>:"/\\|?*\x00-\x1f\x7f]')
+# 收尾的「空格与点」在 Windows 上都不合法（`a .md` 会被吃掉尾部空格/点），单独处理。
+_TRAIL = " ."
 
 
 def safe_name(s: str, limit: int = 60) -> str:
+    """显示名 → 文件名主干。
+
+    **加固（审计问题 W025 的折中方案）**：去掉 Windows 非法字符 `<>:"/\\|?*` 与控制字符
+    （`\\x00-\\x1f`、`\\x7f`），去掉首尾空白、去掉结尾的点，保证非空（空则回退 `未命名`）。
+
+    **有意保留空格与半角括号**：站点 2026-10-08 已上线、还在给协作者发链接，
+    按审计原始建议「只留中日韩文字/字母数字/-/_/.」会改掉 **94 个页面文件名**（= 94 个 URL）。
+    保留空格与 `(` `)` 对文件系统与 MkDocs 都合法，链接被截断的风险已由 `q()` / `link()`
+    的百分号编码（W024）解决，所以这里不做整站改名。
+    """
     t = clean_inline(s)
     t = _BAD.sub(" ", t)
-    t = re.sub(r"\s+", " ", t).strip(" .")
+    t = re.sub(r"\s+", " ", t).strip(_TRAIL)
     if len(t) > limit:
-        t = t[:limit].rstrip(" .")
+        t = t[:limit].rstrip(_TRAIL)
     return t or "未命名"
 
 
+# ── 站点绝对链接 → 页内相对链接 ─────────────────────────────────────────
+# 本站是 GitHub Pages **项目站**：`mkdocs.yml` 的 `site_url` 是
+# `https://slasher233.github.io/happy-fish-wiki/`，仓库里没有 CNAME，
+# 所以站点挂在 `/happy-fish-wiki/` 子路径下。根相对链接 `](/info/地图身份/)`
+# 会被浏览器解析成 `https://slasher233.github.io/info/地图身份/` → 404。
+# mkdocs 对这类链接只打 INFO「absolute link … left as is」，不会报错，
+# 因此必须在写盘时换成页内相对链接（`../`×目录层数 + 目标 .md）。
+_SITE_ABS_LINK = re.compile(r"\]\((/[^)\s]*)\)")
+
+
+def page_depth(path: str) -> int:
+    """页面相对 `docs/` 的目录层数：`docs/index.md`=0、`docs/heroes/X.md`=1、`docs/items/装甲/X.md`=2。"""
+    p = os.path.normpath(path).replace("\\", "/")
+    i = p.rfind("/docs/")
+    if i < 0:
+        return 0
+    return max(0, p[i + 6:].count("/"))
+
+
+def relativize_site_links(text: str, path: str) -> str:
+    """把页内所有站点绝对链接 `](/info/xxx/)` 改写成相对链接 `](../info/xxx.md)`。
+
+    任意目录层数的页面都能命中，`docs/info/*.md` 这种「自己就在目标目录里」的页面
+    会得到 `../info/xxx.md`（等价于自身目录），语义仍然正确。
+    """
+    depth = page_depth(path)
+    prefix = "../" * depth
+
+    def repl(m: "re.Match[str]") -> str:
+        target = m.group(1)
+        if target.startswith("//"):          # 协议相对外链，不动
+            return m.group(0)
+        rel = target.lstrip("/")
+        if not rel.endswith(".md"):
+            rel = rel.rstrip("/") + ".md"
+        return "](%s%s)" % (prefix, rel)
+
+    return _SITE_ABS_LINK.sub(repl, text)
+
+
 def write_page(path: str, text: str) -> None:
+    text = relativize_site_links(text, path)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         f.write(text)
@@ -250,9 +328,16 @@ def source_footer(extra: list[str] | None = None) -> str:
     lines.append("")
     lines.append(f"**数据来源**：`{MAP_NAME}`（母图 SHA256 `{MAP_SHA256}`）")
     lines.append("")
+    # 站点级免责只留一句 + 指向「哪些已交叉验证 / 有哪些已知限制」的落地页；
+    # 具体条目的不确定性写在各表格题注里，不在页脚重复（审计问题 W027）。
+    # 这里写站点绝对路径（写起来与页面层级无关），由 `write_page()` 的
+    # `relativize_site_links()` 按页面深度改写成相对链接 —— 站点挂在
+    # `/happy-fish-wiki/` 子路径下，绝对路径 `/info/…` 线上会 404。
     lines.append(
         "本页数值由该图的 `war3map.w3u` / `war3map.w3a` / `war3map.w3t` 与 `war3map.j` 解析生成；"
         "**未经过实机验证**——「数据来自哪个成员」不等于「游戏里就是这个表现」。"
+        "哪些内容已被交叉验证、有哪些已知限制，见 [地图身份](/info/地图身份/)；"
+        "本页符号（`—` / `未判定（证据不足）` / `⚠️ 不可选`）的含义见 [术语与用语](/info/术语与用语/)。"
     )
     for e in extra or []:
         lines.append("")

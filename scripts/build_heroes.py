@@ -130,6 +130,9 @@ def v(x) -> str:
 # 主动信号字段：**必须含 Area**——只靠 Area 就能认出 5 条纯范围技能
 # （例如 优库里伍德 的 D 技能 `Z0EK` 是 Area=600、Cost/Cool/Rng 全 0）。
 ACTIVE_SIGNALS = ("Cost", "Cool", "Rng", "Area")
+# 多数英雄的「英雄属性成长技能」三件套。`uhab` 是逗号连接的多值串（如 `Z063,Z065,Z064`），
+# 各页顺序不同，所以只能按**集合**比较（审计问题 W009）。
+UHAB_MAJORITY = {"Z063", "Z064", "Z065"}
 
 
 def _num(x):
@@ -165,6 +168,98 @@ def is_unreachable(h: dict) -> bool:
     """`heroes.tsv` 的 `reachable` 实际取值是 `NO(地图上无此单位)` / `yes(legacy，…)`，
     所以必须 `startswith("no")`，不能拿 `== "no"` 比大小写（审计问题 W010）。"""
     return str(h.get("reachable") or "").lower().startswith("no")
+
+
+def reachable_note(h: dict) -> str:
+    """`reachable` 括号里的中文备注（没有就返回空串）。
+
+    取值形如 `yes` / `NO(地图上无此单位)` / `yes(legacy，不在 PH_PortInit 注册表)`。
+    """
+    m = re.search(r"[（(]([^）)]*)[）)]", str(h.get("reachable") or ""))
+    return m.group(1).strip() if m else ""
+
+
+def reachable_text(h: dict) -> str:
+    """`reachable` → 页面用语：正文不写「字段名=取值」这类内部记号（审计问题 W011）。
+
+    `reachable=NO(地图上无此单位)` → 「❌ 地图上无此单位」；
+    `reachable=yes(legacy，… 注册表)` → 「✅ 可选（名单备注：legacy，… 注册表）」。
+    """
+    note = reachable_note(h)
+    if is_unreachable(h):
+        return f"❌ {note or UNREACHABLE_LABEL}"
+    return f"✅ 可选（名单备注：{note}）" if note else "✅ 可选"
+
+
+# 「地图上无此单位」的短标签：标题后缀与图鉴列共用一处文案（审计问题 W030）
+UNREACHABLE_LABEL = "地图上无此单位"
+# 名单备注与选人注册表不一致（`reachable=yes(legacy，不在 PH_PortInit 注册表)`）的列文案
+LEGACY_LABEL = "名单备注与注册表不一致"
+
+
+def reachable_cell(h: dict) -> str:
+    """`heroes/index.md` 图鉴表的「可选中」单元格（审计问题 W030，三态）。
+
+    与 `is_unreachable()` **同源**，只是把原来只有两态的行拆出第三态：
+
+    - `❌ 地图上无此单位` —— `reachable` 以 `NO` 开头（`is_unreachable()` 为真）；
+    - `⚠️ 名单备注与注册表不一致` —— 仍计为可选，但名单备注写明「不在 `PH_PortInit` 注册表」，
+      只写一个「✅ 可选」会盖掉这处不一致；
+    - `✅ 可选` —— 其余。
+    """
+    if is_unreachable(h):
+        return f"❌ {reachable_note(h) or UNREACHABLE_LABEL}"
+    note = reachable_note(h)
+    if note and "ph_portinit" in note.lower():
+        return f"⚠️ {LEGACY_LABEL}"
+    return "✅ 可选"
+
+
+def _dedup_key(text: str) -> str:
+    """比较标题是否相同用的归一化：去掉圆括号与空白，避免「（…）」括号形式差异造成误判。"""
+    return re.sub(r"[（(）)\s]+", "", text)
+
+
+def assign_titles(heroes: list[dict]) -> None:
+    """同名英雄的标题加区分后缀（审计问题 W030）。
+
+    本图有 **3 组**英雄在同一 `name` 下出现两次（共 6 页）：`H00T`/`H00U`（莉莉丝忒拉）、
+    `H01N`/`H01O`（雷电·忘川守·芽衣）、`H01J`/`H01K`（公会:命运之夜(four*king)）。
+    标题默认是 `名称（称号）`，其中 `H00U`/`H01J`/`H01K` 靠 `proper_name` 里的
+    「(真)」「玩家:CD」「CD」已经能区分；剩下的 `H01N`/`H01O` 称号同为「黄泉」，
+    正文 H1 与图鉴行会完全一样、读者分不清哪个能选到。
+
+    规则（只改**标题文本**，不动文件名——文件名改动会污染已发布的 URL）：
+    1. 标题 = `name（proper_name）`；
+    2. 同一 `name` 内标题真的撞车时，给**不可选**的那一个追加后缀
+       `（地图上无此单位）`（文案与 `reachable_text()` 同源，来自数据而非生造）；
+    3. 后缀内容若已在标题里出现（例如 H00U 的称号 `克萝伊·莉莉丝忒拉(真)` 已够区分），
+       不重复追加。
+    处理结果写回 `h["title"]`，供 `render_hero()` 与图鉴表共用，保证页内 H1 与列表行一致。
+    """
+    groups: dict[str, list[dict]] = {}
+    for h in heroes:
+        hname = clean_inline(h.get("name")) or h["code"]
+        h["_hname"] = hname
+        proper = clean_inline(h.get("proper_name"))
+        h["title"] = f"{hname}（{proper}）" if proper and proper != hname else hname
+        groups.setdefault(hname, []).append(h)
+    for members in groups.values():
+        if len(members) < 2:
+            continue
+        keys = {_dedup_key(m["title"]) for m in members}
+        if len(keys) == len(members):
+            continue  # 标题已经互不相同（如 H01J「玩家:CD」/ H01K「CD」）
+        for m in members:
+            if not is_unreachable(m):
+                continue
+            suffix = f"（{reachable_note(m) or UNREACHABLE_LABEL}）"
+            if _dedup_key(suffix) in _dedup_key(m["title"]):
+                continue
+            other_keys = {_dedup_key(x["title"]) for x in members if x is not m}
+            if _dedup_key(m["title"] + suffix) in other_keys:
+                continue
+            m["title"] = m["title"] + suffix
 
 
 def hero_scope(heroes: list[dict]) -> tuple[int, int, int]:
@@ -344,8 +439,9 @@ def render_hero(h: dict, unit: dict, abils: dict, fdict: dict, item_pages: dict,
                 item_ub: dict, excl: dict, stext: dict, adata: dict) -> str:
     hcode = h["code"]
     hname = clean_inline(h.get("name")) or hcode
-    proper = clean_inline(h.get("proper_name"))
-    title = f"{hname}（{proper}）" if proper and proper != hname else hname
+    # 标题由 assign_titles() 统一算好（同名英雄带区分后缀，审计问题 W030），
+    # 保证页内 H1 与 heroes/index.md 的「称号」列逐字一致。
+    title = h.get("title") or hname
     uf = (unit or {}).get("fields", {})
     name_in_table = f"# {hcode} · {title}"
     lines = [name_in_table, ""]
@@ -357,18 +453,19 @@ def render_hero(h: dict, unit: dict, abils: dict, fdict: dict, item_pages: dict,
         f"**原型**：`{clean_inline(h.get('base'))}`",
     ]
     if is_unreachable(h):
-        # `reachable` 是 `NO(地图上无此单位)`，拿 `== "no"` 比会漏判（审计问题 W010）
-        meta.append(f"**可选性**：❌ 地图上无此单位（`reachable={reach}`）")
+        # `reachable` 是 `NO(地图上无此单位)`，拿 `== "no"` 比会漏判（审计问题 W010）；
+        # 正文只写读者能用的说法，原始字段与取值留给下面的取证警告（审计问题 W011）
+        meta.append(f"**可选性**：{reachable_text(h)}")
     elif reach and not reach.strip().lower() == "yes":
-        meta.append(f"**可选性**：✅ 可选（`reachable={reach}`）")
+        meta.append(f"**可选性**：{reachable_text(h)}")
     lines.append("> " + "\u3000·\u3000".join(meta))
     lines.append("")
     if is_unreachable(h):
         lines += [
             '!!! warning "本英雄在地图上不可选"',
             "",
-            f"    `note_log/recon/heroes.tsv` 的 `reachable` 字段为 `{reach}`"
-            f"（该行 `portinit_line={h.get('portinit_line') or '—'}`），"
+            f"    `note_log/recon/heroes.tsv` 把本行标为「{reachable_note(h) or UNREACHABLE_LABEL}」"
+            f"（原始备注 `{reach}`；该行 `portinit_line` 为 `{h.get('portinit_line') or '—'}`），"
             f"且选人注册表 `PH_PortInit`（`war3map.j`）**不包含** `{hcode}`。",
             "",
             "    本页数据全部来自对象文件（`war3map.w3u`）：**对象存在 ≠ 游戏里能选到**，"
@@ -418,11 +515,18 @@ def render_hero(h: dict, unit: dict, abils: dict, fdict: dict, item_pages: dict,
     lines.append("")
     # 这句原来硬编码断言「59 个英雄的 uhab 统一为 Z063/Z064/Z065」，对 uhab 不同的英雄是错的
     # （审计问题 W009）→ 改为按本页实际取值分别说明。
+    # `uhab` 是逗号连接的多值串（`Z063,Z065,Z064`，各页顺序不同），必须拆开做**集合**比较：
+    # 直接拿整串比字面量会把「顺序不同的同一套」误报成「不是三件套」。
     uhab = clean_inline(ufield("uhab")).strip("`").strip()
+    uhab_codes = {c.strip().strip("`") for c in re.split(r"[,，、/;\s]+", uhab) if c.strip()}
     lines.append("> 本图把「力量」写作**筋力**、把「智力」写作**体力**（依据：对象数据里 `ustr`/`uint` 的中文标注与说明文本用语）。")
     if uhab and uhab not in _EMPTY_MARKS:
-        if uhab in ("Z063", "Z064", "Z065"):
-            lines.append(f"> 本页「英雄属性成长技能」= `{uhab}`（本图多数英雄用的 `Z063`/`Z064`/`Z065` 三件套之一）。")
+        if uhab_codes == UHAB_MAJORITY:
+            lines.append(f"> 本页「英雄属性成长技能」= `{uhab}`"
+                         "（本图多数英雄用的 `Z063`/`Z064`/`Z065` 三件套；对象数据里的顺序各页不同）。")
+        elif uhab_codes & UHAB_MAJORITY:
+            lines.append(f"> 本页「英雄属性成长技能」= `{uhab}`，"
+                         "与多数英雄的 `Z063`/`Z064`/`Z065` 三件套只部分重合。")
         else:
             lines.append(f"> ⚠️ 本页「英雄属性成长技能」= `{uhab}`，**不是**多数英雄用的 `Z063`/`Z064`/`Z065` 三件套，"
                          "该英雄的属性成长走的是别的技能对象。")
@@ -448,9 +552,12 @@ def render_hero(h: dict, unit: dict, abils: dict, fdict: dict, item_pages: dict,
             # 空摘要要给出路，不能留白（审计问题 W031）
             summary = "（对象数据没有说明文字；数值与字段见下面技能数据块）"
         srows.append([f"**{slot}**", code(scode), esc(sbind) or "—", kind,
-                      "由触发器控制（对象无此字段）", esc(summary)])
+                      "—", esc(summary)])
     if srows:
-        lines.append(table(["键位", "技能 ID", "技能名", "类型", "解锁等级", "说明摘要"], srows))
+        # 「对象数据没有解锁等级字段、解锁由触发器控制」这句对每一行都相同 → 移到列名与表上前言，
+        # 不在 292 行里重复同一句话（审计问题 W007）
+        lines.append(table(["键位", "技能 ID", "技能名", "类型",
+                            "解锁等级（对象数据无此字段，由触发器控制）", "说明摘要"], srows))
         lines.append("")
         lines.append("> **「说明摘要」列是 `Ubertip` 的前 60 字**（截断处有 `…`）；完整原文与可改数值见下面每个技能的折叠块。")
         lines.append("")
@@ -500,11 +607,13 @@ def render_hero(h: dict, unit: dict, abils: dict, fdict: dict, item_pages: dict,
         n_types = (excl or {}).get("_n_types")
         n_tot = (excl or {}).get("_n_total")
         n_items = (excl or {}).get("_n_items")
-        lines.append("_`EXEQ_Allowed` 的白名单里**没有本英雄**的条目，也没有对应的旧版硬编码触发器。_")
+        lines.append("本英雄**未出现在** `EXEQ_Allowed` 白名单中（`war3map.j:87157-87312`）。"
+                     "旧版硬编码的专属触发器里也没有本英雄的条目。")
         lines.append("")
         lines.append(f"> 统计口径（自动生成，随数据变化）：本图 **{n_tot if n_tot else 60}** 条英雄数据里，"
                      f"能解析出专属装备证据的有 **{n_types if n_types is not None else 34}** 个英雄类型、"
-                     f"共 **{n_items if n_items is not None else 41}** 件专属物品；"
+                     f"共 **{n_items if n_items is not None else 41}** 件专属物品"
+                     f"（统计见 {link('index.md', '英雄图鉴')}）；"
                      "判定依据是 `war3map.j` 里 `EXEQ_Allowed` 的返回值与旧版硬编码触发器。")
         lines.append("")
     lines.append("> ⚠️ 按玩家昵称判定专属的物品（`J0H6`/`J0L4`/`K001`/`K002`/`K004`）无法从脚本归属到某个英雄类型，"
@@ -528,7 +637,8 @@ def render_hero(h: dict, unit: dict, abils: dict, fdict: dict, item_pages: dict,
         lines.append("")
 
     if h.get("evidence"):
-        lines += ['??? quote "取证记录（子智能体只读勘查）"', "", f"    {esc(h['evidence'])}", ""]
+        # 「子智能体」是内部生产流程词，不该出现在玩家读的站点（审计问题 W017）
+        lines += ['??? quote "取证记录（对象数据与触发器摘录）"', "", f"    {esc(h['evidence'])}", ""]
 
     lines.append(source_footer([
         f"英雄单位对象来自 `war3map.w3u`（SHA256 `{MEMBER_SHA['war3map.w3u']}`），"
@@ -540,6 +650,9 @@ def render_hero(h: dict, unit: dict, abils: dict, fdict: dict, item_pages: dict,
 
 def main() -> None:
     heroes = load_tsv(HERO_TSV)
+    # 先定标题：`name（proper_name）`，同名英雄给不可选的那个加区分后缀（审计问题 W030）。
+    # 结果写进 h["title"] / h["_hname"]，渲染页内 H1 与图鉴表都用它。
+    assign_titles(heroes)
     units = {obj_code(u): u for u in load_json(UNITS_JSON)}
     abils = {a["code"]: a for a in load_json(ABIL_JSON)}
     fdict = load_field_dict(ABIL_FIELDS)
@@ -585,12 +698,14 @@ def main() -> None:
     # 以及 莉莉丝忒拉 / 雷电·忘川守·芽衣 各有一个不可达条目）。重名的加 _<code> 后缀，避免互相覆盖。
     base_counts = {}
     for h in heroes:
-        base = safe_name(clean_inline(h.get("name")) or h["code"])
+        base = safe_name(h.get("_hname") or h["code"])
         base_counts[base] = base_counts.get(base, 0) + 1
     for h in heroes:
         hcode = h["code"]
-        hname = clean_inline(h.get("name")) or hcode
+        hname = h.get("_hname") or hcode
         base = safe_name(hname)
+        # 文件名规则保持不变：`safe_name(name)`，同名（安全化后同名）才追加 `_<code>`
+        # （审计问题 W030 只要求改标题，改文件名会污染已发布 URL）
         fn = f"{base}_{hcode}.md" if base_counts.get(base, 0) > 1 else base + ".md"
         h["file"] = fn
         write_page(os.path.join(HERO_OUT, fn),
@@ -600,18 +715,18 @@ def main() -> None:
     # 英雄总览
     rows = []
     for h in sorted(heroes, key=lambda x: x["code"]):
-        hname = clean_inline(h.get("name")) or h["code"]
         sk = []
         for slot in ("Q", "W", "E", "R", "F", "D"):
             c, _ = parse_slot(h.get(slot))
             sk.append(f"{slot}:{c}" if c else f"{slot}:—")
         rows.append([
             link(h["file"], code(h["code"])),
-            esc(hname),
-            esc(clean_inline(h.get("proper_name"))) or "—",
+            esc(h.get("_hname") or h["code"]),
+            # 称号列用与英雄页 H1 完全相同的 title（同名英雄带区分后缀，审计问题 W030）
+            esc(h.get("title")) or "—",
             ATTR_SHORT.get((h.get("primary") or "").upper()) or "未设置",
-            # 单列标出可选性，不把 ⚠️ 塞在名称后面（审计问题 W030）
-            "❌ 不可选" if is_unreachable(h) else "✅ 可选",
+            # 单列标出可选性，不把 ⚠️ 塞在名称后面；三态与 is_unreachable() 同源（审计问题 W030）
+            reachable_cell(h),
             "　".join(sk),
         ])
     n_ok, n_no, n_total = hero_scope(heroes)
@@ -628,7 +743,7 @@ def main() -> None:
            "| 选人方式 | 双击 `Player(15)` 所属的选人单位 |",
            "| 技能键位 | Q/W/E/R/F/D（对象数据 `abpx/abpy` 判定） |",
            f"| 地图上无此单位 | {no_list or '—'}（`PH_PortInit` 注册表不含这些 code，两页页内有 ⚠️ 警告） |",
-           f"| `reachable` 带 legacy 备注但可选 | {legacy_list or '—'}（不在 `PH_PortInit` 注册表，计入上面 {n_ok} 个可选里） |",
+           f"| 名单备注与选人注册表不一致（仍计为可选） | {legacy_list or '—'}（名单备注「不在 `PH_PortInit` 注册表」，计入上面 {n_ok} 个可选里） |",
            f"| 技能类型口径 | 主动 / 被动 / 未判定（证据不足）三态，见各页「技能取得」表下说明 |",
            f"| 有专属装备证据的英雄 | {n_ex} / {n_total}（判定函数 `EXEQ_Allowed`，`war3map.j:87157-87312`） |", "",
            table(["ID", "名称", "称号", "主属性", "可选", "技能绑定"], rows), ""]
