@@ -340,7 +340,7 @@
   
     
   
-  Info
+  资料与说明
 
         </a>
       </li>
@@ -2484,6 +2484,8 @@
       
         
       
+        
+      
     
     
     
@@ -2509,7 +2511,7 @@
   <span class="md-ellipsis">
     
   
-    Info
+    资料与说明
   
 
     
@@ -2678,7 +2680,7 @@
 
 
 <h1 id="_1">英雄​图鉴<a class="headerlink" href="#_1" title="复制链接">¶</a></h1>
-<p>共 <strong>60</strong> 个英雄条目（其中 <code>reachable=no</code> 的未确认可选中）。开局在选人区把单位<strong>双击</strong>即可选中（触发器 <code>Lz</code> / <code>iy4</code>）。</p>
+<p>共 <strong>60</strong>条​英雄​数据​=<strong>58</strong>个​可选​+<strong>2</strong> 个地图上无此单位（<code>note_log/recon/heroes.tsv</code> 共 60 行）。开局在选人区把单位<strong>双击</strong>即可选中（触发器 <code>Lz</code> / <code>iy4</code>）。</p>
 <table>
 <thead>
 <tr>
@@ -2688,8 +2690,8 @@
 </thead>
 <tbody>
 <tr>
-<td>可​选中​英雄</td>
-<td>58</td>
+<td>可​选​英雄</td>
+<td>58​（​另有​2​个​地图​上无此​单位​→​合计​60​条​数据​）</td>
 </tr>
 <tr>
 <td>选人​方式</td>
@@ -2698,6 +2700,18 @@
 <tr>
 <td>技能​键位</td>
 <td>Q/W/E/R/F/D（对象数据 <code>abpx/abpy</code> 判定）</td>
+</tr>
+<tr>
+<td>地图​上无此​单位</td>
+<td><code>H00U</code>、<code>H01O</code>（<code>PH_PortInit</code> 注册表不含这些 code，两页页内有 ⚠️ 警告）</td>
+</tr>
+<tr>
+<td><code>reachable</code> 带 legacy 备注但可选</td>
+<td><code>Nsjs</code>（不在 <code>PH_PortInit</code> 注册表，计入上面 58 个可选里）</td>
+</tr>
+<tr>
+<td>技能​类型​口径</td>
+<td>主动​/​被动​/​未​判定​（​证据不足​）​三态​，​见​各页​「​技能​取得​」​表下​说明</td>
 </tr>
 <tr>
 <td>有​专属​装备​证据​的​英雄</td>
@@ -2712,6 +2726,7 @@
 <th>名称</th>
 <th>称号</th>
 <th>主​属性</th>
+<th>可​选</th>
 <th>技能​绑定</th>
 </tr>
 </thead>
@@ -2721,6 +2736,7 @@
 <td>喵​露朵​露薇</td>
 <td>喵​露朵​露薇</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z0TF　W:Z0U4　E:Z0TC　R:Z0TG　F:—　D:Z0TH</td>
 </tr>
 <tr>
@@ -2728,6 +2744,7 @@
 <td>喵​喵​拳</td>
 <td>星川​凌云</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z13Q　W:Z13R　E:Z13P　R:Z13S　F:Z13T　D:Z13O</td>
 </tr>
 <tr>
@@ -2735,6 +2752,7 @@
 <td>红​美玲</td>
 <td>暗黑​红​美玲</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z148　W:Z149　E:Z14A　R:Z14C　F:Z14B　D:Z14D</td>
 </tr>
 <tr>
@@ -2742,6 +2760,7 @@
 <td>谏山​黄泉</td>
 <td>谏山​黄泉</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z17H　W:Z17I　E:Z17J　R:Z17K　F:—　D:Z17G</td>
 </tr>
 <tr>
@@ -2749,6 +2768,7 @@
 <td>为​世界​卖萌</td>
 <td>未来​初音</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z0HM　W:Z0HR　E:Z0HN　R:Z0I1　F:—　D:—</td>
 </tr>
 <tr>
@@ -2756,6 +2776,7 @@
 <td>琪尔​玛利亚</td>
 <td>M·R</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z0CU　W:Z0CT　E:Z0CX　R:Z0HC　F:—　D:Z0CQ</td>
 </tr>
 <tr>
@@ -2763,6 +2784,7 @@
 <td>五河​琴里</td>
 <td>五河​琴里</td>
 <td>体力</td>
+<td>✅​可​选</td>
 <td>Q:Z12Z　W:Z0DG　E:Z130　R:Z0DH　F:—　D:Z12X</td>
 </tr>
 <tr>
@@ -2770,6 +2792,7 @@
 <td>黑猫​酱</td>
 <td>五更​琉璃</td>
 <td>体力</td>
+<td>✅​可​选</td>
 <td>Q:Z0HO　W:Z0HS　E:Z0HT　R:Z0HU　F:—　D:—</td>
 </tr>
 <tr>
@@ -2777,6 +2800,7 @@
 <td>永远​的​鲜红​幼月</td>
 <td>蕾​米莉亚​·​斯卡雷特</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z0OX　W:Z10W　E:Z0A1　R:Z0A0　F:—　D:Z0A7</td>
 </tr>
 <tr>
@@ -2784,6 +2808,7 @@
 <td>祈​最​爱​的​姐姐​大人</td>
 <td>御坂美琴</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z14I　W:Z14J　E:Z14L　R:Z14M　F:—　D:Z14O</td>
 </tr>
 <tr>
@@ -2791,6 +2816,7 @@
 <td>穿越时空​的​少女</td>
 <td>椎名​真白</td>
 <td>体力</td>
+<td>✅​可​选</td>
 <td>Q:Z138　W:Z139　E:Z08Y　R:Z092　F:—　D:—</td>
 </tr>
 <tr>
@@ -2798,6 +2824,7 @@
 <td>魔女</td>
 <td>魔女</td>
 <td>筋力</td>
+<td>✅​可​选</td>
 <td>Q:Z0BY　W:Z0SC　E:Z0SD　R:Z0SB　F:—　D:Z0SA</td>
 </tr>
 <tr>
@@ -2805,6 +2832,7 @@
 <td>红叶</td>
 <td>红叶</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z0SF　W:Z0SG　E:Z0SH　R:Z0SI　F:—　D:Z0SE</td>
 </tr>
 <tr>
@@ -2812,6 +2840,7 @@
 <td>缇​娜</td>
 <td>缇​娜</td>
 <td>体力</td>
+<td>✅​可​选</td>
 <td>Q:Z0TM　W:Z0TO　E:Z0TL　R:Z0TN　F:—　D:Z0TK</td>
 </tr>
 <tr>
@@ -2819,6 +2848,7 @@
 <td>喵​可莉</td>
 <td>喵​可莉</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z0TP　W:Z0TQ　E:Z0TR　R:Z0TS　F:—　D:Z0TT</td>
 </tr>
 <tr>
@@ -2826,6 +2856,7 @@
 <td>莉​伊</td>
 <td>莉​伊</td>
 <td>体力</td>
+<td>✅​可​选</td>
 <td>Q:Z0U2　W:Z0TY　E:Z0U1　R:Z0U0　F:—　D:Z0TZ</td>
 </tr>
 <tr>
@@ -2833,6 +2864,7 @@
 <td>莉莉丝​忒​拉</td>
 <td>克萝伊​·​莉莉丝​忒​拉</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z10I　W:Z10J　E:Z10K　R:Z10L　F:—　D:—</td>
 </tr>
 <tr>
@@ -2840,6 +2872,7 @@
 <td>莉莉丝​忒​拉</td>
 <td>克萝伊​·​莉莉丝​忒​拉​(​真​)</td>
 <td>敏捷</td>
+<td>❌​不可​选</td>
 <td>Q:Z10I　W:Z10J　E:Z10K　R:Z10L　F:—　D:—</td>
 </tr>
 <tr>
@@ -2847,6 +2880,7 @@
 <td>特莉​波卡</td>
 <td>特莉​波卡</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z12F　W:Z12G　E:Z12H　R:Z13I　F:—　D:Z12E</td>
 </tr>
 <tr>
@@ -2854,6 +2888,7 @@
 <td>孤独​轮回​观测者</td>
 <td>祸灵梦</td>
 <td>体力</td>
+<td>✅​可​选</td>
 <td>Q:Z13X　W:Z13Y　E:Z143　R:Z141　F:Z142　D:—</td>
 </tr>
 <tr>
@@ -2861,6 +2896,7 @@
 <td>梦梦</td>
 <td>贝​莉雅​·​戴比路克</td>
 <td>体力</td>
+<td>✅​可​选</td>
 <td>Q:Z16M　W:Z16N　E:Z16O　R:—　F:—　D:Z16H</td>
 </tr>
 <tr>
@@ -2868,6 +2904,7 @@
 <td>魅影</td>
 <td>魅影​十字军</td>
 <td>筋力</td>
+<td>✅​可​选</td>
 <td>Q:Z18K　W:Z18L　E:Z18M　R:Z18N　F:Z18P　D:Z18R</td>
 </tr>
 <tr>
@@ -2875,6 +2912,7 @@
 <td>封弊​者</td>
 <td>桐谷​和​人</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z06L　W:Z0Y3　E:Z06G　R:Z17F　F:Z0IN　D:Z0Y4</td>
 </tr>
 <tr>
@@ -2882,6 +2920,7 @@
 <td>绝剑</td>
 <td>优纪</td>
 <td>体力</td>
+<td>✅​可​选</td>
 <td>Q:Z0L6　W:Z0L7　E:Z0M6　R:Z0L9　F:Z0MN　D:Z0L5</td>
 </tr>
 <tr>
@@ -2889,6 +2928,7 @@
 <td>斯托​蕾​亚</td>
 <td>斯托​蕾​亚</td>
 <td>筋力</td>
+<td>✅​可​选</td>
 <td>Q:Z17X　W:Z0CF　E:Z0CB　R:Z17W　F:Z0IN　D:Z0CE</td>
 </tr>
 <tr>
@@ -2896,6 +2936,7 @@
 <td>冬</td>
 <td>夜刀​神十香</td>
 <td>筋力</td>
+<td>✅​可​选</td>
 <td>Q:Z0D0　W:Z0D4　E:Z0AW　R:Z0D3　F:Z0D2　D:Z0CY</td>
 </tr>
 <tr>
@@ -2903,6 +2944,7 @@
 <td>风林火山​会长</td>
 <td>克莱因</td>
 <td>筋力</td>
+<td>✅​可​选</td>
 <td>Q:Z0FU　W:Z0FV　E:Z0FY　R:Z1FX　F:Z0IN　D:Z0B8</td>
 </tr>
 <tr>
@@ -2910,6 +2952,7 @@
 <td>七皇</td>
 <td>动念​女神</td>
 <td>体力</td>
+<td>✅​可​选</td>
 <td>Q:Z07F　W:Z07K　E:Z07X　R:Z0BF　F:—　D:Z08U</td>
 </tr>
 <tr>
@@ -2917,6 +2960,7 @@
 <td>终从​黑暗​中​走出​的​战士</td>
 <td>MC</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z0GX　W:—　E:Z0GW　R:—　F:—　D:—</td>
 </tr>
 <tr>
@@ -2924,6 +2968,7 @@
 <td>驯兽师</td>
 <td>西莉卡</td>
 <td>体力</td>
+<td>✅​可​选</td>
 <td>Q:Z0Y2　W:Z0Y6　E:—　R:Z0Y7　F:Z09V　D:Z09W</td>
 </tr>
 <tr>
@@ -2931,6 +2976,7 @@
 <td>闪光</td>
 <td>亚丝娜​(​结城​明日​奈​)</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z0YC　W:Z17B　E:Z17E　R:Z0XV　F:Z0IN　D:Z08T</td>
 </tr>
 <tr>
@@ -2938,6 +2984,7 @@
 <td>加速​世界</td>
 <td>黑雪姬</td>
 <td>体力</td>
+<td>✅​可​选</td>
 <td>Q:Z0DK　W:Z0E7　E:Z0EA　R:Z0E9　F:—　D:Z0DJ</td>
 </tr>
 <tr>
@@ -2945,6 +2992,7 @@
 <td>双叶​杏</td>
 <td>天堂</td>
 <td>筋力</td>
+<td>✅​可​选</td>
 <td>Q:Z0BK　W:Z0BH　E:Z0BG　R:Z0GF　F:—　D:Z0BI</td>
 </tr>
 <tr>
@@ -2952,6 +3000,7 @@
 <td>二皇</td>
 <td>爱丽丝</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z0BM　W:Z0BO　E:Z0BL　R:Z0BN　F:—　D:Z0BP</td>
 </tr>
 <tr>
@@ -2959,6 +3008,7 @@
 <td>清晨</td>
 <td>艾​基尔</td>
 <td>筋力</td>
+<td>✅​可​选</td>
 <td>Q:Z0B7　W:Z0B6　E:—　R:Z0FT　F:Z0IN　D:Z1D9</td>
 </tr>
 <tr>
@@ -2966,6 +3016,7 @@
 <td>就算​不笑​也​很​可爱</td>
 <td>筒​隐月子</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z0BV　W:Z0BW　E:Z0BU　R:Z0BX　F:—　D:Z0BT</td>
 </tr>
 <tr>
@@ -2973,6 +3024,7 @@
 <td>Six</td>
 <td>黄泉</td>
 <td>筋力</td>
+<td>✅​可​选</td>
 <td>Q:Z0IX　W:Z0IT　E:Z0IU　R:Z10Z　F:—　D:Z0IS</td>
 </tr>
 <tr>
@@ -2980,6 +3032,7 @@
 <td>公会​:​命运​之夜​(​four​*​king​)</td>
 <td>玩家​:​CD</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z095　W:Z09S　E:—　R:—　F:—　D:—</td>
 </tr>
 <tr>
@@ -2987,6 +3040,7 @@
 <td>公会​:​命运​之夜​(​four​*​king​)</td>
 <td>CD</td>
 <td>体力</td>
+<td>✅​可​选</td>
 <td>Q:Z095　W:Z096　E:Z097　R:—　F:—　D:Z094</td>
 </tr>
 <tr>
@@ -2994,6 +3048,7 @@
 <td>雷电​·​忘川守​·​芽衣</td>
 <td>黄泉</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z17M　W:Z17N　E:Z17O　R:Z17P　F:—　D:—</td>
 </tr>
 <tr>
@@ -3001,6 +3056,7 @@
 <td>雷电​·​忘川守​·​芽衣</td>
 <td>黄泉</td>
 <td>敏捷</td>
+<td>❌​不可​选</td>
 <td>Q:Z17M　W:Z17N　E:Z17O　R:Z17P　F:—　D:—</td>
 </tr>
 <tr>
@@ -3008,6 +3064,7 @@
 <td>穹</td>
 <td>冬弥</td>
 <td>筋力</td>
+<td>✅​可​选</td>
 <td>Q:Z0P6　W:Z0P7　E:Z0P5　R:Z0D8　F:Z0PA　D:Z0D5</td>
 </tr>
 <tr>
@@ -3015,6 +3072,7 @@
 <td>诗​乃</td>
 <td>朝田诗​乃</td>
 <td>筋力</td>
+<td>✅​可​选</td>
 <td>Q:Z0PL　W:—　E:Z0PM　R:—　F:—　D:—</td>
 </tr>
 <tr>
@@ -3022,6 +3080,7 @@
 <td>AI</td>
 <td>结衣</td>
 <td>体力</td>
+<td>✅​可​选</td>
 <td>Q:Z0YA　W:Z0JA　E:Z0JB　R:Z0Y1　F:—　D:Z08V</td>
 </tr>
 <tr>
@@ -3029,6 +3088,7 @@
 <td>魔法​战争</td>
 <td>相羽​六</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z0GO　W:Z0GM　E:Z1G6　R:Z0GQ　F:Z0GN　D:—</td>
 </tr>
 <tr>
@@ -3036,6 +3096,7 @@
 <td>娃娃</td>
 <td>Saber</td>
 <td>筋力</td>
+<td>✅​可​选</td>
 <td>Q:Z0OA　W:Z0O9　E:Z0OD　R:Z0OE　F:—　D:Z0O8</td>
 </tr>
 <tr>
@@ -3043,6 +3104,7 @@
 <td>兄控​万岁</td>
 <td>莉法</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z0C5　W:Z0BZ　E:Z0C6　R:Z0C7　F:Z0IN　D:Z0C1</td>
 </tr>
 <tr>
@@ -3050,6 +3112,7 @@
 <td>冬弥</td>
 <td>优​库里​伍德</td>
 <td>体力</td>
+<td>✅​可​选</td>
 <td>Q:Z0EE　W:Z0ED　E:Z0EF　R:Z0EG　F:Z0EC　D:—</td>
 </tr>
 <tr>
@@ -3057,6 +3120,7 @@
 <td>11eyes​罪与罚​与​赎​的​少女</td>
 <td>草壁​操</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z0JK　W:Z0JL　E:Z0JN　R:Z0JP　F:—　D:—</td>
 </tr>
 <tr>
@@ -3064,6 +3128,7 @@
 <td>尾随​姐姐​的​怪​妹子</td>
 <td>芙兰朵​露​·​斯卡雷特</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z0NB　W:Z0FV　E:—　R:—　F:Z0NC　D:Z0N8</td>
 </tr>
 <tr>
@@ -3071,6 +3136,7 @@
 <td>优​库里​伍德</td>
 <td>冬弥​(​泳装​形态​)</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z0EM　W:Z0EQ　E:Z0EO　R:Z0ER　F:—　D:Z0EK</td>
 </tr>
 <tr>
@@ -3078,6 +3144,7 @@
 <td>灼眼​的​夏娜</td>
 <td>夏娜</td>
 <td>筋力</td>
+<td>✅​可​选</td>
 <td>Q:Z0ES　W:Z0EW　E:Z0EX　R:Z0EY　F:—　D:Z0EU</td>
 </tr>
 <tr>
@@ -3085,6 +3152,7 @@
 <td>世界​最强​笨蛋</td>
 <td>⑨</td>
 <td>筋力</td>
+<td>✅​可​选</td>
 <td>Q:Z0JF　W:Z0JH　E:Z0JJ　R:Z0JE　F:—　D:Z0JG</td>
 </tr>
 <tr>
@@ -3092,6 +3160,7 @@
 <td>白雪公主</td>
 <td>White Trailer</td>
 <td>体力</td>
+<td>✅​可​选</td>
 <td>Q:Z0G7　W:Z0G9　E:Z0FZ　R:Z0GD　F:—　D:—</td>
 </tr>
 <tr>
@@ -3099,6 +3168,7 @@
 <td>黄金​苹果​会长</td>
 <td>葛林瑟鲁妲</td>
 <td>筋力</td>
+<td>✅​可​选</td>
 <td>Q:Z0B0　W:Z0B1　E:Z0B2　R:Z0B3　F:Z0IN　D:Z0B5</td>
 </tr>
 <tr>
@@ -3106,6 +3176,7 @@
 <td>奥利维亚</td>
 <td>一皇​(​one​)</td>
 <td>筋力</td>
+<td>✅​可​选</td>
 <td>Q:Z0NW　W:Z0NX　E:Z0NV　R:Z0NZ　F:—　D:Z0NY</td>
 </tr>
 <tr>
@@ -3113,6 +3184,7 @@
 <td>刀​仕​襧​宜</td>
 <td>朱雀​院椿</td>
 <td>筋力</td>
+<td>✅​可​选</td>
 <td>Q:Z0H8　W:Z0IJ　E:Z097　R:Z0NR　F:—　D:—</td>
 </tr>
 <tr>
@@ -3120,6 +3192,7 @@
 <td>数字​君</td>
 <td>458356800</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z0YR　W:Z0YS　E:Z0YT　R:Z0YW　F:Z0YQ　D:Z0YP</td>
 </tr>
 <tr>
@@ -3127,13 +3200,15 @@
 <td>绯雪</td>
 <td>「​永世​灼樱​巫女​」</td>
 <td>敏捷</td>
+<td>✅​可​选</td>
 <td>Q:Z1US　W:Z1UT　E:Z1UU　R:Z1UV　F:Z1V0　D:Z1UR</td>
 </tr>
 <tr>
 <td><a href="%E6%97%B6%E5%B4%8E%E7%8B%82%E4%B8%89/"><code>Nsjs</code></a></td>
 <td>时崎狂​三</td>
 <td>时崎狂​三</td>
-<td>—</td>
+<td>未​设置</td>
+<td>✅​可​选</td>
 <td>Q:A0OJ　W:A0OK　E:A0QV　R:A0ON　F:—　D:A0OI</td>
 </tr>
 </tbody>
@@ -3161,7 +3236,7 @@
         <span class="md-icon" title="最后更新">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
         </span>
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月7日 17:49:03 UTC">2026年10月7日</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月8日 05:09:39 UTC">2026年10月8日</span>
       </span>
     
     
