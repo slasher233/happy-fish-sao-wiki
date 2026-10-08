@@ -3286,8 +3286,78 @@
 <h4 id="_4">说明​（​原文​）<a class="headerlink" href="#_4" title="复制链接">¶</a></h4>
 <p>远程​造成​一个​扇形​波​，​碰到​种子​将会​激活​种子​，​碰到​敌人​有​体力​x3.8​伤害​伤害​类型​:​混乱​冷却​时间​：​5​秒</p>
 <h4 id="_5">可改​数值​项<a class="headerlink" href="#_5" title="复制链接">¶</a></h4>
-<p><em>（​需求​单里​没有​本​技能​的​可改​数值​项​）</em></p>
-<p>改数值请到私有需求单仓库 <code>patch_plan\data\hero_ability_data.csv</code> 填 <code>new_value</code>，或用「口语需求」Issue 写人话（我会用 <code>note_log\tools\nl_request.py</code> 定位）。</p>
+<p><strong>类别</strong>列里「表头字段」是技能级的冷却/耗魔/距离/范围/持续（与等级无关），「每级数值」是 <code>Data</code> 里的每级数值。</p>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>字​段</th>
+<th>中文名</th>
+<th>现值</th>
+<th>类别</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>acdn</code></td>
+<td>冷却</td>
+<td>5.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>amcs</code></td>
+<td>魔法​消耗</td>
+<td>150</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>aran</code></td>
+<td>施法​距离</td>
+<td>800.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>aare</code></td>
+<td>作用​范围</td>
+<td>0.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>adur</code></td>
+<td>持续时间</td>
+<td>0.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>ahdu</code></td>
+<td>英雄​持续时间</td>
+<td>0.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>0</td>
+<td><code>alev</code></td>
+<td>等​级数</td>
+<td>1</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>改数值请到私有需求单仓库 <code>patch_plan\data\hero_ability_data.csv</code> 找本技能的行，在 <code>new_value</code> 填新值（<code>field</code> 列就用本表「字段」列的值，例如 <code>acdn</code> 冷却、<code>amcs</code> 魔法消耗；<code>Data</code> 每级数值的行 <code>slk_col</code> 是 <code>Data</code>），或用「口语需求」Issue 写人话（我会用 <code>note_log\tools\nl_request.py</code> 定位）。</p>
 </details>
 <details class="note">
 <summary>W​·​生命​禁锢</summary>
@@ -3347,8 +3417,78 @@
 <h4 id="_7">说明​（​原文​）<a class="headerlink" href="#_7" title="复制链接">¶</a></h4>
 <p>禁锢​敌人​2​秒​,​每​0.25​秒​造成​体力​x19.5​的​伤害​伤害​类型​:​混乱​冷却​时间​：​20​秒</p>
 <h4 id="_8">可改​数值​项<a class="headerlink" href="#_8" title="复制链接">¶</a></h4>
-<p><em>（​需求​单里​没有​本​技能​的​可改​数值​项​）</em></p>
-<p>改数值请到私有需求单仓库 <code>patch_plan\data\hero_ability_data.csv</code> 填 <code>new_value</code>，或用「口语需求」Issue 写人话（我会用 <code>note_log\tools\nl_request.py</code> 定位）。</p>
+<p><strong>类别</strong>列里「表头字段」是技能级的冷却/耗魔/距离/范围/持续（与等级无关），「每级数值」是 <code>Data</code> 里的每级数值。</p>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>字​段</th>
+<th>中文名</th>
+<th>现值</th>
+<th>类别</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>acdn</code></td>
+<td>冷却</td>
+<td>20.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>amcs</code></td>
+<td>魔法​消耗</td>
+<td>200</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>aran</code></td>
+<td>施法​距离</td>
+<td>800.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>aare</code></td>
+<td>作用​范围</td>
+<td>0.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>adur</code></td>
+<td>持续时间</td>
+<td>0.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>ahdu</code></td>
+<td>英雄​持续时间</td>
+<td>0.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>0</td>
+<td><code>alev</code></td>
+<td>等​级数</td>
+<td>1</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>改数值请到私有需求单仓库 <code>patch_plan\data\hero_ability_data.csv</code> 找本技能的行，在 <code>new_value</code> 填新值（<code>field</code> 列就用本表「字段」列的值，例如 <code>acdn</code> 冷却、<code>amcs</code> 魔法消耗；<code>Data</code> 每级数值的行 <code>slk_col</code> 是 <code>Data</code>），或用「口语需求」Issue 写人话（我会用 <code>note_log\tools\nl_request.py</code> 定位）。</p>
 </details>
 <details class="note">
 <summary>E​·​羽翼​飞行</summary>
@@ -3408,8 +3548,78 @@
 <h4 id="_10">说明​（​原文​）<a class="headerlink" href="#_10" title="复制链接">¶</a></h4>
 <p>展开​翅膀​向​前方​快速​飞行​一段距离​伤害​类型​:​无​冷却​时间​：​20​秒</p>
 <h4 id="_11">可改​数值​项<a class="headerlink" href="#_11" title="复制链接">¶</a></h4>
-<p><em>（​需求​单里​没有​本​技能​的​可改​数值​项​）</em></p>
-<p>改数值请到私有需求单仓库 <code>patch_plan\data\hero_ability_data.csv</code> 填 <code>new_value</code>，或用「口语需求」Issue 写人话（我会用 <code>note_log\tools\nl_request.py</code> 定位）。</p>
+<p><strong>类别</strong>列里「表头字段」是技能级的冷却/耗魔/距离/范围/持续（与等级无关），「每级数值」是 <code>Data</code> 里的每级数值。</p>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>字​段</th>
+<th>中文名</th>
+<th>现值</th>
+<th>类别</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>acdn</code></td>
+<td>冷却</td>
+<td>20.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>amcs</code></td>
+<td>魔法​消耗</td>
+<td>150</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>aran</code></td>
+<td>施法​距离</td>
+<td>800.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>aare</code></td>
+<td>作用​范围</td>
+<td>0.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>adur</code></td>
+<td>持续时间</td>
+<td>0.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>ahdu</code></td>
+<td>英雄​持续时间</td>
+<td>0.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>0</td>
+<td><code>alev</code></td>
+<td>等​级数</td>
+<td>1</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>改数值请到私有需求单仓库 <code>patch_plan\data\hero_ability_data.csv</code> 找本技能的行，在 <code>new_value</code> 填新值（<code>field</code> 列就用本表「字段」列的值，例如 <code>acdn</code> 冷却、<code>amcs</code> 魔法消耗；<code>Data</code> 每级数值的行 <code>slk_col</code> 是 <code>Data</code>），或用「口语需求」Issue 写人话（我会用 <code>note_log\tools\nl_request.py</code> 定位）。</p>
 </details>
 <details class="note">
 <summary>D​·​异化​种子</summary>
@@ -3462,6 +3672,7 @@
 <h4 id="_13">说明​（​原文​）<a class="headerlink" href="#_13" title="复制链接">¶</a></h4>
 <p>1​号​种子​豌豆​花​（​高频​伤害​，​每​0.2​秒​攻击​一次​，​附带​体力​x1​伤害​，​攻击​距离​600​码​）​（​青​）​2​号​种子​喷雾​花​（​靠近​喷雾​花​（​350​码​）​的​队友​会​每秒​恢复​体力​x5​生命​和​魔法​，​敌人​靠近​将会​受到​体力​x5​伤害​）​（​绿​）​3​号​种子​滕曼​（​控制​150​码​范围​敌人​0.5​秒​造成​体力​x5​伤害​）​（​灰​）​4​号​种子​炸弹​草​（​会​自动​追击​敌人​，​造成​范围​350​码​体力​x10​伤害​）​（​红​）</p>
 <h4 id="_14">可改​数值​项<a class="headerlink" href="#_14" title="复制链接">¶</a></h4>
+<p><strong>类别</strong>列里「表头字段」是技能级的冷却/耗魔/距离/范围/持续（与等级无关），「每级数值」是 <code>Data</code> 里的每级数值。</p>
 <table>
 <thead>
 <tr>
@@ -3469,15 +3680,73 @@
 <th>字​段</th>
 <th>中文名</th>
 <th>现值</th>
+<th>类别</th>
 <th>说明</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>1</td>
+<td><code>acdn</code></td>
+<td>冷却</td>
+<td>0.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>amcs</code></td>
+<td>魔法​消耗</td>
+<td>0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>aran</code></td>
+<td>施法​距离</td>
+<td>0.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>aare</code></td>
+<td>作用​范围</td>
+<td>0.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>adur</code></td>
+<td>持续时间</td>
+<td>0.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>ahdu</code></td>
+<td>英雄​持续时间</td>
+<td>0.0</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>0</td>
+<td><code>alev</code></td>
+<td>等​级数</td>
+<td>1</td>
+<td>表头​字​段</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1</td>
 <td><code>spb1</code></td>
 <td>法术​列表</td>
 <td>Z16I,Z16J,Z16K,Z16L</td>
+<td>每级​数值</td>
 <td>—</td>
 </tr>
 <tr>
@@ -3485,6 +3754,7 @@
 <td><code>spb2</code></td>
 <td>共享​法术​施放​时间​间隔</td>
 <td>0</td>
+<td>每级​数值</td>
 <td>—</td>
 </tr>
 <tr>
@@ -3492,6 +3762,7 @@
 <td><code>spb3</code></td>
 <td>最小​法术</td>
 <td>4</td>
+<td>每级​数值</td>
 <td>—</td>
 </tr>
 <tr>
@@ -3499,11 +3770,12 @@
 <td><code>spb4</code></td>
 <td>最大​法术</td>
 <td>4</td>
+<td>每级​数值</td>
 <td>—</td>
 </tr>
 </tbody>
 </table>
-<p>改数值请到私有需求单仓库 <code>patch_plan\data\hero_ability_data.csv</code> 填 <code>new_value</code>，或用「口语需求」Issue 写人话（我会用 <code>note_log\tools\nl_request.py</code> 定位）。</p>
+<p>改数值请到私有需求单仓库 <code>patch_plan\data\hero_ability_data.csv</code> 找本技能的行，在 <code>new_value</code> 填新值（<code>field</code> 列就用本表「字段」列的值，例如 <code>acdn</code> 冷却、<code>amcs</code> 魔法消耗；<code>Data</code> 每级数值的行 <code>slk_col</code> 是 <code>Data</code>），或用「口语需求」Issue 写人话（我会用 <code>note_log\tools\nl_request.py</code> 定位）。</p>
 </details>
 <h2 id="_15">专属​装备​（​触发器​证据​）<a class="headerlink" href="#_15" title="复制链接">¶</a></h2>
 <p><em><code>EXEQ_Allowed</code> 的白名单里<strong>没有​本​英雄</strong>的​条目​，​也​没有​对应​的​旧版​硬​编码​触发器​。</em></p>
@@ -3539,7 +3811,7 @@
         <span class="md-icon" title="最后更新">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
         </span>
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月8日 05:09:39 UTC">2026年10月8日</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月8日 05:58:56 UTC">2026年10月8日</span>
       </span>
     
     

@@ -4014,9 +4014,18 @@
 </blockquote>
 <p><strong>物品​ID</strong>：<code>R005</code>　·　<strong>原型</strong>：<code>ches</code>（奶酪）　·　<strong>版本</strong>：​v1.0​正式版</p>
 <h2 id="_1">功能​描述​（​人话​版​）<a class="headerlink" href="#_1" title="复制链接">¶</a></h2>
-<p><em>（暂时写不出人话版描述：该物品没有绑定物品技能（<code>iabi</code> 为空），对象数据里只有名称/说明等文字字段。）</em></p>
+<p>这件​物品<strong>没有​绑定​物品​技能</strong>（对象数据里 <code>iabi</code> 是空的），所以它本身<strong>不​加​任何​数值</strong>—​—​它​的​作用​完全​写​在​游戏​内​说明​文字​里​：</p>
 <blockquote>
-<p>自动​转写​置信度<strong>low</strong>；​与​说明​原文​的​差异​：​无​技能​引用​1​处​。​描述​由<strong>物品​技能​的​对象​数值</strong>（<code>war3map.w3a</code>）自动转写；游戏内说明是策划手写的，<strong>两者​不​一致​时以​对象​数值​为准</strong>（​真实​生效​的​是​对象​数值​）​。</p>
+<p>我会​帮​你​打造​的​啦​!​制造​:​毫无​光泽​的​盔甲​/​黑与白​的​树皮​/​虫​蛋壳​/​坚硬​羽毛​/​白​狼皮​有​一定​的​几率​会​成功​或​失败​!</p>
+</blockquote>
+<ul>
+<li><strong>它​大概​是​做​什么​的</strong>：​NPC​功能​道具​：​拿​去​和​NPC​交互​（​打造​、​兑换​、​提交​、​抽奖​之类​）​（<strong>按​本站​分类​推断</strong>，​不是​对象​数据​里​的​字​段​）</li>
+<li><strong>能​不能​拿到</strong>：​可​获得​（​见​下面​「​获取​方式​」​一节​的​依据​）</li>
+<li><strong>怎么​拿到</strong>：​商店​『​NPC​:​铁匠​/​防具​(​诺​)​』​出售</li>
+<li><strong>要​改​它​怎么办</strong>：​它​没有​可​机械​改写​的​数值​项​—​—​改动​只能​落​在<strong>说明​文字</strong>（<code>war3map.w3t</code> 的 <code>Tip</code>/<code>Ubertip</code>）或<strong>触发器​逻辑</strong>（<code>war3map.j</code>）上。在需求单仓库 <code>happy-fish-patch-plan</code> 用「口语需求」Issue 说人话即可（例如「XX 物品的说明改成…」或「XX 传送物品改成传到第 N 层」）。</li>
+</ul>
+<blockquote>
+<p>上面​的​描述<strong>由​游戏​内​说明​原文​+​获取​/​用途​数据​合成</strong>（​这件​物品​没有​可​转写​的​数值字​段​，​所以​没有​数值​转写​）​；​凡标​了​「<strong>按​本站​分类​推断</strong>」​的​行​都​是​推断​，​不是​对象​数据​里​的​字​段​。</p>
 </blockquote>
 <h2 id="_2">可改​数值​项​（​改​这些​值会​写进​地图​对象​）<a class="headerlink" href="#_2" title="复制链接">¶</a></h2>
 <p><em>（​这件​物品​没有​可​机械​修改​的​数值​项​。​）</em></p>
@@ -4132,7 +4141,7 @@
         <span class="md-icon" title="最后更新">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
         </span>
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月8日 05:09:39 UTC">2026年10月8日</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月8日 05:58:56 UTC">2026年10月8日</span>
       </span>
     
     
