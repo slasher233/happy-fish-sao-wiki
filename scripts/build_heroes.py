@@ -88,11 +88,18 @@ def load_skill_text(path: str) -> dict:
     return out
 
 
+# 技能「表头字段」在 AbilityData.slk 里的列名（slk_col）——冷却/耗魔/距离/范围/持续/等级数。
+# 需求单长表以前只导出 ini_key=Data 的每级数值，用户在页面上看不到这些字段，想说
+# 「冷却改成 10 秒」就没有对应的可填行（审计时发现 148 个技能块的可改数值项表是 0 行）。
+HDR_SLK = {"Cool", "Cost", "Rng", "Area", "Dur", "HeroDur", "levels"}
+
+
 def load_ability_data(path: str) -> dict:
-    """`ability_code` → [可改数值行]（保持 CSV 行序，只取 `slk_col == "Data"`）。"""
+    """`ability_code` → [可改数值行]（保持 CSV 行序；`Data` 每级数值 + 表头字段两类都收）。"""
     out: dict[str, list] = {}
     for r in load_csv(path):
-        if (r.get("slk_col") or "").strip() != "Data":
+        slk = (r.get("slk_col") or "").strip()
+        if slk != "Data" and slk not in HDR_SLK:
             continue
         c = (r.get("ability_code") or "").strip()
         if c:
@@ -305,22 +312,29 @@ def render_skill(slot: str, scode: str, sbind: str, abils: dict, fdict: dict,
     # ── 可改数值项：patch_plan\data\hero_ability_data.csv（按 ability_code 索引）──
     arows = []
     for r in adata.get(scode, []):
+        slk = (r.get("slk_col") or "").strip()
         arows.append([
             blank((r.get("level") or "").strip(), ""),
             code((r.get("field") or "").strip()),
             esc(r.get("zh") or "") or "—",
             esc(r.get("cur_value") or "") or "—",
+            "表头字段" if slk in HDR_SLK else "每级数值",
             esc(r.get("note") or "") or "—",
         ])
     lines.append("    #### 可改数值项")
     lines.append("")
     if arows:
-        for ln in table(["等级", "字段", "中文名", "现值", "说明"], arows).split("\n"):
+        lines.append("    **类别**列里「表头字段」是技能级的冷却/耗魔/距离/范围/持续（与等级无关），"
+                     "「每级数值」是 `Data` 里的每级数值。")
+        lines.append("")
+        for ln in table(["等级", "字段", "中文名", "现值", "类别", "说明"], arows).split("\n"):
             lines.append(f"    {ln}" if ln.strip() else "")
     else:
         lines.append("    _（需求单里没有本技能的可改数值项）_")
     lines.append("")
-    lines.append("    改数值请到私有需求单仓库 `patch_plan\\data\\hero_ability_data.csv` 填 `new_value`，"
+    lines.append("    改数值请到私有需求单仓库 `patch_plan\\data\\hero_ability_data.csv` 找本技能的行，"
+                 "在 `new_value` 填新值（`field` 列就用本表「字段」列的值，例如 `acdn` 冷却、`amcs` 魔法消耗；"
+                 "`Data` 每级数值的行 `slk_col` 是 `Data`），"
                  "或用「口语需求」Issue 写人话（我会用 `note_log\\tools\\nl_request.py` 定位）。")
     lines.append("")
     return lines

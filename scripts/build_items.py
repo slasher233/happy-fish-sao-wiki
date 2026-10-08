@@ -42,6 +42,25 @@ ITEM_OUT = os.path.join(DOCS, "items")
 PLAN_ITEM_TEXT = os.path.join(PLAN_DATA, "item_text.csv")
 PLAN_ITEM_SOURCE = os.path.join(PLAN_DATA, "items_source.csv")
 PLAN_DROPS_BY_BOSS = os.path.join(PLAN_DATA, "drops_by_boss.csv")
+PLAN_ITEM_ABILITY = os.path.join(PLAN_DATA, "item_ability_data.csv")
+
+# 技能「表头字段」在 AbilityData.slk 里的列名（slk_col）：冷却/耗魔/距离/范围/持续/等级数。
+# 它们不是 `Data` 每级数值，但同样是玩家能感知、说明里常出现的数（以前完全没进需求单）。
+HDR_SLK = {"Cool", "Cost", "Rng", "Area", "Dur", "HeroDur", "levels"}
+
+
+def load_item_hdr_rows(path: str) -> dict:
+    """`item_code` → [表头字段行]（冷却/耗魔/距离/范围/持续/等级数），保持 CSV 行序。"""
+    out: dict[str, list] = {}
+    if not os.path.exists(path):
+        return out
+    for r in load_csv(path):
+        if (r.get("slk_col") or "").strip() not in HDR_SLK:
+            continue
+        c = (r.get("item_code") or "").strip()
+        if c:
+            out.setdefault(c, []).append(r)
+    return out
 
 # 内部枚举 → 中文（审计问题 W012：不能把 unclassified_give / GetTriggerUnit( 直接印给用户）
 KIND_ZH = {
@@ -336,13 +355,14 @@ def main() -> None:
     for r in load_csv(PLAN_DROPS_BY_BOSS):
         if r.get("item_code"):
             boss_rows[r["item_code"]].append(r)
+    hdr_rows = load_item_hdr_rows(PLAN_ITEM_ABILITY)
     zh_to_fid = {}
     for fid, d in fdict.items():
         z = (d.get("zh_label") or "").strip()
         if z:
             zh_to_fid.setdefault(z, fid)
     print(f"  · anchors {len(anchors)} 条 / item_text {len(text_rows)} 行 / items_source {len(src_rows)} 行 / "
-          f"按BOSS聚合掉落 {len(boss_rows)} 件物品")
+          f"按BOSS聚合掉落 {len(boss_rows)} 件物品 / 技能表头字段 {len(hdr_rows)} 件物品")
 
     for p in parsed:
         cat_count[p["cat"]] += 1
@@ -355,7 +375,9 @@ def main() -> None:
                    render_item(p, abils, fdict, sources, used_in, item_names, unit_names, excl_items,
                                anchors.get(p["code"]) or anchors.get("#" + p["name"]) or anchors.get("#" + p["display"]),
                                text_rows.get(p["code"]), src_rows.get(p["code"]),
-                               boss_rows.get(p["code"]) or [], zh_to_fid))
+                               boss_rows.get(p["code"]) or [], zh_to_fid,
+                               hdr_rows.get(p["code"]) or []))
+
     for c in CATEGORY_ORDER:
         os.makedirs(os.path.join(ITEM_OUT, c), exist_ok=True)
 
@@ -417,7 +439,7 @@ def main() -> None:
 
 def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
                 excl_items=None, anchor=None, text_row=None, src_row=None,
-                boss_rows=None, zh_to_fid=None) -> str:
+                boss_rows=None, zh_to_fid=None, hdr_rows=None) -> str:
     f = p["fields"]
     icla = (p["icla"] or "").strip()
     lines = [f"# {p['code']} · {p['display']}", ""]
@@ -439,8 +461,8 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
     lines.append(f"**物品 ID**：`{p['code']}`　·　**原型**：{proto}　·　**版本**：{MAP_VERSION}")
     lines.append("")
 
-    lines += render_natural_language(p, anchor, text_row)
-    lines += render_changeable(p, anchor, zh_to_fid or {})
+    lines += render_natural_language(p, anchor, text_row, src_row)
+    lines += render_changeable(p, anchor, zh_to_fid or {}, hdr_rows)
     if first(f, "Hotkey"):
         lines.append(f"**热键**：`{clean_inline(first(f, 'Hotkey'))}`")
         lines.append("")
@@ -591,25 +613,29 @@ def _mismatch_summary(anchor) -> str:
     return "、".join(f"{k} {n} 处" for k, n in cnt.most_common())
 
 
-def render_natural_language(p, anchor, text_row) -> list:
-    """## 功能描述（人话版）——把物品技能数值转写成一句自然语言。"""
+def render_natural_language(p, anchor, text_row, src_row=None) -> list:
+    """## 功能描述（人话版）——把物品技能数值转写成一句自然语言。
+
+    没有数值可转写时（本图 220 件物品没有绑定物品技能），**不写占位符**，而是改成
+    「说明原文 + 分类推断 + 获取方式 + 要改怎么办」的证据合成句：全部来自游戏内说明文字
+    （`Tip`/`Ubertip`）与 `items_source.csv` 的获取证据，不臆造效果。
+    """
     out = ["## 功能描述（人话版）", ""]
     desc = clean_inline((anchor or {}).get("nl_desc") or "")
     if not desc:
         auto = clean_inline((text_row or {}).get("功能描述(由数值生成)") or "")
         desc = auto.replace("✔", "（说明里出现过）") if auto else ""
+    synthesized = not desc
     if desc:
         out += [desc, ""]
     else:
-        ub_raw = str((anchor or {}).get("ubertip_raw") or "")
-        if not p["abil"]:
-            reason = "该物品没有绑定物品技能（`iabi` 为空），对象数据里只有名称/说明等文字字段"
-        elif "<AI" in ub_raw:
-            reason = ("说明里含未解析的模板占位符（形如 `AIxx` + 数值字段 id）——它挂的是**标准暴雪技能**，"
-                      "本图 `war3map.w3a` 里没有对应对象，数值由魔兽原版决定，改不动")
-        else:
-            reason = "它的物品技能里没有可机械转写为数值的属性字段"
-        out += [f"_（暂时写不出人话版描述：{reason}。）_", ""]
+        out += _synth_desc(p, anchor, src_row)
+
+    if synthesized:
+        out += ["> 上面的描述**由游戏内说明原文 + 获取/用途数据合成**"
+                "（这件物品没有可转写的数值字段，所以没有数值转写）；"
+                "凡标了「**按本站分类推断**」的行都是推断，不是对象数据里的字段。", ""]
+        return out
 
     bits = []
     conf = (anchor or {}).get("confidence")
@@ -625,11 +651,81 @@ def render_natural_language(p, anchor, text_row) -> list:
     return out
 
 
-def render_changeable(p, anchor, zh_to_fid) -> list:
+# 分类 → 「它是做什么的」的推断句（用于没有数值可转写的物品；一律标明是推断）
+_CAT_ROLE = {
+    "传送与关卡": "传送/关卡类道具：用掉之后把人送到某个地点或开启关卡流程",
+    "NPC功能物品": "NPC 功能道具：拿去和 NPC 交互（打造、兑换、提交、抽奖之类）",
+    "任务物品": "任务/剧情道具：交给指定 NPC 或满足任务条件，本身不加属性",
+    "素材": "合成材料：主要用来作为打造/合成的材料消耗掉",
+    "消耗品": "消耗品：使用后生效（具体效果看下面说明原文）",
+    "武器": "武器：属性写在对象数据里，见下面「可改数值项」",
+    "装甲": "护甲：属性写在对象数据里，见下面「可改数值项」",
+    "灵魂装备": "灵魂装备：属性写在对象数据里，见下面「可改数值项」",
+}
+
+
+def _synth_desc(p, anchor, src_row) -> list:
+    """没有物品技能时的人话版描述：说明原文 + 分类推断 + 获取方式 + 改动入口。"""
+    out = []
+    ub = clean_text((anchor or {}).get("ubertip_clean")
+                    or (anchor or {}).get("ubertip_raw") or "")
+    tip = clean_text((anchor or {}).get("tip_raw") or "")
+    shown = ub or tip
+    abil = p.get("abil") or []
+    if not abil:
+        if shown:
+            out.append("这件物品**没有绑定物品技能**（对象数据里 `iabi` 是空的），所以它本身**不加任何数值** —— "
+                       "它的作用完全写在游戏内说明文字里：")
+        else:
+            out.append("这件物品**没有绑定物品技能**（对象数据里 `iabi` 是空的），"
+                       "而且对象数据里**连 `Tip`/`Ubertip` 都是空的** —— 站内没有任何可读的效果描述：")
+    else:
+        out.append("它的说明文字如下（对象数据里的技能字段没有可机械转写的数值）：")
+    out.append("")
+    if shown:
+        for ln in [x.strip() for x in shown.splitlines() if x.strip()]:
+            # 正文不能出现未解析的 <AIxx,DataYy> 占位符（审计问题 W001/W004）
+            out.append("> " + esc(detoken(clean_inline(ln))))
+    else:
+        out.append("> _（说明文字为空：只能从名字、分类与获取方式判断它的用途。）_")
+    out.append("")
+
+    role = _CAT_ROLE.get(p.get("cat") or "")
+    bullets = []
+    if "<AI" in (shown or ""):
+        bullets.append("- **数值为什么改不了**：说明里的尖括号是**原版（暴雪）技能**的数值占位符，"
+                       "本图 `war3map.w3a` 里没有对应对象 —— 数值由魔兽原版决定，"
+                       "要改必须先把那个技能复制成自定义技能对象，再挂到这件物品上（见下面的「可改数值项」）。")
+    if role:
+        bullets.append(f"- **它大概是做什么的**：{role}（**按本站分类推断**，不是对象数据里的字段）")
+    else:
+        bullets.append("- **它大概是做什么的**：分类是「不归类」，站内无法从数据判断用途——"
+                       + ("请看上面的说明原文" if shown else "连说明文字都没有，只能按名字与出现位置判断")
+                       + "，或按获取方式定位它出现在哪段流程里（**推断，非字段**）")
+    if src_row:
+        avail = (src_row.get("可获得性") or "").strip()
+        main = (src_row.get("主要获取方式") or "").strip()
+        use = (src_row.get("用途") or "").strip()
+        if avail:
+            bullets.append(f"- **能不能拿到**：{avail}（见下面「获取方式」一节的依据）")
+        if main:
+            bullets.append(f"- **怎么拿到**：{main}")
+        if use:
+            bullets.append(f"- **用途**：{use}")
+    bullets.append("- **要改它怎么办**：它没有可机械改写的数值项 —— 改动只能落在**说明文字**"
+                   "（`war3map.w3t` 的 `Tip`/`Ubertip`）或**触发器逻辑**（`war3map.j`）上。"
+                   "在需求单仓库 `happy-fish-patch-plan` 用「口语需求」Issue 说人话即可（例如"
+                   "「XX 物品的说明改成…」或「XX 传送物品改成传到第 N 层」）。")
+    out += bullets + [""]
+    return out
+
+
+def render_changeable(p, anchor, zh_to_fid, hdr_rows=None) -> list:
     """## 可改数值项——玩家/策划说要改哪个数，就改这里列的哪个字段。"""
     out = ["## 可改数值项（改这些值会写进地图对象）", ""]
     vals = [v for v in ((anchor or {}).get("values") or []) if isinstance(v, dict)]
-    if not vals:
+    hdr_rows = [r for r in (hdr_rows or []) if isinstance(r, dict)]
+    if not vals and not hdr_rows:
         out += ["_（这件物品没有可机械修改的数值项。）_", "",
                 "> 常见原因：它没绑定物品技能，或只挂标准暴雪技能（`AIxx`）——"
                 "这类数值由魔兽原版决定，要改必须先把技能对象复制成自定义技能再改。", ""]
@@ -650,9 +746,22 @@ def render_changeable(p, anchor, zh_to_fid) -> list:
             esc(fmt_num(v.get("value"))),
             code(fid),
             blank(v.get("level"), ""),
+            "每级数值",
             esc("；".join(extra)) or "—",
         ])
-    out += [table(["数值项", "当前值", "字段 id", "等级", "备注"], rows), "",
+    # 表头字段（冷却/耗魔/距离/范围/持续）来自需求单长表，与等级无关 → 等级列留空
+    for r in hdr_rows:
+        rows.append([
+            esc(r.get("zh") or ""),
+            esc(r.get("cur_value") or "") or "—",
+            code((r.get("field") or "").strip()),
+            blank((r.get("level") or "").strip(), ""),
+            "表头字段",
+            esc(r.get("note") or "") or "—",
+        ])
+    out += ["**类别**列里「每级数值」是技能对象 `Data` 里的分级数值，"
+            "「表头字段」是技能级的冷却/耗魔/距离/范围/持续（与等级无关）。", "",
+            table(["数值项", "当前值", "字段 id", "等级", "类别", "备注"], rows), "",
             "**怎么改**：到需求单仓库 `happy-fish-patch-plan` 打开 `data/item_ability_data.csv`，"
             "按 `item_code` + `ability_code` + `field` + `level` 找到对应行，把目标值写进 `new_value`，"
             "同行补 `req_id` 与 `note`；或者直接在「口语需求（自然语言）」Issue 里说人话，由我落表。", "",
