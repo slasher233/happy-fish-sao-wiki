@@ -1300,7 +1300,7 @@
 <td><code>icla</code></td>
 <td>分类</td>
 <td><code>class</code></td>
-<td>448</td>
+<td>509</td>
 </tr>
 <tr>
 <td><code>iclb</code></td>
@@ -1515,700 +1515,838 @@
 </tbody>
 </table>
 <h2 id="2war3mapw3a">表 2：技能数值字段（<code>war3map.w3a</code>）<a class="headerlink" href="#2war3mapw3a" title="复制链接">¶</a></h2>
-<p>物品页「当前数据 → 基础属性」表格第 4 列写的就是下表的字段 id——它们全部是物品绑定技能对象里 <code>ini_key = Data</code> 的数值字段，也就是<strong>改​技能​数值​时​真正​要​写​的​字段名</strong>。​本表​从​上面​那​509​个​物品​页​现算​去​重​，​共<strong>137</strong>个​，​按字段​id​排序​；​它​只​覆盖<strong>物品​技能</strong>用到过的字段，英雄技能页里出现、但没绑到任何物品的字段不在本表内。「作用」列括号里是客户端字典给的字段类型（<code>unreal</code> = 浮点数、<code>int</code> = 整数、<code>bool</code> = 0/1 开关，其余为枚举或字符串）与取值范围。</p>
+<p>物品页「当前数据 → 基础属性」表格第 4 列写的就是下表的字段 id——它们全部是物品绑定技能对象里 <code>ini_key = Data</code> 的数值字段，也就是<strong>改​技能​数值​时​真正​要​写​的​字段名</strong>。​本表​从​上面​那​509​个​物品​页​现算​去​重​，​共<strong>137</strong>个​，​按字段​id​排序​；​它​只​覆盖<strong>物品​技能</strong>用到过的字段，英雄技能页里出现、但没绑到任何物品的字段不在本表内。「类型」列是客户端字典给的字段类型（<code>unreal</code> = 浮点数、<code>int</code> = 整数、<code>bool</code> = 0/1 开关，其余为枚举或字符串）；「取值范围」列是字典里的 <code>minVal</code> / <code>maxVal</code>，字典没写的写 <code>—</code>。</p>
 <table>
 <thead>
 <tr>
 <th>字​段​id</th>
 <th>中文名</th>
-<th>作用</th>
+<th>类型</th>
+<th>取值​范围</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>Cac1</code></td>
 <td>攻击​伤害​增加</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Ctc1</code></td>
 <td>伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Ctc3</code></td>
 <td>移动​速度​减少</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Ctc4</code></td>
 <td>攻击速度​减少</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Def1</code></td>
 <td>所​受伤害​(​%​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>Def2</code></td>
 <td>施加​伤害​(​%​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>Def3</code></td>
 <td>移动​速度​因素</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>Def4</code></td>
 <td>攻击速度​因素</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>Def5</code></td>
 <td>魔法​伤害​减少</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>Def6</code></td>
 <td>偏转​概率</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>Def7</code></td>
 <td>接受​偏转​攻击​伤害​(​穿刺​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>Def8</code></td>
 <td>接受​偏转​攻击​伤害​(​魔法​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>Det1</code></td>
 <td>侦察​类型</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>detectionType</code>）</td>
+<td><code>detectionType</code></td>
+<td>—</td>
 </tr>
 <tr>
 <td><code>Ebl1</code></td>
 <td>最大​范围</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Eev1</code></td>
 <td>闪避​几率</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>Efk1</code></td>
 <td>每个​目标​的​伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Eim1</code></td>
 <td>每个​间隔时间​的​伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Eim2</code></td>
 <td>每秒​魔法​消耗</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Eim3</code></td>
 <td>魔法​缓冲​要求</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Hab1</code></td>
 <td>魔法​回复​加快</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Hab2</code></td>
 <td>百分比​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>bool</code>），取值 0–1</td>
+<td><code>bool</code></td>
+<td>0–1</td>
 </tr>
 <tr>
 <td><code>Had1</code></td>
 <td>装甲​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Had2</code></td>
 <td>百分比​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>bool</code>），取值 0–1</td>
+<td><code>bool</code></td>
+<td>0–1</td>
 </tr>
 <tr>
 <td><code>Hav1</code></td>
 <td>防御​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Hav2</code></td>
 <td>生命​值​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Hav3</code></td>
 <td>伤害​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Hbh1</code></td>
 <td>猛击​几率</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–100</td>
+<td><code>unreal</code></td>
+<td>0–100</td>
 </tr>
 <tr>
 <td><code>Hbh3</code></td>
 <td>伤害​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Hbh5</code></td>
 <td>不会​漏掉</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>bool</code>），取值 0–1</td>
+<td><code>bool</code></td>
+<td>0–1</td>
 </tr>
 <tr>
 <td><code>Hbz1</code></td>
 <td>光波​数量</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 1–99999</td>
+<td><code>int</code></td>
+<td>1–99999</td>
 </tr>
 <tr>
 <td><code>Hbz2</code></td>
 <td>伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 1–99999</td>
+<td><code>unreal</code></td>
+<td>1–99999</td>
 </tr>
 <tr>
 <td><code>Hbz5</code></td>
 <td>每秒​伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Hbz6</code></td>
 <td>每一波​最大​的​伤害​值</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Hfs1</code></td>
 <td>施加​全体​伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Hfs3</code></td>
 <td>施加​部分​伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Hfs4</code></td>
 <td>部分​伤害​间隔</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Hfs6</code></td>
 <td>最大​攻击​伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Htb1</code></td>
 <td>伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Htc1</code></td>
 <td>影响​范围​伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Htc2</code></td>
 <td>特定​目标​伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Htc3</code></td>
 <td>移动​速度​减少​(​%​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>Htc4</code></td>
 <td>攻击速度​减少​(​%​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>Hwe2</code></td>
 <td>召唤​单位​计算</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 1–24</td>
+<td><code>int</code></td>
+<td>1–24</td>
 </tr>
 <tr>
 <td><code>Iagi</code></td>
 <td>敏捷​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–99999</td>
+<td><code>int</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Iarp</code></td>
 <td>装甲​惩罚</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–99999</td>
+<td><code>int</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Iatt</code></td>
 <td>攻击​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–99999</td>
+<td><code>int</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Idam</code></td>
 <td>伤害​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Idef</code></td>
 <td>防御​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–99999</td>
+<td><code>int</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Idic</code></td>
 <td>伤害​奖励​率</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–99999</td>
+<td><code>int</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Ihid</code></td>
 <td>隐藏​按钮</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>bool</code>），取值 0–1</td>
+<td><code>bool</code></td>
+<td>0–1</td>
 </tr>
 <tr>
 <td><code>Ihpg</code></td>
 <td>生命​值​取得</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–99999</td>
+<td><code>int</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Ihpr</code></td>
 <td>每秒​生命​值​回复</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–99999</td>
+<td><code>int</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Ihps</code></td>
 <td>生命​值​回复</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–99999</td>
+<td><code>int</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Iild</code></td>
 <td>施加​伤害​(​普通​的​%​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–100</td>
+<td><code>unreal</code></td>
+<td>0–100</td>
 </tr>
 <tr>
 <td><code>Iilw</code></td>
 <td>受到​伤害​倍数</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Iint</code></td>
 <td>智力​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–99999</td>
+<td><code>int</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Ilif</code></td>
 <td>取得​最大​生命​值</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–99999</td>
+<td><code>int</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Impg</code></td>
 <td>魔法​点​取得</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–99999</td>
+<td><code>int</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Imps</code></td>
 <td>魔法​点​回复</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–99999</td>
+<td><code>int</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Imvb</code></td>
 <td>移动​速度​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–99999</td>
+<td><code>int</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Iob2</code></td>
 <td>击中​单位​的​几率​(​%​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–100</td>
+<td><code>unreal</code></td>
+<td>0–100</td>
 </tr>
 <tr>
 <td><code>Iob3</code></td>
 <td>击中​英雄​的​几率​(​%​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–100</td>
+<td><code>unreal</code></td>
+<td>0–100</td>
 </tr>
 <tr>
 <td><code>Iob4</code></td>
 <td>击中​召唤​物​的​几率​(​%​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–100</td>
+<td><code>unreal</code></td>
+<td>0–100</td>
 </tr>
 <tr>
 <td><code>Iob5</code></td>
 <td>允许​攻击​索引</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–2</td>
+<td><code>int</code></td>
+<td>0–2</td>
 </tr>
 <tr>
 <td><code>Ispi</code></td>
 <td>移动​速度​增加</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Istr</code></td>
 <td>力量​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–99999</td>
+<td><code>int</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Isx1</code></td>
 <td>攻击速度​增加</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Itp2</code></td>
 <td>使用​传送​群</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>bool</code>）</td>
+<td><code>bool</code></td>
+<td>—</td>
 </tr>
 <tr>
 <td><code>Itpm</code></td>
 <td>最大​单位​数</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–99999</td>
+<td><code>int</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Ncl1</code></td>
 <td>跟随​时间</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Ncl2</code></td>
 <td>目标​类型</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>channelType</code>）</td>
+<td><code>channelType</code></td>
+<td>—</td>
 </tr>
 <tr>
 <td><code>Ncl3</code></td>
 <td>选项</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>channelFlags</code>）</td>
+<td><code>channelFlags</code></td>
+<td>—</td>
 </tr>
 <tr>
 <td><code>Ncl4</code></td>
 <td>技术​持续时间</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Ncl5</code></td>
 <td>使​其他​技能​无效</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>bool</code>）</td>
+<td><code>bool</code></td>
+<td>—</td>
 </tr>
 <tr>
 <td><code>Ncl6</code></td>
 <td>基本​顺序​ID</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>orderString</code>），取值 ≤ 32</td>
+<td><code>orderString</code></td>
+<td>≤ 32</td>
 </tr>
 <tr>
 <td><code>Nsa1</code></td>
 <td>建造​类型​允许</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>pickFlags</code>）</td>
+<td><code>pickFlags</code></td>
+<td>—</td>
 </tr>
 <tr>
 <td><code>Nsa2</code></td>
 <td>英雄​回复​延迟</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Nsa3</code></td>
 <td>单位​回复​延迟</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Nsa4</code></td>
 <td>魔法​伤害​减少</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Nsa5</code></td>
 <td>每秒​生命​值</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Oae1</code></td>
 <td>移动​速度​增加​(​%​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>Oae2</code></td>
 <td>攻击速度​增加​(​%​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>Ocl1</code></td>
 <td>每个​目标​的​伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Ocl2</code></td>
 <td>目标​攻击​数量</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 1–16</td>
+<td><code>int</code></td>
+<td>1–16</td>
 </tr>
 <tr>
 <td><code>Ocl3</code></td>
 <td>每个​目标​伤害​减少</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–1</td>
+<td><code>unreal</code></td>
+<td>0–1</td>
 </tr>
 <tr>
 <td><code>Ocr1</code></td>
 <td>致命​一击​几率</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–100</td>
+<td><code>unreal</code></td>
+<td>0–100</td>
 </tr>
 <tr>
 <td><code>Ocr2</code></td>
 <td>伤害​倍数</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Ocr3</code></td>
 <td>伤害​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Ocr4</code></td>
 <td>闪避​的​概率</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–1</td>
+<td><code>unreal</code></td>
+<td>0–1</td>
 </tr>
 <tr>
 <td><code>Ocr5</code></td>
 <td>不会​漏掉</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>bool</code>），取值 0–1</td>
+<td><code>bool</code></td>
+<td>0–1</td>
 </tr>
 <tr>
 <td><code>Ore1</code></td>
 <td>再生​延迟</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0.001–300</td>
+<td><code>unreal</code></td>
+<td>0.001–300</td>
 </tr>
 <tr>
 <td><code>Rej1</code></td>
 <td>生命​值​取得</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Rej2</code></td>
 <td>魔法​点​取得</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Rej3</code></td>
 <td>完整​时​可用</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>fullFlags</code>）</td>
+<td><code>fullFlags</code></td>
+<td>—</td>
 </tr>
 <tr>
 <td><code>Rej4</code></td>
 <td>没有​目标​要求</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>bool</code>）</td>
+<td><code>bool</code></td>
+<td>—</td>
 </tr>
 <tr>
 <td><code>Roa1</code></td>
 <td>伤害​增加​(​%​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>Roa2</code></td>
 <td>防御​增加</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–99999</td>
+<td><code>int</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Roa3</code></td>
 <td>生命​值​恢复​速度</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Roa4</code></td>
 <td>魔法​再生</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Roa5</code></td>
 <td>喜欢​进攻</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>bool</code>），取值 0–1</td>
+<td><code>bool</code></td>
+<td>0–1</td>
 </tr>
 <tr>
 <td><code>Roa6</code></td>
 <td>喜欢​友好</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>bool</code>），取值 0–1</td>
+<td><code>bool</code></td>
+<td>0–1</td>
 </tr>
 <tr>
 <td><code>Roa7</code></td>
 <td>最​多​单位</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–100</td>
+<td><code>int</code></td>
+<td>0–100</td>
 </tr>
 <tr>
 <td><code>Slo1</code></td>
 <td>移动​速度​因素</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 -10–10</td>
+<td><code>unreal</code></td>
+<td>-10–10</td>
 </tr>
 <tr>
 <td><code>Slo2</code></td>
 <td>攻击速度​因素</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 -10–10</td>
+<td><code>unreal</code></td>
+<td>-10–10</td>
 </tr>
 <tr>
 <td><code>Slo3</code></td>
 <td>总是​自动​施放</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>bool</code>），取值 0–1</td>
+<td><code>bool</code></td>
+<td>0–1</td>
 </tr>
 <tr>
 <td><code>Spo1</code></td>
 <td>每秒​伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Spo2</code></td>
 <td>移动​速度​因素</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>Spo3</code></td>
 <td>攻击速度​因素</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>Spo4</code></td>
 <td>叠加​类型</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>stackFlags</code>）</td>
+<td><code>stackFlags</code></td>
+<td>—</td>
 </tr>
 <tr>
 <td><code>Ssk1</code></td>
 <td>减少​伤害​几率​(​%​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–100</td>
+<td><code>unreal</code></td>
+<td>0–100</td>
 </tr>
 <tr>
 <td><code>Ssk3</code></td>
 <td>忽略​伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Ufn1</code></td>
 <td>伤害​影响​范围</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Ufn2</code></td>
 <td>特定​目标​伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Uim1</code></td>
 <td>波​距离</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Uim2</code></td>
 <td>波​时间​(​秒​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Uim3</code></td>
 <td>施加​伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Uim4</code></td>
 <td>空中​时间​(​秒​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>Uts1</code></td>
 <td>返还​伤害​因素</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–100</td>
+<td><code>unreal</code></td>
+<td>0–100</td>
 </tr>
 <tr>
 <td><code>Uts3</code></td>
 <td>防御​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>War1</code></td>
 <td>践踏​几率​(​%​)</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–1000</td>
+<td><code>unreal</code></td>
+<td>0–1000</td>
 </tr>
 <tr>
 <td><code>War2</code></td>
 <td>施加​伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>War3</code></td>
 <td>全体​伤害​范围</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>War4</code></td>
 <td>部分​伤害​范围</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>irl1</code></td>
 <td>生命​回复</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>irl2</code></td>
 <td>魔法​回复</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>irl5</code></td>
 <td>进攻​的​同时​驱散</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>bool</code>）</td>
+<td><code>bool</code></td>
+<td>—</td>
 </tr>
 <tr>
 <td><code>isr1</code></td>
 <td>伤害​奖励</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>isr2</code></td>
 <td>伤害​减少</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>mec1</code></td>
 <td>创建​单位​数量</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–100</td>
+<td><code>int</code></td>
+<td>0–100</td>
 </tr>
 <tr>
 <td><code>nca1</code></td>
 <td>分布式​伤害​因素</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–10</td>
+<td><code>unreal</code></td>
+<td>0–10</td>
 </tr>
 <tr>
 <td><code>pxf1</code></td>
 <td>初始​伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>pxf2</code></td>
 <td>每秒​伤害</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>unreal</code>），取值 0–99999</td>
+<td><code>unreal</code></td>
+<td>0–99999</td>
 </tr>
 <tr>
 <td><code>spb1</code></td>
 <td>法术​列表</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>abilityList</code>）</td>
+<td><code>abilityList</code></td>
+<td>—</td>
 </tr>
 <tr>
 <td><code>spb2</code></td>
 <td>共享​法术​施放​时间​间隔</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>bool</code>）</td>
+<td><code>bool</code></td>
+<td>—</td>
 </tr>
 <tr>
 <td><code>spb3</code></td>
 <td>最小​法术</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–12</td>
+<td><code>int</code></td>
+<td>0–12</td>
 </tr>
 <tr>
 <td><code>spb4</code></td>
 <td>最大​法术</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>int</code>），取值 0–12</td>
+<td><code>int</code></td>
+<td>0–12</td>
 </tr>
 <tr>
 <td><code>spb5</code></td>
 <td>基本​顺序​ID</td>
-<td><code>war3map.w3a</code> 的 <code>Data</code> 数值字段（类型 <code>orderString</code>），取值 ≤ 32</td>
+<td><code>orderString</code></td>
+<td>≤ 32</td>
 </tr>
 </tbody>
 </table>
@@ -2239,7 +2377,7 @@
         <span class="md-icon" title="最后更新">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
         </span>
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月8日 16:45:03 UTC">2026年10月8日</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月8日 17:07:49 UTC">2026年10月8日</span>
       </span>
     
     

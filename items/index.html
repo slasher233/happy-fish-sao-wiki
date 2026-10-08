@@ -2687,13 +2687,17 @@
 
 
 <h1 id="_1">物品​总览<a class="headerlink" href="#_1" title="复制链接">¶</a></h1>
-<p>共 <strong>509</strong>个​物品​对象​（​没有​自定义​名称​的​1​个​显示​为​「​未​设置​名称​（​原型​…​）​」​：​tpow​）​。</p>
+<p>共 <strong>509</strong>个​物品​对象​。​名称​按​两种​口径​分别​统计​—​—​两个​数字​口径​不同​，​不要​直接​相加​，​也​不要​拿​去​和​按​地图​原始数据​统计​的​「​缺​名称​对象​数​」​对比​：</p>
+<ul>
+<li><strong>名称​由​原型​补全</strong>：​对象​数据​里​没有​自定义​名称​，​但​取得​到<strong>原型​名</strong>，​页面​标题​显示​为​「​未​设置​名称​（​原型​…​）​」​—​—<strong>1</strong> 个（<code>tpow</code>（原型名「知识之书」））。</li>
+<li><strong>完全​没有​名称</strong>：​既​没有​自定义​名称​、​也​没有​原型​名​可以​回退​—​—<strong>0</strong>个​；​这​类​对象​即使​存在​于​地图​数据​里​也​不会​生成​页面​，​所以​按​地图​原始数据​统计​「​没有​自定义​名称​的​对象​」​时​，​数字​会​比本页​大​（​多​出来​的​正是​这​类​没有​页面​的​对象​）​。</li>
+</ul>
 <p>其中 <strong>10</strong>件​是<strong>本​版本​新增</strong>物品​（​随下​一​版补丁​上线​，​母图​v1.0​正式版​里​还​没有​）​：<a href="%E5%89%AF%E6%AD%A6%E5%99%A8/I0OK_%E5%90%9B%E4%B8%B4%E5%A4%A9%E4%B8%8B/"><code>I0OK</code></a>君临天下​、<a href="%E7%81%B5%E9%AD%82%E8%A3%85%E5%A4%87/I0OT_%E9%A3%8E%E8%8A%B1%E9%9B%AA%E6%9C%88/"><code>I0OT</code></a>风花雪月​、<a href="%E8%A3%85%E7%94%B2/I0Q7_%E7%88%B1%E6%84%8F%E6%9A%96%E6%9A%96%E8%BF%9E%E8%A1%A3%E8%A3%99/"><code>I0Q7</code></a>爱意​暖​暖​连衣裙​、<a href="%E7%81%B5%E9%AD%82%E8%A3%85%E5%A4%87/I0Q8_%E7%A6%81%E5%BF%8C%E4%B9%8B%E6%88%92/"><code>I0Q8</code></a>禁忌​之戒​、<a href="%E5%A4%B4%E9%83%A8%E9%81%93%E5%85%B7/I0Q9_%E7%8E%8B%E5%A5%B3%E4%B9%8B%E5%86%A0/"><code>I0Q9</code></a>王女​之冠​、<a href="%E8%A3%85%E7%94%B2/I0QA_%E7%8E%B2%E7%8F%91%E4%BB%99%E8%A3%99/"><code>I0QA</code></a>玲珑​仙裙​、<a href="%E5%89%AF%E6%AD%A6%E5%99%A8/I0QB_%E6%A2%A6%E5%B9%BB/"><code>I0QB</code></a>梦幻​、<a href="%E5%A4%B4%E9%83%A8%E9%81%93%E5%85%B7/I100_%E5%9B%BD%E7%8E%8B%E4%B9%8B%E5%86%A0/"><code>I100</code></a>国王​之冠​、<a href="%E6%AD%A6%E5%99%A8/I101_%E5%88%92%E7%A0%B4%E5%A4%A9%E7%A9%BA/"><code>I101</code></a>划破​天空​、<a href="%E8%A3%85%E7%94%B2/I102_%E9%9B%B7%E6%9A%B4%E6%88%98%E7%94%B2/"><code>I102</code></a>雷暴​战甲​。</p>
 <p>分类​由​游戏​内​说明​里​的​类型​标签​与​名称​规则<strong>自动​推断</strong>，​推断​结果​可能​有误​—​—​以​每页​的​说明​原文​为准​。</p>
 <table>
 <thead>
 <tr>
-<th>ID</th>
+<th>物品​ID</th>
 <th>名称</th>
 <th>分类</th>
 <th>品质</th>
@@ -7308,7 +7312,7 @@
 - 对象总数：<strong>551</strong>-​拿到​至少​一条​获取​途径​证据​：<strong>499</strong>-​只有​上下文​证据​（​作为​材料​/​触发​物​被​消耗​）​：<strong>13</strong>-​完全​没有​获取​证据​：<strong>39</strong></p>
 <p>每条获取方式都带 <code>war3map.j</code> 行号；证据来自静态分析，<strong>不​代表​游戏​内​一定​如此</strong>（例如合成还需要 NPC 菜单配合）。
 被删除的 52 件物品（含 code、名称与原文判定理由）保留在 <code>patch_plan/data/removed_items.json</code>，需要恢复时从该清单删掉条目、重跑生成器即可。</p>
-<p>识别的获取途径类型：<code>vendor</code>、<code>vendor_removed</code>、<code>craft</code>、<code>gacha</code>、<code>drop</code>、<code>gift</code>、<code>spawn</code>、<code>tower_reward</code>、<code>boss_pool</code>、<code>grow</code>、<code>grow_into</code>、<code>vendor_object_data</code></p>
+<p>识别的获取途径类型（括号里是 <code>item_sources.json</code> 里的原始键名）：商店出售（<code>vendor</code>）、被从商店移除（<code>vendor_removed</code>）、打造 / 合成（<code>craft</code>）、抽奖 / 扭蛋（<code>gacha</code>）、掉落（<code>drop</code>）、触发时赠予（<code>gift</code>）、事件生成（<code>spawn</code>）、通天塔层奖励（<code>tower_reward</code>）、BOSS 专属掉落池（<code>boss_pool</code>）、击杀成长（升级后形态）（<code>grow</code>）、击杀成长（升级为下一形态）（<code>grow_into</code>）、商店货架（对象数据）（<code>vendor_object_data</code>）。</p>
 <hr>
 <div class="wiki-source-note">
 <p><strong>数据​来源</strong>：<code>刀剑物语 happy丶FISH v1.0 正式版</code>（母图 SHA256 <code>62A1122ACEDA220B746DF730B1625C2AF8E3C149048E26FDC2AF5C37BDA6BD6D</code>）</p>
@@ -7334,7 +7338,7 @@
         <span class="md-icon" title="最后更新">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
         </span>
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月8日 16:45:03 UTC">2026年10月8日</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月8日 17:07:49 UTC">2026年10月8日</span>
       </span>
     
     
