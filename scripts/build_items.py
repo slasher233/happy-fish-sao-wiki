@@ -12,6 +12,8 @@ import os
 import re
 import sys
 import collections
+import csv
+import glob
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from wiki_common import (  # noqa: E402
@@ -19,9 +21,14 @@ from wiki_common import (  # noqa: E402
     RECON_DIR,
     utf8, load_json, load_tsv, clean_text, clean_inline, esc, code, safe_name,
     write_page, table, source_footer, blank, obj_code,
+    CLASS_ZH, field_zh, val_or, fmt_num, link,
 )
 
 utf8()
+
+W_ROOT = os.path.dirname(WIKI_DIR)
+PLAN_DATA = os.path.join(W_ROOT, "patch_plan", "data")
+ANCHORS_JSON = os.path.join(RECON_DIR, "item_text_anchors.json")
 
 ITEMS_JSON = os.path.join(WIKI_DATA, "items.json")
 ABIL_JSON = os.path.join(WIKI_DATA, "abilities.json")
@@ -30,6 +37,55 @@ EXCL_JSON = os.path.join(RECON_DIR, "hero_exclusive.json")
 ITEM_SRC = os.path.join(WIKI_DATA, "item_sources.json")
 ABIL_FIELDS = os.path.join(INDEX_DIR, "field_dict_abilities.tsv")
 ITEM_OUT = os.path.join(DOCS, "items")
+
+# 需求单仓库里的成品表（用户看的那份）；只用它们补充「人话」字段，不写回
+PLAN_ITEM_TEXT = os.path.join(PLAN_DATA, "item_text.csv")
+PLAN_ITEM_SOURCE = os.path.join(PLAN_DATA, "items_source.csv")
+PLAN_DROPS_BY_BOSS = os.path.join(PLAN_DATA, "drops_by_boss.csv")
+
+# 内部枚举 → 中文（审计问题 W012：不能把 unclassified_give / GetTriggerUnit( 直接印给用户）
+KIND_ZH = {
+    "npc_gift": "NPC 赠送", "unclassified_give": "触发时赠予（无法归类）",
+    "event_spawn": "事件生成", "static_preplaced": "地图预置",
+    "recipe_scroll_used": "配方卷轴被使用", "menu_item_used": "菜单物品被使用",
+    "auto_combine": "自动合成", "recipe_scroll": "配方卷轴", "craft_station": "合成台",
+    "gacha": "抽奖机", "single_weight": "单条权重掉落", "weighted_table": "权重掉落表",
+    "consumed_only": "被收走后消失",
+}
+_UNIT_EXPR_ZH = {
+    "GetTriggerUnit": "触发事件的单位（击杀者或进入区域的单位）",
+    "GetKillingUnit": "击杀者",
+    "GetManipulatingUnit": "操作该物品的单位",
+    "GetSpellAbilityUnit": "施法单位",
+}
+_UNIT_EXPR_RE = re.compile(r"^(Get[A-Za-z]+)\s*\(")
+
+
+def kind_zh(k) -> str:
+    s = (k or "").strip()
+    return KIND_ZH.get(s, s or "未知方式")
+
+
+def who_zh(t) -> str:
+    """把 unclassified 的「给谁」表达式翻成人话。"""
+    s = clean_inline(str(t or ""))
+    if not s or s in ("None", "—"):
+        return "（无法确定目标）"
+    m = _UNIT_EXPR_RE.match(s)
+    if not m:
+        return s
+    who = _UNIT_EXPR_ZH.get(m.group(1))
+    raw = s.replace("`", "'")
+    if who:
+        return f"{who}（原表达式 `{raw}`）"
+    return f"（无法确定目标；原表达式 `{raw}`）"
+
+
+def load_csv(path: str) -> list[dict]:
+    if not os.path.exists(path):
+        return []
+    with open(path, encoding="utf-8-sig", newline="") as fh:
+        return [row for row in csv.DictReader(fh)]
 
 CATEGORY_ORDER = [
     "武器", "装甲", "副武器", "头部道具", "灵魂装备", "觉醒装备",
@@ -54,6 +110,15 @@ TAG_MAP = {
 }
 
 COLOR_TAG = re.compile(r"\|c[0-9a-fA-F]{8}([^|\r\n]{1,14})\|r")
+# 未解析的模板占位符：<AIim,DataB1>（原版技能 + 其数值字段）
+DETOKEN_RE = re.compile(r"<([A-Za-z0-9]{4}),([A-Za-z0-9]{2,8})>")
+
+
+def detoken(s) -> str:
+    """把 <AIim,DataB1> 这种未解析占位符翻成人话，正文里不留尖括号 token。"""
+    return DETOKEN_RE.sub(
+        lambda m: f"〔原版技能 {m.group(1)} 的数值字段 {m.group(2)}（本图未解析）〕", str(s or ""))
+
 CONSUMABLE_RE = re.compile(r"之书|药水|卷轴|药剂|丹药|药膏|符咒|蛋糕|面包|奶酪|料理|食物")
 NPC_RE = re.compile(r"打造|制造|交换|交易|提交|兑换|分解|重铸|解锁器|抽奖")
 TELEPORT_RE = re.compile(r"传送|迷宫|挑战|回城|时空")
@@ -191,7 +256,8 @@ def main() -> None:
             "base": base,
             "base_name": bname,
             "name": name,
-            "display": name or (f"{bname}（原版）" if bname else base),
+            # 名称缺失时不要写「原名（原版）」这种双重括号表达（审计问题 W029）
+            "display": name or (f"未设置名称（原型 {bname}）" if bname else f"未设置名称（原型 {base}）"),
             "tip": tip,
             "ubertip": ubertip,
             "icla": icla,
@@ -215,6 +281,12 @@ def main() -> None:
                 used_in[other["code"]].append((p["code"], onm))
 
     os.makedirs(ITEM_OUT, exist_ok=True)
+    # docs/items 完全由本脚本生成：先清空，避免物品改名/换分类后留下陈旧页面
+    for old in glob.glob(os.path.join(ITEM_OUT, "**", "*.md"), recursive=True):
+        try:
+            os.remove(old)
+        except OSError:
+            pass
     cat_count = collections.Counter()
     no_name = []
 
@@ -238,6 +310,40 @@ def main() -> None:
         except Exception as e:  # noqa: BLE001
             print(f"  ! hero_exclusive.json 解析失败（专属标记将缺失）：{e}")
 
+    # 自然语言描述 / 可改数值项（子智能体产出的 anchors）
+    anchors = {}
+    try:
+        if os.path.exists(ANCHORS_JSON):
+            _a = load_json(ANCHORS_JSON)
+            _items = _a.get("items", _a) if isinstance(_a, dict) else _a
+            _seq = _items.values() if isinstance(_items, dict) else _items
+            for rec in _seq:
+                if not isinstance(rec, dict):
+                    continue
+                if rec.get("code"):
+                    anchors[rec["code"]] = rec
+                if rec.get("item_name"):
+                    anchors.setdefault("#" + rec["item_name"], rec)
+        else:
+            print("  · item_text_anchors.json 尚不存在 → 功能描述退化为「只有说明原文」")
+    except Exception as e:  # noqa: BLE001
+        print(f"  ! item_text_anchors.json 解析失败（功能描述将退化）：{e}")
+
+    # 需求单仓库成品表：人话版获取方式 + 按 BOSS 聚合的掉落
+    text_rows = {r["item_code"]: r for r in load_csv(PLAN_ITEM_TEXT) if r.get("item_code")}
+    src_rows = {r["item_code"]: r for r in load_csv(PLAN_ITEM_SOURCE) if r.get("item_code")}
+    boss_rows = collections.defaultdict(list)
+    for r in load_csv(PLAN_DROPS_BY_BOSS):
+        if r.get("item_code"):
+            boss_rows[r["item_code"]].append(r)
+    zh_to_fid = {}
+    for fid, d in fdict.items():
+        z = (d.get("zh_label") or "").strip()
+        if z:
+            zh_to_fid.setdefault(z, fid)
+    print(f"  · anchors {len(anchors)} 条 / item_text {len(text_rows)} 行 / items_source {len(src_rows)} 行 / "
+          f"按BOSS聚合掉落 {len(boss_rows)} 件物品")
+
     for p in parsed:
         cat_count[p["cat"]] += 1
         if not p["name"]:
@@ -246,7 +352,10 @@ def main() -> None:
         fn = f"{p['code']}_{safe_name(p['display'])}.md"
         p["file"] = f"{p['cat']}/{fn}"
         write_page(os.path.join(d, fn),
-                   render_item(p, abils, fdict, sources, used_in, item_names, unit_names, excl_items))
+                   render_item(p, abils, fdict, sources, used_in, item_names, unit_names, excl_items,
+                               anchors.get(p["code"]) or anchors.get("#" + p["name"]) or anchors.get("#" + p["display"]),
+                               text_rows.get(p["code"]), src_rows.get(p["code"]),
+                               boss_rows.get(p["code"]) or [], zh_to_fid))
     for c in CATEGORY_ORDER:
         os.makedirs(os.path.join(ITEM_OUT, c), exist_ok=True)
 
@@ -254,7 +363,7 @@ def main() -> None:
     rows = []
     for p in sorted(parsed, key=lambda x: (x["cat"], x["code"])):
         rows.append([
-            f"[`{p['code']}`]({p['file']})",
+            link(p["file"], f"`{p['code']}`"),
             esc(p["display"]) or "—",
             p["cat"],
             p["quality"] or "—",
@@ -307,17 +416,20 @@ def main() -> None:
 
 
 def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
-                excl_items=None) -> str:
+                excl_items=None, anchor=None, text_row=None, src_row=None,
+                boss_rows=None, zh_to_fid=None) -> str:
     f = p["fields"]
-    icla = p["icla"] or "—"
+    icla = (p["icla"] or "").strip()
     lines = [f"# {p['code']} · {p['display']}", ""]
 
+    price = clean_inline(first(f, "goldcost"))
     meta = [
         f"**分类**：{p['cat']}",
-        f"**品质**：{p['quality'] or '—'}",
-        f"**类型**：{icla}",
-        f"**物品等级**：{blank(clean_inline(first(f, 'Level')))}",
-        f"**价格**：{blank(clean_inline(first(f, 'goldcost')))} 金",
+        f"**品质**：{val_or(p['quality'], '无数据（说明里没写品质）')}",
+        f"**类型**：{(CLASS_ZH.get(icla, icla) if icla else '未设置')}"
+        + (f"（原始枚举 `{icla}`）" if icla and CLASS_ZH.get(icla) else ""),
+        f"**物品等级**：{val_or(clean_inline(first(f, 'Level')), '未设置')}",
+        f"**价格**：{val_or(price, '未设置')}" + (" 金" if price else ""),
     ]
     lines.append("> " + "\u3000".join(meta))
     lines.append("")
@@ -326,6 +438,9 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
         proto += f"（{p['base_name']}）"
     lines.append(f"**物品 ID**：`{p['code']}`　·　**原型**：{proto}　·　**版本**：{MAP_VERSION}")
     lines.append("")
+
+    lines += render_natural_language(p, anchor, text_row)
+    lines += render_changeable(p, anchor, zh_to_fid or {})
     if first(f, "Hotkey"):
         lines.append(f"**热键**：`{clean_inline(first(f, 'Hotkey'))}`")
         lines.append("")
@@ -354,9 +469,11 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
     # 数值来自物品技能（iabi）
     stat_rows = []
     ability_rows = []
+    missing_abils = []
     for ac in p["abil"]:
         a = abils.get(ac)
         if not a:
+            missing_abils.append(ac)
             ability_rows.append([code(ac), "（对象不存在）", "—", "—"])
             continue
         anam = clean_inline(first(a["fields"], "Name"))
@@ -388,25 +505,47 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
 
     lines += ["### 物品能力", ""]
     if ability_rows:
-        lines.append(table(["能力 ID", "能力名称", "关键数值", "能力说明"], ability_rows))
+        # 能力说明整列都取不到时不要留一个空列（审计问题 W032）
+        if all((r[3] in ("—", "", "（对象不存在）")) for r in ability_rows):
+            for r in ability_rows:
+                r.pop(3)
+            lines.append(table(["能力 ID", "能力名称", "关键数值"], ability_rows))
+            lines.append("")
+            lines.append("> 对象数据没有给出这些能力的说明文字（`Ubertip` 为空），所以只列绑定关系与关键数值。")
+        else:
+            lines.append(table(["能力 ID", "能力名称", "关键数值", "能力说明"], ability_rows))
+        lines.append("")
     else:
         lines.append("_（无 `iabi` 绑定）_")
         lines.append("")
+    if missing_abils:
+        lines += ["!!! warning \"数据异常：引用了本图不存在的能力对象\"",
+                  "",
+                  "    本物品的 `abilList`（字段 `iabi`）引用了本图 `war3map.w3a` 里**不存在**的能力："
+                  + "、".join(f"`{c}`" for c in missing_abils) + "。",
+                  "    这些多半是**魔兽原版技能**（本图没有把它们复制成自定义对象），wiki 无法展开其数值；"
+                  "游戏里是否生效取决于客户端原版技能数据，本页不把它当作本图自定义能力。",
+                  ""]
 
     lines += ["### 游戏内说明（原文）", ""]
     if p["ubertip"]:
-        for ln in p["ubertip"].split("\n"):
+        for ln in detoken(p["ubertip"]).split("\n"):
             lines.append(f"> {ln}" if ln.strip() else ">")
     else:
-        lines.append("> _（无）_")
+        lines.append("> _（对象数据的 `Ubertip` 字段为空：这件物品没有游戏内说明文本。）_")
     lines.append("")
     if p["tip"] and clean_inline(p["tip"]) != clean_inline(p["ubertip"]):
-        lines += ["**提示工具（Tip）**：", "", "```text", p["tip"], "```", ""]
+        # Tip 就是物品名/原名时没有信息量，别占一大块（审计问题 W026）
+        if clean_inline(p["tip"]) in (p["display"], p["name"], p["base"]):
+            lines += ["_（提示工具（Tip）与物品名相同，没有额外说明。）_", ""]
+        else:
+            lines += ["**提示工具（Tip）**：", "", "```text", detoken(p["tip"]), "```", ""]
 
     lines += ["## 获取方式", ""]
+    lines += render_acquisition_human(p, src_row, boss_rows or [])
     src = sources.get(p["code"]) if sources else None
     if src:
-        lines.append(render_sources(src, item_names, unit_names))
+        lines += ["### 全部证据明细", "", render_sources(src, item_names, unit_names)]
     else:
         lines.append("**待考证**——尚未在本图 `war3map.j` 中找到该物品的获取证据。")
         lines.append("")
@@ -418,13 +557,18 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
     lines += ["## 合成与材料用途", ""]
     lines.append(render_materials(src, used_in.get(p["code"]) or [], item_names))
 
-    lines += ['??? note "全部对象字段（原始值）"', ""]
+    lines += ['??? note "全部对象字段（原始值）"', "",
+              "    这是 `war3map.w3t` 里这件物品的**全部字段原始值**，字段名保留魔兽内部 id（**加粗**的是中文名）。",
+              "    正常阅读不用看这里；要改数值请看上面的「可改数值项」。", ""]
     for ini_key in sorted(f.keys()):
         for r in f[ini_key]:
-            zh = r.get("zh") or fdict.get(r.get("field", ""), {}).get("zh_label") or ""
+            fid = r.get("field", "")
+            zh = field_zh(fid) if fid else clean_inline(r.get("zh") or "")
             lv = f" (Lv{r['level']})" if r.get("level") not in (None, "") else ""
-            lines.append(f"    - `{r.get('field','')}` {ini_key}{lv} = `{v(r.get('value'))}`"
-                         + (f"　*({clean_inline(zh)})*" if zh else ""))
+            val = detoken(clean_inline(v(r.get("value"))))
+            if val == "":
+                val = "（对象数据中此字段为空字符串）"
+            lines.append(f"    - `{fid}` **{esc(zh)}**（{ini_key}）{lv} = `{val}`")
     lines.append("")
 
     lines.append(source_footer([
@@ -434,6 +578,147 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
         "**说明文字（Tip/Ubertip）是策划手写的，可能与实际触发器数值不一致**；本页数值列取自对象数据的真实字段。",
     ]))
     return "\n".join(lines)
+
+
+_MISMATCH_TAG = re.compile(r"^\[([^\]]+)\]")
+
+
+def _mismatch_summary(anchor) -> str:
+    cnt = collections.Counter()
+    for m in ((anchor or {}).get("mismatches") or []):
+        mm = _MISMATCH_TAG.match(str(m).strip())
+        cnt[mm.group(1) if mm else "其它"] += 1
+    return "、".join(f"{k} {n} 处" for k, n in cnt.most_common())
+
+
+def render_natural_language(p, anchor, text_row) -> list:
+    """## 功能描述（人话版）——把物品技能数值转写成一句自然语言。"""
+    out = ["## 功能描述（人话版）", ""]
+    desc = clean_inline((anchor or {}).get("nl_desc") or "")
+    if not desc:
+        auto = clean_inline((text_row or {}).get("功能描述(由数值生成)") or "")
+        desc = auto.replace("✔", "（说明里出现过）") if auto else ""
+    if desc:
+        out += [desc, ""]
+    else:
+        ub_raw = str((anchor or {}).get("ubertip_raw") or "")
+        if not p["abil"]:
+            reason = "该物品没有绑定物品技能（`iabi` 为空），对象数据里只有名称/说明等文字字段"
+        elif "<AI" in ub_raw:
+            reason = ("说明里含未解析的模板占位符（形如 `AIxx` + 数值字段 id）——它挂的是**标准暴雪技能**，"
+                      "本图 `war3map.w3a` 里没有对应对象，数值由魔兽原版决定，改不动")
+        else:
+            reason = "它的物品技能里没有可机械转写为数值的属性字段"
+        out += [f"_（暂时写不出人话版描述：{reason}。）_", ""]
+
+    bits = []
+    conf = (anchor or {}).get("confidence")
+    if conf:
+        bits.append(f"自动转写置信度 **{conf}**")
+    ms = _mismatch_summary(anchor)
+    if ms:
+        bits.append("与说明原文的差异：" + ms)
+    if bits:
+        out += ["> " + "；".join(bits) + "。",
+                "> 描述由**物品技能的对象数值**（`war3map.w3a`）自动转写；"
+                "游戏内说明是策划手写的，**两者不一致时以对象数值为准**（真实生效的是对象数值）。", ""]
+    return out
+
+
+def render_changeable(p, anchor, zh_to_fid) -> list:
+    """## 可改数值项——玩家/策划说要改哪个数，就改这里列的哪个字段。"""
+    out = ["## 可改数值项（改这些值会写进地图对象）", ""]
+    vals = [v for v in ((anchor or {}).get("values") or []) if isinstance(v, dict)]
+    if not vals:
+        out += ["_（这件物品没有可机械修改的数值项。）_", "",
+                "> 常见原因：它没绑定物品技能，或只挂标准暴雪技能（`AIxx`）——"
+                "这类数值由魔兽原版决定，要改必须先把技能对象复制成自定义技能再改。", ""]
+        return out
+
+    rows = []
+    for v in vals:
+        fid = (v.get("field") or zh_to_fid.get((v.get("field_zh") or "").strip(), "") or "").strip()
+        zh = (v.get("field_zh") or "").strip() or field_zh(fid) or fid
+        extra = []
+        if v.get("scale") == "x100" and v.get("raw_value") is not None:
+            extra.append(f"原始值 {fmt_num(v.get('raw_value'))}（= {fmt_num(v.get('value'))}%）")
+        unit = (v.get("unit") or "").strip()
+        if unit and unit != "%":
+            extra.append(f"单位：{unit}")
+        rows.append([
+            ("✔ " if v.get("in_desc") else "") + esc(zh),
+            esc(fmt_num(v.get("value"))),
+            code(fid),
+            blank(v.get("level"), ""),
+            esc("；".join(extra)) or "—",
+        ])
+    out += [table(["数值项", "当前值", "字段 id", "等级", "备注"], rows), "",
+            "**怎么改**：到需求单仓库 `happy-fish-patch-plan` 打开 `data/item_ability_data.csv`，"
+            "按 `item_code` + `ability_code` + `field` + `level` 找到对应行，把目标值写进 `new_value`，"
+            "同行补 `req_id` 与 `note`；或者直接在「口语需求（自然语言）」Issue 里说人话，由我落表。", "",
+            "> ✔ = 该数值在游戏内说明里出现过（说明与对象数值对得上）。"
+            "标 `x100` 的百分比项：CSV 里的 `cur_value` 存的是**原始小数**（0.1 = 10%），`new_value` 也要填小数。", ""]
+    return out
+
+
+def render_acquisition_human(p, src_row, boss_rows) -> list:
+    """获取方式的人话摘要 + 按来源（BOSS/宝箱/抽奖机）聚合的掉落表。"""
+    out = []
+    if src_row:
+        avail = (src_row.get("可获得性") or "").strip()
+        main = (src_row.get("主要获取方式") or "").strip()
+        allw = (src_row.get("全部获取方式") or "").strip()
+        floor = (src_row.get("掉落层") or "").strip()
+        boss = (src_row.get("掉落BOSS") or "").strip()
+        use = (src_row.get("用途") or "").strip()
+        judged = (src_row.get("判定来源") or "").strip()
+        out.append(f"- **能不能拿到**：{avail or '未判定'}")
+        if main or allw:
+            out.append(f"- **怎么拿**：{main or allw}")
+        if floor:
+            out.append(f"- **掉落层**：{floor}")
+        if boss:
+            out.append(f"- **掉落 BOSS**：{boss}")
+        if use:
+            out.append(f"- **用途**：{use}")
+        if judged:
+            out.append(f"- 判定依据：`{judged}`（明细见 `note_log/recon/item_source_gaps.json`）")
+        out.append("")
+
+    if boss_rows:
+        groups = collections.OrderedDict()
+        for r in boss_rows:
+            groups.setdefault((r.get("组号") or "").strip(), []).append(r)
+        rows = []
+        for gid, rs in groups.items():
+            head = {}
+            for r in rs:
+                for k in ("来源类型", "来源ID", "来源名称", "层", "层名"):
+                    if not head.get(k) and (r.get(k) or "").strip():
+                        head[k] = (r.get(k) or "").strip()
+            label = "·".join(x for x in (head.get("来源类型"), head.get("来源名称")) if x)
+            if head.get("来源ID"):
+                label += f"（`{head['来源ID']}`）"
+            where = " ".join(x for x in (head.get("层"), head.get("层名")) if x)
+            first = True
+            for r in rs:
+                rows.append([
+                    (f"**{gid}** {esc(label)}" if first else ""),
+                    (esc(where) if first else ""),
+                    code(r.get("item_code")),
+                    esc(r.get("item_name") or ""),
+                    blank(r.get("cur_chance_pct"), ""),
+                    blank(r.get("cur_weight"), ""),
+                    blank(r.get("cur_amount"), ""),
+                    esc(clean_inline(r.get("证据") or "")),
+                ])
+                first = False
+        out += ["### 按来源聚合的掉落（同一 BOSS/宝箱的多件掉落并排列出）", "",
+                table(["来源（组号）", "所在层", "物品 ID", "物品名", "概率%", "权重", "数量", "证据"], rows), "",
+                "> 组号 = `drops_by_boss.csv` 里的一格来源；同一组的继续行留空，表示它们来自同一个来源。", ""]
+    elif (src_row or {}).get("可获得性", "").startswith("可获得"):
+        out += ["_（这件物品的获取方式没有按来源聚合成组，见下方证据明细。）_", ""]
+    return out
 
 
 def _nm(codes, names, limit=12) -> str:
@@ -551,19 +836,19 @@ def render_sources(src: dict, item_names: dict, unit_names: dict) -> str:
         rows = []
         for e in src["spawn"]:
             cond = ", ".join(e.get("cond_rawcodes") or [])
-            rows.append([esc(e.get("kind") or ""), _nm(cond.split(", ") if cond else [], unit_names), code(e.get("line"))])
+            rows.append([esc(kind_zh(e.get("kind"))), _nm(cond.split(", ") if cond else [], unit_names), code(e.get("line"))])
         section("事件生成（`CreateItemLoc`）", rows, ["方式", "触发单位", "j 行号"])
 
     # 10) 赠送
     if src.get("gift"):
-        rows = [[esc(e.get("kind") or ""), esc(clean_inline(str(e.get("to") or ""))), code(e.get("line"))] for e in src["gift"]]
+        rows = [[esc(kind_zh(e.get("kind"))), esc(who_zh(e.get("to"))), code(e.get("line"))] for e in src["gift"]]
         section("触发时赠予", rows, ["方式", "给谁", "j 行号"])
 
     # 11) 拾取 / 使用触发
     if src.get("trigger_use"):
         rows = []
         for e in src["trigger_use"]:
-            rows.append([esc(e.get("kind") or ""), _nm(e.get("produces") or [], item_names), code(e.get("used_at_line"))])
+            rows.append([esc(kind_zh(e.get("kind"))), _nm(e.get("produces") or [], item_names), code(e.get("used_at_line"))])
         section("拾取 / 使用触发", rows, ["方式", "产出", "j 行号"])
 
     # 12) 作为材料被消耗
@@ -583,11 +868,8 @@ def render_sources(src: dict, item_names: dict, unit_names: dict) -> str:
 def render_materials(src, text_uses, item_names) -> str:
     parts = []
     if src and src.get("used_as_material"):
-        rows = []
-        for e in src["used_as_material"]:
-            rows.append([esc(e.get("trigger_item_name") or "") + " " + code(e.get("trigger_item")),
-                         _nm([e.get("result")], item_names), code(e.get("line"))])
-        parts += ["**作为材料参与合成（触发器证据）**：", "", table(["触发卷轴/菜单", "合成结果", "j 行号"], rows), ""]
+        parts += ["**作为材料参与合成**：明细与证据见上面「获取方式 → 作为材料被消耗」一节"
+                  "（同一份 `item_sources.used_as_material` 数据，这里不再重复列表）。", ""]
     if src and src.get("consumed_only"):
         parts += ["**被收走后消失（`RemoveItem`）**：", ""]
         for e in src["consumed_only"]:

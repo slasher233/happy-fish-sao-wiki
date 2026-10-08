@@ -1,8 +1,21 @@
 # J0SI · 小型的大厅
 
-> **分类**：不归类　**品质**：—　**类型**：Purchasable　**物品等级**：3　**价格**：600 金
+> **分类**：不归类　**品质**：无数据（说明里没写品质）　**类型**：可购买（原始枚举 `Purchasable`）　**物品等级**：3　**价格**：600 金
 
 **物品 ID**：`J0SI`　·　**原型**：`tgrh`（小型的大厅）　·　**版本**：v1.0 正式版
+
+## 功能描述（人话版）
+
+魔法施放范围 100；持续时间 - 普通 20
+
+> 自动转写置信度 **low**；与说明原文的差异：无技能引用 1 处。
+> 描述由**物品技能的对象数值**（`war3map.w3a`）自动转写；游戏内说明是策划手写的，**两者不一致时以对象数值为准**（真实生效的是对象数值）。
+
+## 可改数值项（改这些值会写进地图对象）
+
+_（这件物品没有可机械修改的数值项。）_
+
+> 常见原因：它没绑定物品技能，或只挂标准暴雪技能（`AIxx`）——这类数值由魔兽原版决定，要改必须先把技能对象复制成自定义技能再改。
 
 **热键**：`G`
 
@@ -14,9 +27,12 @@ _（该物品没有属性类物品技能）_
 
 ### 物品能力
 
-| 能力 ID | 能力名称 | 关键数值 | 能力说明 |
-| --- | --- | --- | --- |
-| `Z1AC` | 建造小型的大厅 | 魔法施放时间间隔=0, 魔法消耗=0 | — |
+| 能力 ID | 能力名称 | 关键数值 |
+| --- | --- | --- |
+| `Z1AC` | 建造小型的大厅 | 魔法施放时间间隔=0, 魔法消耗=0 |
+
+
+> 对象数据没有给出这些能力的说明文字（`Ubertip` 为空），所以只列绑定关系与关键数值。
 
 ### 游戏内说明（原文）
 
@@ -29,6 +45,13 @@ _（该物品没有属性类物品技能）_
 ```
 
 ## 获取方式
+
+- **能不能拿到**：可获得
+- **怎么拿**：商店『巫毒商店』出售
+
+_（这件物品的获取方式没有按来源聚合成组，见下方证据明细。）_
+
+### 全部证据明细
 
 **商店货架（对象数据 `usei`/`umki`）**
 
@@ -43,45 +66,48 @@ _（没有找到本物品参与合成或作为材料的证据）_
 
 ??? note "全部对象字段（原始值）"
 
-    - `iico` Art = `ReplaceableTextures\CommandButtons\BTNGreathall.blp`　*(界面图标)*
-    - `ubpx` Buttonpos = `1`　*(按钮位置(X))*
-    - `ubpy` Buttonpos = `2`　*(按钮位置(Y))*
-    - `ides` Description = `创建出一道巨大的墙壁来。`　*(描述)*
-    - `ihtp` HP = `75`　*(生命值)*
-    - `uhot` Hotkey = `G`　*(热键)*
-    - `ilev` Level = `3`　*(等级)*
-    - `unam` Name = `小型的大厅`　*(名字)*
-    - `ureq` Requires = `u0O2`　*(要求)*
-    - `utip` Tip = `购买小型的大厅(|cffffcc00G|r)`　*(提示工具 - 基础)*
-    - `utub` Ubertip = `在目标区域创建出一座大厅。对于人族， 暗夜精灵族和不死族来讲则分别会创建出城镇大厅，生命之树和大墓地。`　*(提示工具 - 扩展的)*
-    - `iabi` abilList = `Z1AC`　*(技能)*
-    - `iarm` armor = `Wood`　*(装甲类型)*
-    - `icla` class = `Purchasable`　*(分类)*
-    - `iclb` colorB = `255`　*(染色 3 (蓝色))*
-    - `iclg` colorG = `255`　*(染色 2 (绿色))*
-    - `iclr` colorR = `255`　*(染色 1 (红色))*
-    - `icid` cooldownID = `AIbl`　*(魔法施放间隔时间组)*
-    - `idrp` drop = `0`　*(当携带者死亡时掉落)*
-    - `idro` droppable = `1`　*(可以遗弃的)*
-    - `ifil` file = `Objects\InventoryItems\TreasureChest\treasurechest.mdl`　*(已使用的模型)*
-    - `igol` goldcost = `600`　*(金子消耗)*
-    - `iicd` ignoreCD = `0`　*(忽视延迟)*
-    - `ilum` lumbercost = `185`　*(木材消耗)*
-    - `imor` morph = `0`　*(转移有效目标)*
-    - `ilvo` oldLevel = `0`　*(等级(无类别的))*
-    - `ipaw` pawnable = `1`　*(能被卖给商人)*
-    - `iper` perishable = `1`　*(易腐烂的)*
-    - `iprn` pickRandom = `0`　*(包括随机选择)*
-    - `ipow` powerup = `0`　*(需要时自动使用)*
-    - `ipri` prio = `0`　*(优先权)*
-    - `isca` scale = `1`　*(缩放值)*
-    - `issc` selSize = `0`　*(选择大小 – 编辑器)*
-    - `isel` sellable = `1`　*(可以被商人出售)*
-    - `isto` stockMax = `1`　*(最大储存)*
-    - `istr` stockRegen = `120`　*(佣兵招募间隔)*
-    - `isst` stockStart = `0`　*(佣兵招募时间)*
-    - `iusa` usable = `1`　*(主动使用)*
-    - `iuse` uses = `1`　*(负荷数量)*
+    这是 `war3map.w3t` 里这件物品的**全部字段原始值**，字段名保留魔兽内部 id（**加粗**的是中文名）。
+    正常阅读不用看这里；要改数值请看上面的「可改数值项」。
+
+    - `iico` **界面图标**（Art） = `ReplaceableTextures\CommandButtons\BTNGreathall.blp`
+    - `ubpx` **按钮位置(X)**（Buttonpos） = `1`
+    - `ubpy` **按钮位置(Y)**（Buttonpos） = `2`
+    - `ides` **描述**（Description） = `创建出一道巨大的墙壁来。`
+    - `ihtp` **生命值**（HP） = `75`
+    - `uhot` **热键**（Hotkey） = `G`
+    - `ilev` **等级**（Level） = `3`
+    - `unam` **名字**（Name） = `小型的大厅`
+    - `ureq` **要求**（Requires） = `u0O2`
+    - `utip` **提示工具 - 基础**（Tip） = `购买小型的大厅(G)`
+    - `utub` **提示工具 - 扩展的**（Ubertip） = `在目标区域创建出一座大厅。对于人族， 暗夜精灵族和不死族来讲则分别会创建出城镇大厅，生命之树和大墓地。`
+    - `iabi` **技能**（abilList） = `Z1AC`
+    - `iarm` **装甲类型**（armor） = `Wood`
+    - `icla` **分类**（class） = `Purchasable`
+    - `iclb` **染色 3 (蓝色)**（colorB） = `255`
+    - `iclg` **染色 2 (绿色)**（colorG） = `255`
+    - `iclr` **染色 1 (红色)**（colorR） = `255`
+    - `icid` **魔法施放间隔时间组**（cooldownID） = `AIbl`
+    - `idrp` **当携带者死亡时掉落**（drop） = `0`
+    - `idro` **可以遗弃的**（droppable） = `1`
+    - `ifil` **已使用的模型**（file） = `Objects\InventoryItems\TreasureChest\treasurechest.mdl`
+    - `igol` **金子消耗**（goldcost） = `600`
+    - `iicd` **忽视延迟**（ignoreCD） = `0`
+    - `ilum` **木材消耗**（lumbercost） = `185`
+    - `imor` **转移有效目标**（morph） = `0`
+    - `ilvo` **等级(无类别的)**（oldLevel） = `0`
+    - `ipaw` **能被卖给商人**（pawnable） = `1`
+    - `iper` **易腐烂的**（perishable） = `1`
+    - `iprn` **包括随机选择**（pickRandom） = `0`
+    - `ipow` **需要时自动使用**（powerup） = `0`
+    - `ipri` **优先权**（prio） = `0`
+    - `isca` **缩放值**（scale） = `1`
+    - `issc` **选择大小 – 编辑器**（selSize） = `0`
+    - `isel` **可以被商人出售**（sellable） = `1`
+    - `isto` **最大储存**（stockMax） = `1`
+    - `istr` **佣兵招募间隔**（stockRegen） = `120`
+    - `isst` **佣兵招募时间**（stockStart） = `0`
+    - `iusa` **主动使用**（usable） = `1`
+    - `iuse` **负荷数量**（uses） = `1`
 
 
 ---

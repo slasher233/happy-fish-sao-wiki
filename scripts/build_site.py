@@ -14,7 +14,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from wiki_common import (  # noqa: E402
-    DOCS, INDEX_DIR, MAP_NAME, MAP_SHA256, MAP_VERSION, MEMBER_SHA, RECON_DIR,
+    DOCS, INDEX_DIR, MAP_NAME, MAP_SHA256, MAP_VERSION, MEMBER_SHA, RECON_DIR, W,
     WIKI_DATA, blank, clean_inline, clean_text, code, esc, load_json, obj_code,
     source_footer, table, write_page,
 )
@@ -24,6 +24,10 @@ UNBOUND_TSV = os.path.join(RECON_DIR, "abilities_not_on_heroes.tsv")
 ITEMS_JSON = os.path.join(WIKI_DATA, "items.json")
 ABIL_JSON = os.path.join(WIKI_DATA, "abilities.json")
 UNITS_JSON = os.path.join(WIKI_DATA, "units.json")
+# 私有需求单仓库（只读引用）
+PATCH_DATA = os.path.join(W, "patch_plan", "data")
+SKILL_TEXT_CSV = os.path.join(PATCH_DATA, "hero_skill_text.csv")
+ABILITY_DATA_CSV = os.path.join(PATCH_DATA, "hero_ability_data.csv")
 
 
 def load_tsv(path: str) -> list[dict]:
@@ -31,6 +35,53 @@ def load_tsv(path: str) -> list[dict]:
         return []
     with open(path, encoding="utf-8-sig", newline="") as fh:
         return list(csv.DictReader(fh, delimiter="\t"))
+
+
+def load_csv(path: str) -> list[dict]:
+    if not os.path.exists(path):
+        return []
+    with open(path, encoding="utf-8-sig", newline="") as fh:
+        return list(csv.DictReader(fh))
+
+
+def load_skill_text(path: str) -> dict:
+    """`ability_code` → 需求单行（说明原文）。两张需求单表必须按 ability_code 索引。"""
+    out = {}
+    for r in load_csv(path):
+        c = (r.get("ability_code") or "").strip()
+        if c:
+            out.setdefault(c, r)
+    return out
+
+
+def load_ability_data(path: str) -> dict:
+    """`ability_code` → [可改数值行]（只取 `slk_col == "Data"` 的平衡数值行）。"""
+    out: dict[str, list] = {}
+    for r in load_csv(path):
+        if (r.get("slk_col") or "").strip() != "Data":
+            continue
+        c = (r.get("ability_code") or "").strip()
+        if c:
+            out.setdefault(c, []).append(r)
+    return out
+
+
+def is_unreachable(h: dict) -> bool:
+    """`heroes.tsv` 的 `reachable` 实际取值是 `NO(地图上无此单位)` / `yes(legacy，…)`，
+    必须 `startswith("no")`，`== "no"` 会漏判（审计问题 W010）。"""
+    return str(h.get("reachable") or "").lower().startswith("no")
+
+
+def hero_scope(heroes: list[dict]) -> tuple[int, int, int]:
+    """(可选, 地图上无此单位, 英雄数据条数)——口径与 `docs/heroes/index.md` 一致。"""
+    n_no = sum(1 for h in heroes if is_unreachable(h))
+    return len(heroes) - n_no, n_no, len(heroes)
+
+
+def scope_text(heroes: list[dict]) -> str:
+    ok, no, total = hero_scope(heroes)
+    return (f"**{total}** 条英雄数据 = **{ok}** 个可选 + **{no}** 个地图上无此单位"
+            f"（`note_log/recon/heroes.tsv` 共 {total} 行）")
 
 
 def first(fields, key):
@@ -45,7 +96,7 @@ def build_index() -> None:
     items = load_json(ITEMS_JSON)
     abils = load_json(ABIL_JSON)
     units = load_json(UNITS_JSON)
-    reachable = [h for h in heroes if (h.get("reachable") or "").lower() != "no"]
+    n_ok, n_no, n_total = hero_scope(heroes)
     lines = [
         "# happy丶FISH Wiki",
         "",
@@ -67,11 +118,13 @@ def build_index() -> None:
         "## 数据规模",
         "",
         table(["类别", "对象数", "本 Wiki 覆盖"], [
-            ["英雄", str(len(heroes)), f"{len(reachable)} 个确认可选中"],
+            ["英雄", f"{n_total} 条数据", f"{n_ok} 个可选 + {n_no} 个地图上无此单位"],
             ["物品", str(len(items)), "全部生成独立页面"],
             ["技能", f"{len(abils):,}", "英雄技能逐条展开；未绑定技能见技能总览"],
             ["单位", f"{len(units):,}", "英雄单位已收录，其余单位暂未展开"],
         ]),
+        "",
+        f"> 英雄口径（与 [英雄图鉴](heroes/index.md)、[技能总览](skills/index.md) 一致）：{scope_text(heroes)}。",
         "",
         "## 快速导航",
         "",
@@ -93,8 +146,12 @@ def build_index() -> None:
             ["⑤ 功能测试", "**未验证**", "本轮没有进入游戏逐项测试"],
         ]),
         "",
-        "> 说明：本 Wiki 的数值来自**发布图本身**的对象数据与触发器取证，**未经过实机验证**；"
-        "技能说明文字（`Ubertip`）可能与实际效果不一致，以触发器与数据字段为准。",
+        "!!! warning \"数值未实机验证\"",
+        "",
+        "    本 Wiki 的数值来自**发布图本身**的对象数据与触发器取证，**没有经过实机验证**；"
+        "技能/物品的说明文字（`Ubertip`）是策划手写的，可能与实际效果不一致，**以触发器与对象数据字段为准**。",
+        "    页面里出现的 `待考证`、`未判定（证据不足）`、`—` 都表示 Wiki **没有下结论**，"
+        "不等于「值为 0」或「该功能不存在」；符号与用语含义见 [术语与用语](info/术语与用语.md)。",
         "",
         source_footer(),
     ]
@@ -104,6 +161,8 @@ def build_index() -> None:
 def build_skills() -> None:
     abils = load_json(ABIL_JSON)
     heroes = load_tsv(HERO_TSV)
+    stext = load_skill_text(SKILL_TEXT_CSV)
+    adata = load_ability_data(ABILITY_DATA_CSV)
     bound = {}
     for h in heroes:
         hname = clean_inline(h.get("name")) or h["code"]
@@ -114,22 +173,41 @@ def build_skills() -> None:
             m = re.match(r"^([0-9A-Za-z]{4})", raw)
             if m:
                 bound[m.group(1)] = f"{hname} · {slot}"
+    # 2199 个技能对象里有 73 个 code 是四个 NUL（被改名的原版对象，真实身份在 `base`）——
+    # 直接用 a["code"] 会把 292 个 NUL 字符写进 markdown（审计问题 W018）→ 统一走 obj_code()。
     rows = []
-    for a in sorted(abils, key=lambda x: x["code"]):
-        c = a["code"]
+    for a in sorted(abils, key=obj_code):
+        c = obj_code(a)
         name = clean_inline(a.get("name"))
         owner = bound.get(c, "")
-        rows.append([code(c), esc(name) or "—", esc(owner) or "_未绑定英雄_",
-                     code(a.get("base", "")), esc(clean_inline(a.get("base_name"))) or "—"])
+        st = stext.get(c)
+        n_ad = len(adata.get(c, []))
+        if st is None:
+            note_flag = "未收录"
+        else:
+            note_flag = "有" if (st.get("cur_ubertip") or "").strip() else "无"
+        rows.append([code(c), esc(name) or "（对象无名称）", esc(owner) or "_未绑定英雄_",
+                     code(str(a.get("base") or "").replace("\x00", "")) or "（无原型字段）",
+                     esc(clean_inline(a.get("base_name"))) or "（原型无名称）",
+                     str(n_ad), note_flag])
     lines = [
         "# 技能总览",
         "",
         f"共 **{len(abils):,}** 个技能对象；其中 **{len(bound)}** 个通过 `PH_BindUnit` / "
         "`P2SV_FillAbilities` 绑定到英雄键位（Q/W/E/R/F/D/T），其余为物品技能、单位技能或系统技能。",
         "",
-        "> 技能对象在本图里通常只有 1 级（`alev=1`），等级成长由触发器控制。",
+        f"> 英雄口径（与 [英雄图鉴](../heroes/index.md)、[首页](../index.md) 一致）：{scope_text(heroes)}；"
+        "「绑定」列只对这些英雄的键位成立。",
         "",
-        table(["技能 ID", "名称", "绑定", "原型", "原型名称"], rows),
+        "> 技能对象在本图里通常只有 1 级（`alev=1`），等级成长由触发器控制。"
+        "「可改数值项数」= 私有需求单 `patch_plan/data/hero_ability_data.csv` 里该 `ability_code` 的行数；"
+        "「说明（原文）」= `patch_plan/data/hero_skill_text.csv` 里 `cur_ubertip` 的状态"
+        "（`有` / `无` = 该技能有行但原文为空 / `未收录` = 该表没有这行）。",
+        "",
+        "> 表里的「（对象无名称）」「（原型无名称）」「（无原型字段）」是**对象数据里真的没有这个值**，"
+        "不是抓取失败；详见 [术语与用语](../info/术语与用语.md)。",
+        "",
+        table(["技能 ID", "名称", "绑定", "原型", "原型名称", "可改数值项数", "说明（原文）"], rows),
         "",
         source_footer([
             f"技能对象来自 `war3map.w3a`（SHA256 `{MEMBER_SHA['war3map.w3a']}`）。"
@@ -223,6 +301,7 @@ def build_info() -> None:
         "",
         table(["页面", "内容"], [
             ["[地图身份与技术说明](地图身份.md)", "母图指纹、成员构成、数据来源与验证分层"],
+            ["[术语与用语](术语与用语.md)", "筋力/体力/敏捷、本站符号含义、字段名对应（审计问题 W016）"],
             ["[迷宫楼层线索](楼层信息.md)", "从「传送迷宫N层」物品的说明文本自动提取"],
             ["[存档与读档](存档与读档.md)", "存档相关 Lua 模块与已知事实（待补充）"],
         ]),
@@ -346,11 +425,60 @@ def build_info() -> None:
     save_lines.append(source_footer())
     write_page(os.path.join(out, "存档与读档.md"), "\n".join(save_lines))
 
+    # 术语与用语（审计问题 W016）：把全站反复出现的自造词/符号固定解释一遍
+    write_page(os.path.join(out, "术语与用语.md"), "\n".join([
+        "# 术语与用语",
+        "",
+        "本 Wiki 的词汇多半直接来自地图对象数据（`war3map.w3u` / `war3map.w3a` / `war3map.w3t`），"
+        "与玩家口头叫法、其他版本的习惯叫法可能不同。下表是本站统一口径。",
+        "",
+        "## 属性三围",
+        "",
+        table(["本图用语", "本图字段", "常见叫法", "说明"], [
+            ["筋力", "`ustr` / `ustp` / `Istr`", "力量 / Strength", "本图对象数据的中文标注就是「筋力」"],
+            ["敏捷", "`uagi` / `uagp` / `Iagi`", "敏捷 / Agility", "与常见叫法一致"],
+            ["体力", "`uint` / `uinp` / `Iint`", "智力 / Intelligence", "**本图把「智力」写作「体力」**，不是生命值上限；生命值上限是 `uhpm`"],
+        ]),
+        "",
+        "## 本站符号",
+        "",
+        table(["符号", "含义"], [
+            ["`—`", "对象数据里该字段为空（不是 0，也不是未知）"],
+            ["「（对象数据中此字段为空字符串）」", "字段存在但值为空串，常见于原版改名的对象"],
+            ["✔", "该数值在游戏内说明文本里出现过（说明与数值能对上）"],
+            ["`未判定（证据不足）`", "对象数据既没有主动施法信号（耗魔/冷却/施法距离/范围），也没有 `Order`，无法判断主动还是被动"],
+            ["`⚠️ 不可选`", "该英雄存在于对象数据，但不在 `PH_PortInit` 注册表里，游戏里选不到"],
+            ["`待考证`", "需要读 `war3map.j` 触发器才能确定（Wiki 目前只写了线索，没有下结论）"],
+        ]),
+        "",
+        "## 与地图对象字段的对应",
+        "",
+        "各页「可改数值项」块里的字段名就是地图对象里的字段 id（例如 `Ocr1`、`isr2`、`Iagi`）。"
+        "它们与 `patch_plan/data/` 下 CSV 的 `field` 列一一对应；改数值请改 CSV 的 `new_value` 列，"
+        "不要直接改 Markdown。字段的中文名取自客户端的 `UnitMetaData.slk` / `AbilityMetaData.slk`。",
+        "",
+        source_footer(),
+    ]))
+
+    # info 目录导航（审计问题 W028：原来没有 .pages，导航顺序靠文件名）
+    write_page(os.path.join(out, ".pages"), "\n".join([
+        "title: 资料与说明",
+        "nav:",
+        "  - index.md",
+        "  - 地图身份.md",
+        "  - 术语与用语.md",
+        "  - 楼层信息.md",
+        "  - 存档与读档.md",
+        "",
+    ]))
+
 
 def build_changelogs() -> None:
     out = os.path.join(DOCS, "changelogs")
     posts = os.path.join(out, "posts")
     os.makedirs(posts, exist_ok=True)
+    # 口径与 docs/index.md、docs/heroes/index.md、docs/skills/index.md 保持一致（审计问题 W010）
+    c_ok, c_no, c_total = hero_scope(load_tsv(HERO_TSV))
     write_page(os.path.join(out, ".pages"), "title: 更新日志\n")
     # blog 插件的作者表必须放在 blog_dir 根（docs/changelogs/.authors.yml）
     # mkdocs-material 9.7 的 schema 是 `authors:` → {id: {name, description}}
@@ -394,7 +522,7 @@ def build_changelogs() -> None:
         "",
         "| 项目 | 内容 |",
         "| --- | --- |",
-        "| 英雄条目 | 60（58 个确认可选中） |",
+        f"| 英雄条目 | {c_total} 条数据（{c_ok} 个可选 + {c_no} 个地图上无此单位） |",
         "| 物品条目 | 551 |",
         "| 技能对象 | 2,199 |",
         "",

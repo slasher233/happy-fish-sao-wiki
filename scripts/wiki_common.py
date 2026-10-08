@@ -71,7 +71,8 @@ def load_tsv(path: str) -> list[dict]:
 
 
 # ── 文本清理 ─────────────────────────────────────────────────────────────
-_COLOR = re.compile(r"\|c[0-9a-fA-F]{8}|\|r|\|c")
+# 大小写都要吃：本图对象数据里存在 |Cffffff00 / |R 这类大写写法（审计问题 W004）
+_COLOR = re.compile(r"\|[cC][0-9a-fA-F]{8}|\|[rR]|\|[cC]")
 _NEWLINE = re.compile(r"\|n", re.IGNORECASE)
 
 
@@ -128,6 +129,87 @@ def obj_code(o: dict) -> str:
     return c or b or "????"
 
 
+# ── 枚举 / 字段中文名 / 缺值措辞 ─────────────────────────────────────────
+# 物品 class 是英文枚举，直接印出来玩家看不懂（审计问题 W003）
+CLASS_ZH = {
+    "Miscellaneous": "杂项", "Campaign": "战役", "Charged": "充能", "Permanent": "永久",
+    "PowerUp": "强化书", "Artifact": "神器", "Purchasable": "可购买",
+    "Any": "任意", "None": "无", "": "无",
+    "Unknown": "未分类",
+}
+
+_field_zh: dict[str, str] | None = None
+
+
+def field_zh_map() -> dict[str, str]:
+    """字段 id / SLK 列名 → 中文名（取自客户端 UnitMetaData/AbilityMetaData 的中文本地化）。"""
+    global _field_zh
+    if _field_zh is not None:
+        return _field_zh
+    m: dict[str, str] = {}
+    for name in ("field_dict_units.tsv", "field_dict_abilities.tsv"):
+        p = os.path.join(INDEX_DIR, name)
+        if not os.path.exists(p):
+            continue
+        for r in load_tsv(p):
+            zh = (r.get("zh_label") or "").strip()
+            if not zh:
+                continue
+            for k in (r.get("field_id"), r.get("ini_key")):
+                k = (k or "").strip()
+                if k and k not in m:
+                    m[k] = zh
+    _field_zh = m
+    return m
+
+
+def field_zh(fid: str) -> str:
+    """字段中文名；查不到就回退成字段名本身（不隐藏原始 id）。"""
+    fid = (fid or "").strip()
+    return field_zh_map().get(fid) or fid
+
+
+def val_or(v, missing: str = "未设置") -> str:
+    """空值分三种措辞：未设置 / 无数据 / 不适用（调用方传 missing）。"""
+    s = "" if v is None else str(v).strip()
+    if s in ("", "—", "-", "--", "None", "nan", "NaN", "null"):
+        return missing
+    return s
+
+
+_num_re = re.compile(r"^-?\d+(\.\d+)?$")
+
+
+def fmt_num(v) -> str:
+    """0.10000000149011612 → 0.1；250.0 → 250。"""
+    s = "" if v is None else str(v).strip()
+    if not _num_re.match(s):
+        return s
+    f = float(s)
+    if abs(f - round(f)) < 1e-9:
+        return str(int(round(f)))
+    if abs(f * 100 - round(f * 100)) < 1e-6:
+        return ("%.2f" % f).rstrip("0").rstrip(".")
+    return ("%.4f" % f).rstrip("0").rstrip(".")
+
+
+def nl_values_text(pairs, limit: int = 14) -> str:
+    """[(中文名, 值), …] → 一句自然语言：「攻击奖励 15000；敏捷奖励 250」。"""
+    out = []
+    for zh, v in pairs:
+        if len(out) >= limit:
+            break
+        out.append("%s %s" % (zh, fmt_num(v)))
+    return "；".join(out) if out else ""
+
+
+def link(path: str, label: str) -> str:
+    """markdown 链接：目标用尖括号包住，避免空格/括号把链接截断（审计问题 W024）。"""
+    p = (path or "").replace("\\", "/").strip()
+    p = p.replace(" ", "%20").replace("(", "%28").replace(")", "%29")
+    return "[%s](<%s>)" % (label, p)
+
+
 # ── 文件名 ───────────────────────────────────────────────────────────────
 _BAD = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
 
@@ -148,9 +230,11 @@ def write_page(path: str, text: str) -> None:
 
 
 # ── markdown 片段 ────────────────────────────────────────────────────────
-def table(headers: list[str], rows: list[list], align: list[str] | None = None) -> str:
+def table(headers: list[str], rows: list[list], align: list[str] | None = None,
+          empty: str = "（本节没有内容：取证结果里这一项为空）") -> str:
     if not rows:
-        return "_（无）_\n"
+        # 空表不要只写「_（无）_」——要说清是「没有数据」而不是「忘了写」（审计问题 W014）
+        return "_" + empty + "_\n"
     align = align or ["---"] * len(headers)
     out = ["| " + " | ".join(headers) + " |", "| " + " | ".join(align) + " |"]
     for r in rows:
