@@ -1,4 +1,4 @@
-# happy丶FISH SAO Wiki
+# happy丶FISH Wiki
 
 《刀剑物语 happy丶FISH v1.0 正式版》的数据图鉴站点。站点格式参考并复刻自开源项目 [crt106/sao-wiki](https://github.com/crt106/sao-wiki)，**内容数据全部来自本图自己的成员**，不是参考仓库的数据。
 

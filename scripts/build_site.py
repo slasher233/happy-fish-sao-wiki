@@ -47,7 +47,7 @@ def build_index() -> None:
     units = load_json(UNITS_JSON)
     reachable = [h for h in heroes if (h.get("reachable") or "").lower() != "no"]
     lines = [
-        "# happy丶FISH SAO Wiki",
+        "# happy丶FISH Wiki",
         "",
         "本 Wiki 由 **本图对象数据与触发器取证自动生成**，用于改图/平衡时快速查阅英雄、技能、物品与数值。",
         "",
@@ -357,7 +357,7 @@ def build_changelogs() -> None:
     write_page(os.path.join(out, ".authors.yml"), "\n".join([
         "authors:",
         "  wiki:",
-        "    name: happy丶FISH SAO Wiki",
+        "    name: happy丶FISH Wiki",
         "    description: Wiki 自动生成与维护",
         "    avatar: https://github.com/slasher233.png",
         "",

@@ -1,4 +1,4 @@
-# happy丶FISH SAO Wiki
+# happy丶FISH Wiki
 
 本 Wiki 由 **本图对象数据与触发器取证自动生成**，用于改图/平衡时快速查阅英雄、技能、物品与数值。
 
