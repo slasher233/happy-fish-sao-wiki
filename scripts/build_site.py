@@ -15,8 +15,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from wiki_common import (  # noqa: E402
     DOCS, INDEX_DIR, MAP_NAME, MAP_SHA256, MAP_VERSION, MEMBER_SHA, RECON_DIR, W,
-    WIKI_DATA, blank, clean_inline, clean_text, code, esc, load_json, obj_code,
-    source_footer, table, write_page,
+    WIKI_DATA, blank, clean_inline, clean_text, code, esc, field_zh_map, load_json,
+    obj_code, source_footer, table, write_page,
 )
 
 HERO_TSV = os.path.join(RECON_DIR, "heroes.tsv")
@@ -494,10 +494,189 @@ def build_info() -> None:
         "  - index.md",
         "  - 地图身份.md",
         "  - 术语与用语.md",
+        "  - 对象字段对照表.md",
         "  - 楼层信息.md",
         "  - 存档与读档.md",
         "",
     ]))
+
+
+# ── 对象字段对照表（审计问题 W005）───────────────────────────────────────
+# 字段字典（客户端本地化）就在 `wiki_common.INDEX_DIR` = `<W>\note_log\index`；
+# 该目录缺文件时退回 `patch_plan\index\` 的同名文件（两处都实测存在，按先存在的用）。
+FIELD_DICT_FILES = ("field_dict_units.tsv", "field_dict_abilities.tsv")
+# 物品页折叠块「全部对象字段（原始值）」里实测出现过的字段 id（39 个，按 id 排序）。
+ITEM_FIELD_IDS = (
+    "iabi", "iarm", "icid", "icla", "iclb", "iclg", "iclr", "ides", "idro", "idrp",
+    "ifil", "igol", "ihtp", "iicd", "iico", "ilev", "ilum", "ilvo", "imor", "ipaw",
+    "iper", "ipow", "ipri", "iprn", "isca", "isel", "issc", "isst", "isto", "istr",
+    "iusa", "iuse", "ubpx", "ubpy", "uhot", "unam", "ureq", "utip", "utub",
+)
+# 物品页折叠块的行形状（build_items.py:924）：`    - \`ides\` **描述**（Profile） = \`…\``
+ITEM_FIELD_LINE_RE = re.compile(r"^[ \t]*- `([0-9A-Za-z_]{1,12})` \*\*", re.M)
+# 「基础属性」表表头（build_items.py:853：属性 / 数值 / 来源能力 / 字段 / 等级）
+BASE_ATTR_HEADER = "| 属性 | 数值 | 来源能力 | 字段 | 等级 |"
+BASE_ATTR_FIELD_RE = re.compile(r"^\|\s*[^|]*\|\s*[^|]*\|\s*[^|]*\|\s*`([^`|]+)`\s*\|")
+FIELD_ZH_MISSING = "（客户端未收录，见下方说明）"
+
+
+def field_dict_path(name: str) -> str:
+    p = os.path.join(INDEX_DIR, name)
+    if os.path.exists(p):
+        return p
+    return os.path.join(W, "patch_plan", "index", name)
+
+
+def load_field_dict() -> dict[str, dict]:
+    """`field_id` → 客户端字段字典行（units 优先、abilities 补充，先见者胜）。
+
+    `wiki_common` 只有 `field_zh_map()`（只留中文名），本页还要 `ini_key` / `type` /
+    取值范围，所以按同一顺序、同一份 tsv 再读一遍；不改动 `wiki_common` 的行为。
+    """
+    out: dict[str, dict] = {}
+    for name in FIELD_DICT_FILES:
+        for r in load_tsv(field_dict_path(name)):
+            fid = (r.get("field_id") or "").strip()
+            if fid and fid not in out:
+                out[fid] = r
+    return out
+
+
+def scan_item_pages() -> tuple[int, dict[str, int], dict[str, int]]:
+    """现算 `docs/items/**/*.md` 里的字段覆盖度（不改 docs，只读）。
+
+    返回 `(物品页数, 字段 id → 出现页数（页内去重）, 技能数值字段 id → 出现次数)`。
+    """
+    n_pages = 0
+    pages: dict[str, int] = {}
+    base: dict[str, int] = {}
+    for root, _dirs, files in os.walk(os.path.join(DOCS, "items")):
+        for fn in files:
+            if not fn.endswith(".md") or fn == "index.md":
+                continue
+            n_pages += 1
+            with open(os.path.join(root, fn), "r", encoding="utf-8") as fh:
+                text = fh.read()
+            for fid in {m.group(1) for m in ITEM_FIELD_LINE_RE.finditer(text)}:
+                pages[fid] = pages.get(fid, 0) + 1
+            state = False  # True = 正在读「基础属性」表格
+            pending = False
+            for ln in text.split("\n"):
+                if ln.strip() == "### 基础属性":
+                    pending, state = True, False
+                    continue
+                if pending:
+                    if not ln.strip():
+                        continue
+                    pending = False
+                    state = ln.startswith(BASE_ATTR_HEADER)
+                    continue
+                if state:
+                    if not ln.startswith("|"):
+                        state = False
+                        continue
+                    m = BASE_ATTR_FIELD_RE.match(ln)
+                    if m:
+                        fid = m.group(1).strip()
+                        base[fid] = base.get(fid, 0) + 1
+    return n_pages, pages, base
+
+
+def build_field_reference() -> None:
+    """生成 `docs/info/对象字段对照表.md`（审计问题 W005）。
+
+    两张表都从现有产物现算：表 1 = 物品页折叠块里的字段 id（固定 39 个）+ 页数覆盖度；
+    表 2 = 物品页「基础属性」表第 4 列的字段 id 去重。中文名/类型/取值范围查客户端字段字典。
+    """
+    out = os.path.join(DOCS, "info")
+    os.makedirs(out, exist_ok=True)
+    fdict = load_field_dict()
+    zhmap = field_zh_map()
+    n_pages, page_hits, base_hits = scan_item_pages()
+
+    def zh_of(fid: str) -> str:
+        # 按 units → abilities 的顺序取（与 field_zh_map() 同序），再用合并表兜底
+        return ((fdict.get(fid) or {}).get("zh_label") or zhmap.get(fid) or "").strip()
+
+    rows_items = []
+    n_miss_items = 0
+    for fid in ITEM_FIELD_IDS:
+        d = fdict.get(fid) or {}
+        zh = zh_of(fid)
+        if not zh:
+            n_miss_items += 1
+        rows_items.append([code(fid), esc(zh) if zh else FIELD_ZH_MISSING,
+                           code((d.get("ini_key") or "").strip()), str(page_hits.get(fid, 0))])
+
+    rows_abils = []
+    n_miss_abils = 0
+    for fid in sorted(base_hits):
+        d = fdict.get(fid) or {}
+        zh = zh_of(fid)
+        if not zh:
+            n_miss_abils += 1
+        role = "`war3map.w3a` 的 `Data` 数值字段"
+        ty = (d.get("type") or "").strip()
+        lo, hi = (d.get("minVal") or "").strip(), (d.get("maxVal") or "").strip()
+        if ty:
+            role += "（类型 `%s`）" % ty
+        if lo and hi:
+            role += "，取值 %s–%s" % (lo, hi)
+        elif hi:
+            role += "，取值 ≤ %s" % hi
+        elif lo:
+            role += "，取值 ≥ %s" % lo
+        rows_abils.append([code(fid), esc(zh) if zh else FIELD_ZH_MISSING, role])
+
+    lines = [
+        "# 对象字段对照表",
+        "",
+        "本页把本站正文里出现的**字段**（如 `ides`、`utub`、`iabi`、`Ilif`）集中成一张可检索的对照表："
+        "它们是地图对象数据里的**原始字段名（WC3 内部 id）**。改了图以后要按这些 id 去找数据"
+        "（写回 `war3map.w3t` / `war3map.w3a` / `war3map.w3u`）；游戏内与编辑器里显示的中文名只是"
+        "**客户端本地化**标签，不能用来检索对象数据。下表的中文名取自这份本地化字典"
+        f"（`note_log/index/{FIELD_DICT_FILES[0]}` / `{FIELD_DICT_FILES[1]}`，源头是客户端 "
+        "`War3Patch.mpq` 的 `UnitMetaData.slk` / `AbilityMetaData.slk` 与 `WorldEditStrings.txt`）；"
+        f"字典里没有的字段写「{FIELD_ZH_MISSING}」，本站不臆造译名。",
+        "",
+        "## 表 1：物品字段（`war3map.w3t`）",
+        "",
+        f"下表是物品页折叠块「全部对象字段（原始值）」里出现过的全部 **{len(ITEM_FIELD_IDS)}** 个字段 id（按 id 排序）。"
+        f"「出现物品页数」现算自 `docs/items/**/*.md`（不含 `index.md`，共 {n_pages} 页）——"
+        "某个字段只在少数物品里被写过，数字就小，可以拿它判断这个字段值不值得改。"
+        "字段在某个对象里没有值时，物品页写的是「（对象数据中此字段为空字符串）」，那是**空值**，不是抓取失败。",
+        "",
+        table(["字段 id", "中文名", "所属分组(ini_key)", "出现物品页数"], rows_items),
+        "",
+        "## 表 2：技能数值字段（`war3map.w3a`）",
+        "",
+        "物品页「当前数据 → 基础属性」表格第 4 列写的就是下表的字段 id——它们全部是物品绑定技能对象里 "
+        "`ini_key = Data` 的数值字段，也就是**改技能数值时真正要写的字段名**。"
+        f"本表从上面那 {n_pages} 个物品页现算去重，共 **{len(rows_abils)}** 个，按字段 id 排序；"
+        "它只覆盖**物品技能**用到过的字段，英雄技能页里出现、但没绑到任何物品的字段不在本表内。"
+        "「作用」列括号里是客户端字典给的字段类型（`unreal` = 浮点数、`int` = 整数、`bool` = 0/1 开关，"
+        "其余为枚举或字符串）与取值范围。",
+        "",
+        table(["字段 id", "中文名", "作用"], rows_abils),
+        "",
+        "## 正文里的「字段」指什么",
+        "",
+        "本站正文里出现**字段**一词时，一律指地图对象数据的**原始字段名（WC3 内部 id）**，例如 `ides`、`Ilif`；"
+        "它既不等于游戏内显示的属性名，也不等于需求单 CSV 的列名。"
+        "**玩家要改数值请看各页的「可改数值项」小节**——那里列的才是可以直接改的项，"
+        "改动落在私有需求单仓库 `patch_plan/data/*.csv` 的 `new_value` 列，不要直接改 Markdown；"
+        "站点符号与用语口径见 [术语与用语](/info/术语与用语/)，数据来源与验证分层见 [地图身份](/info/地图身份/)。",
+        "",
+        source_footer([
+            f"物品字段来自 `war3map.w3t`（SHA256 `{MEMBER_SHA['war3map.w3t']}`）；"
+            f"技能数值字段来自 `war3map.w3a`（SHA256 `{MEMBER_SHA['war3map.w3a']}`）；"
+            "字段中文名、类型与取值范围来自客户端 `War3Patch.mpq` 的 `UnitMetaData.slk` / "
+            "`AbilityMetaData.slk` 与 `WorldEditStrings.txt`。",
+            f"字典覆盖率：表 1 {len(ITEM_FIELD_IDS) - n_miss_items}/{len(ITEM_FIELD_IDS)}、"
+            f"表 2 {len(rows_abils) - n_miss_abils}/{len(rows_abils)}，其余为客户端未收录。",
+        ]),
+    ]
+    write_page(os.path.join(out, "对象字段对照表.md"), "\n".join(lines))
 
 
 def build_changelogs() -> None:
@@ -569,8 +748,9 @@ def main() -> None:
     build_index()
     build_skills()
     build_info()
+    build_field_reference()
     build_changelogs()
-    print("站点骨架页已生成：index / skills / info / changelogs")
+    print("站点骨架页已生成：index / skills / info（含对象字段对照表） / changelogs")
 
 
 if __name__ == "__main__":

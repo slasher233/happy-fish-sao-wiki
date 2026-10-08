@@ -707,7 +707,7 @@ def main() -> None:
         ])
     head = ["ID", "名称", "分类", "品质", "价格", "物品等级", "原型"]
     idx = [f"# 物品总览", "",
-           f"共 **{len(parsed)}** 个物品对象（没有自定义名称的 {len(no_name)} 个显示为「原版名（原版）」："
+           f"共 **{len(parsed)}** 个物品对象（没有自定义名称的 {len(no_name)} 个显示为「未设置名称（原型 …）」："
            f"{'、'.join(no_name) or '无'}）。", ""]
     _new_items = [p for p in parsed if p.get("new_item")]
     if _new_items:
@@ -911,7 +911,8 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
     lines.append(render_materials(src, used_in.get(p["code"]) or [], item_names))
 
     lines += ['??? note "全部对象字段（原始值）"', "",
-              "    这是 `war3map.w3t` 里这件物品的**全部字段原始值**，字段名保留魔兽内部 id（**加粗**的是中文名）。",
+              "    这是 `war3map.w3t` 里这件物品的**全部字段原始值**，字段名保留魔兽内部 id（**加粗**的是中文名）——"
+              "字段 id 与中文名的完整对照见 [对象字段对照表](/info/对象字段对照表/)。",
               "    正常阅读不用看这里；要改数值请看上面的「可改数值项」。", ""]
     for ini_key in sorted(f.keys()):
         for r in f[ini_key]:
@@ -1281,7 +1282,7 @@ def render_sources(src: dict, item_names: dict, unit_names: dict) -> str:
         for e in src["vendor"]:
             shop = e.get("shop_name") or unit_names.get(e.get("shop_unit") or "", "") or e.get("shop_unit") or "—"
             rows.append([esc(shop), code(e.get("api")), blank(e.get("stock_cur")), blank(e.get("stock_max")), code(e.get("line"))])
-        section("商店出售（`AddItemToStock` 进货）", rows, ["商店", "接口", "当前库存", "最大库存", "j 行号"])
+        section("商店出售（`AddItemToStock` 进货）", rows, ["商店", "接口", "当前库存", "最大库存", "触发器行号（`war3map.j`）"])
 
     # 2) 商店货架（对象数据）
     if src.get("vendor_object_data"):
@@ -1293,7 +1294,7 @@ def render_sources(src: dict, item_names: dict, unit_names: dict) -> str:
 
     if src.get("vendor_removed"):
         rows = [[code(e.get("shop_unit")), code(e.get("line")), "`" + clean_inline(e.get("snippet") or "")[:110].replace("`", "'") + "`"] for e in src["vendor_removed"]]
-        section("该物品被从商店移除（`RemoveItemFromStock`）", rows, ["商店单位", "j 行号", "原始片段"])
+        section("该物品被从商店移除（`RemoveItemFromStock`）", rows, ["商店单位", "触发器行号（`war3map.j`）", "原始片段"])
 
     # 3) 抽奖机
     if src.get("gacha"):
@@ -1306,7 +1307,7 @@ def render_sources(src: dict, item_names: dict, unit_names: dict) -> str:
                 esc(f"{len(mat)} × " + (mat[0] if mat and isinstance(mat[0], str) else "")),
                 code(e.get("line")),
             ])
-        section("抽奖 / 扭蛋", rows, ["触发物", "产出", "消耗", "j 行号"])
+        section("抽奖 / 扭蛋", rows, ["触发物", "产出", "消耗", "触发器行号（`war3map.j`）"])
 
     # 4) 打造 / 合成
     if src.get("craft"):
@@ -1316,7 +1317,7 @@ def render_sources(src: dict, item_names: dict, unit_names: dict) -> str:
             mats = e.get("consumed_materials") or e.get("checked_materials") or []
             rows.append([trig, _nm(mats, item_names), code(e.get("cond_line") or e.get("line")),
                          "⚠️ 材料不符" if e.get("material_mismatch") else "—"])
-        section("打造 / 合成", rows, ["触发物", "消耗材料", "j 行号", "备注"])
+        section("打造 / 合成", rows, ["触发物", "消耗材料", "触发器行号（`war3map.j`）", "备注"])
 
     # 5) 掉落
     if src.get("drop"):
@@ -1331,7 +1332,7 @@ def render_sources(src: dict, item_names: dict, unit_names: dict) -> str:
                 (f"{chance}%" if chance is not None else "—"),
                 code(e.get("line") or e.get("choose_line")),
             ])
-        section("掉落（掉落表 / 权重表）", rows, ["来源单位", "方式", "概率", "j 行号"])
+        section("掉落（掉落表 / 权重表）", rows, ["来源单位", "方式", "概率", "触发器行号（`war3map.j`）"])
 
     # 6) BOSS 掉落池
     if src.get("boss_pool"):
@@ -1356,7 +1357,7 @@ def render_sources(src: dict, item_names: dict, unit_names: dict) -> str:
                 code(th.get("var")) + f" ≥ {blank(th.get('value'))}",
                 code(th.get("line")),
             ])
-        section(label, rows, ["另一形态", "击杀阈值", "j 行号"])
+        section(label, rows, ["另一形态", "击杀阈值", "触发器行号（`war3map.j`）"])
 
     # 8) 塔层奖励
     if src.get("tower_reward"):
@@ -1369,19 +1370,19 @@ def render_sources(src: dict, item_names: dict, unit_names: dict) -> str:
         for e in src["spawn"]:
             cond = ", ".join(e.get("cond_rawcodes") or [])
             rows.append([esc(kind_zh(e.get("kind"))), _nm(cond.split(", ") if cond else [], unit_names), code(e.get("line"))])
-        section("事件生成（`CreateItemLoc`）", rows, ["方式", "触发单位", "j 行号"])
+        section("事件生成（`CreateItemLoc`）", rows, ["方式", "触发单位", "触发器行号（`war3map.j`）"])
 
     # 10) 赠送
     if src.get("gift"):
         rows = [[esc(kind_zh(e.get("kind"))), esc(who_zh(e.get("to"))), code(e.get("line"))] for e in src["gift"]]
-        section("触发时赠予", rows, ["方式", "给谁", "j 行号"])
+        section("触发时赠予", rows, ["方式", "给谁", "触发器行号（`war3map.j`）"])
 
     # 11) 拾取 / 使用触发
     if src.get("trigger_use"):
         rows = []
         for e in src["trigger_use"]:
             rows.append([esc(kind_zh(e.get("kind"))), _nm(e.get("produces") or [], item_names), code(e.get("used_at_line"))])
-        section("拾取 / 使用触发", rows, ["方式", "产出", "j 行号"])
+        section("拾取 / 使用触发", rows, ["方式", "产出", "触发器行号（`war3map.j`）"])
 
     # 12) 作为材料被消耗
     if src.get("used_as_material"):
@@ -1389,7 +1390,7 @@ def render_sources(src: dict, item_names: dict, unit_names: dict) -> str:
         for e in src["used_as_material"]:
             rows.append([esc(e.get("trigger_item_name") or "") + " " + code(e.get("trigger_item")),
                          _nm([e.get("result")], item_names), code(e.get("line"))])
-        section("作为材料被消耗", rows, ["触发卷轴/菜单", "合成结果", "j 行号"])
+        section("作为材料被消耗", rows, ["触发卷轴/菜单", "合成结果", "触发器行号（`war3map.j`）"])
 
     if not out:
         out.append("**待考证**——`item_sources.json` 中没有该物品的获取途径记录（它可能只作为材料被消耗）。")

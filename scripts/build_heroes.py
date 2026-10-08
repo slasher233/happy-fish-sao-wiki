@@ -443,7 +443,7 @@ def render_hero(h: dict, unit: dict, abils: dict, fdict: dict, item_pages: dict,
     # 保证页内 H1 与 heroes/index.md 的「称号」列逐字一致。
     title = h.get("title") or hname
     uf = (unit or {}).get("fields", {})
-    name_in_table = f"# {hcode} · {title}"
+    name_in_table = f"# {hcode} · {esc(title)}"
     lines = [name_in_table, ""]
     reach = str(h.get("reachable") or "")
     meta = [

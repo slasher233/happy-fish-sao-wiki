@@ -100,9 +100,12 @@ _MD_ESCAPE = re.compile(r"([\\`*_{}\[\]()#+\-.!|>])")
 
 
 def esc(s) -> str:
-    """表格单元格里的 markdown 转义（并把换行压成空格）。"""
+    """表格单元格里的 markdown 转义（并把换行压成空格）。
+
+    星号来自对象名的原始字符（例：`公会:命运之夜(four*king)`），不转义会被当成斜体标记。
+    """
     t = clean_inline(s)
-    return t.replace("|", "\\|")
+    return t.replace("|", "\\|").replace("*", "\\*")
 
 
 def code(s) -> str:

@@ -63,14 +63,14 @@ _（本节无内容：`item_sources.json` 里这件物品的来源没有记到�
 
 **该物品被从商店移除（`RemoveItemFromStock`）**
 
-| 商店单位 | j 行号 | 原始片段 |
+| 商店单位 | 触发器行号（`war3map.j`） | 原始片段 |
 | --- | --- | --- |
 | `nbee` | `47921` | `call RemoveItemFromStock(BQ,'I03Q')` |
 
 
 **拾取 / 使用触发**
 
-| 方式 | 产出 | j 行号 |
+| 方式 | 产出 | 触发器行号（`war3map.j`） |
 | --- | --- | --- |
 | 配方卷轴被使用 | `I04R` 清透的月牙之剑 | `47917` |
 
@@ -81,7 +81,7 @@ _（本节无内容：`item_sources.json` 里这件物品既没有 `used_as_mate
 
 ??? note "全部对象字段（原始值）"
 
-    这是 `war3map.w3t` 里这件物品的**全部字段原始值**，字段名保留魔兽内部 id（**加粗**的是中文名）。
+    这是 `war3map.w3t` 里这件物品的**全部字段原始值**，字段名保留魔兽内部 id（**加粗**的是中文名）——字段 id 与中文名的完整对照见 [对象字段对照表](../../info/对象字段对照表.md)。
     正常阅读不用看这里；要改数值请看上面的「可改数值项」。
 
     - `iico` **界面图标**（Art） = `ReplaceableTextures\CommandButtons\BTNMGExchange.blp`

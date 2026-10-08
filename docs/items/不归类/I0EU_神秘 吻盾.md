@@ -51,7 +51,7 @@ _（本节无内容：`item_sources.json` 里这件物品的来源没有记到�
 
 **掉落（掉落表 / 权重表）**
 
-| 来源单位 | 方式 | 概率 | j 行号 |
+| 来源单位 | 方式 | 概率 | 触发器行号（`war3map.j`） |
 | --- | --- | --- | --- |
 | `I0F1` | ChooseRandomItemExBJ(level, itemClass) | — | `29564` |
 
@@ -62,7 +62,7 @@ _（本节无内容：`item_sources.json` 里这件物品既没有 `used_as_mate
 
 ??? note "全部对象字段（原始值）"
 
-    这是 `war3map.w3t` 里这件物品的**全部字段原始值**，字段名保留魔兽内部 id（**加粗**的是中文名）。
+    这是 `war3map.w3t` 里这件物品的**全部字段原始值**，字段名保留魔兽内部 id（**加粗**的是中文名）——字段 id 与中文名的完整对照见 [对象字段对照表](../../info/对象字段对照表.md)。
     正常阅读不用看这里；要改数值请看上面的「可改数值项」。
 
     - `iico` **界面图标**（Art） = `ReplaceableTextures\CommandButtons\BTNAdvancedUnholyArmor.blp`
