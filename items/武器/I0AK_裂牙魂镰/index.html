@@ -1442,15 +1442,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v10" class="md-nav__link">
+  <a href="#v11" class="md-nav__link">
     <span class="md-ellipsis">
       
-        v1.0 正式版 当前数据
+        v1.1 正式版 当前数据
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="v1.0 正式版 当前数据">
+    <nav class="md-nav" aria-label="v1.1 正式版 当前数据">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2808,10 +2808,6 @@
       
         
       
-        
-      
-        
-      
     
     
     
@@ -3884,6 +3880,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -4172,15 +4172,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v10" class="md-nav__link">
+  <a href="#v11" class="md-nav__link">
     <span class="md-ellipsis">
       
-        v1.0 正式版 当前数据
+        v1.1 正式版 当前数据
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="v1.0 正式版 当前数据">
+    <nav class="md-nav" aria-label="v1.1 正式版 当前数据">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -4350,7 +4350,7 @@
 <blockquote>
 <p><strong>分类</strong>：​武器<strong>品质</strong>：​传说<strong>类型</strong>：​未​设置​（​对象​数据​里​没有​这​一项​）<strong>物品​等级</strong>：​未​设置​（​对象​数据​里​没有​这​一项​）<strong>价格</strong>：​未​设置​（​对象​数据​里​没有​这​一项​）</p>
 </blockquote>
-<p><strong>物品​ID</strong>：<code>I0AK</code>　·　<strong>原型</strong>：<code>ckng</code>（国王之冠 +5）　·　<strong>版本</strong>：​v1.0​正式版</p>
+<p><strong>物品​ID</strong>：<code>I0AK</code>　·　<strong>原型</strong>：<code>ckng</code>（国王之冠 +5）　·　<strong>版本</strong>：​v1.1​正式版</p>
 <blockquote>
 <p>用词​说明​：<strong>客户端​/​编辑器</strong>里​这​两个​字段​的​标准​中文名​是​「​力量​」​「​智力​」​，<strong>本图​说明​原文</strong>写​「​筋力​」​「​体力​」​，​说​的​是​同​一组​属性​；​本站​正文​统一​用图​内​叫法​，​必要​时​在​括号​里​补​标准​名​。</p>
 </blockquote>
@@ -4362,9 +4362,6 @@
 <h2 id="_2">可改​数值​项​（​改​这些​值会​写进​地图​对象​）<a class="headerlink" href="#_2" title="复制链接">¶</a></h2>
 <p><strong>类别</strong>列里「每级数值」是技能对象 <code>Data</code> 里的分级数值，「表头字段」是技能级的冷却/耗魔/距离/范围/持续（与等级无关）。</p>
 <p><strong>本版​计划​改动</strong>：「本版计划值」列来自需求单 <code>patch_plan/data/item_ability_data.csv</code>（本页改动行 <code>req_id</code> = <code>issue3</code>）；把目标值写进 <code>new_value</code> <strong>即​生效​，​随下​一​版补丁​上线</strong>。单元格 <code>50 → 20</code> 读作「现值 50，本版上线后为 20」。</p>
-<blockquote>
-<p>本版还会把技能列表从 <code>A0JY,A0VH,A04K,A01K</code> 换成 <code>A0JY,A0VH,Y003,A01K</code>（换上的技能是母图技能的副本，见 <code>patch_plan/data/items.csv</code> 的 <code>new_iabi</code>）。</p>
-</blockquote>
 <table>
 <thead>
 <tr>
@@ -4381,7 +4378,7 @@
 <tr>
 <td>✔​取得​最大​生命​值</td>
 <td>5000</td>
-<td>—</td>
+<td><strong>本版​移除</strong>（技能列表换掉 <code>A0JY</code>）</td>
 <td><code>Ilif</code></td>
 <td>1</td>
 <td>每级​数值</td>
@@ -4390,7 +4387,7 @@
 <tr>
 <td>✔​每秒​伤害</td>
 <td>5000</td>
-<td>—</td>
+<td><strong>本版​移除</strong>（技能列表换掉 <code>A0VH</code>）</td>
 <td><code>Spo1</code></td>
 <td>1</td>
 <td>每级​数值</td>
@@ -4408,7 +4405,7 @@
 <tr>
 <td>✔​攻击​奖励</td>
 <td>280</td>
-<td>—</td>
+<td><strong>本版​移除</strong>（技能列表换掉 <code>A01K</code>）</td>
 <td><code>Iatt</code></td>
 <td>1</td>
 <td>每级​数值</td>
@@ -4438,7 +4435,7 @@
 <blockquote>
 <p>✔ = 该数值在游戏内说明里出现过（说明与对象数值对得上）。标 <code>x100</code> 的百分比项：CSV 里的 <code>cur_value</code> 存的是<strong>原始​小数</strong>（0.1 = 10%），<code>new_value</code> 也要填小数。</p>
 </blockquote>
-<h2 id="v10">v1.0​正式版​当前​数据<a class="headerlink" href="#v10" title="复制链接">¶</a></h2>
+<h2 id="v11">v1.1​正式版​当前​数据<a class="headerlink" href="#v11" title="复制链接">¶</a></h2>
 <h3 id="_3">基础​属性<a class="headerlink" href="#_3" title="复制链接">¶</a></h3>
 <table>
 <thead>
@@ -4467,8 +4464,8 @@
 </tr>
 <tr>
 <td>体力​奖励</td>
-<td>150</td>
-<td><code>A04K</code></td>
+<td>550</td>
+<td><code>Y003</code></td>
 <td><code>Iint</code></td>
 <td>1</td>
 </tr>
@@ -4502,9 +4499,9 @@
 <td>每秒​伤害​=​5000</td>
 </tr>
 <tr>
-<td><code>A04K</code></td>
+<td><code>Y003</code></td>
 <td>增加​体力​150</td>
-<td>体力​奖励​=​150</td>
+<td>体力​奖励​=​550</td>
 </tr>
 <tr>
 <td><code>A01K</code></td>
@@ -4519,7 +4516,7 @@
 <h3 id="_5">游戏​内​说明​（​原文​）<a class="headerlink" href="#_5" title="复制链接">¶</a></h3>
 <blockquote>
 <p>武器</p>
-<p>攻击力​:​280​体力​:​150​能力​:​裂魂​品质​:​传说</p>
+<p>攻击力​:​280​体力​:​550​能力​:​裂魂​品质​:​传说</p>
 <p>这​把​武器​不​被​纳入​SAO​的​装备​系统​,​因为​这​把​武器​根本​属于​SAO​里​,​强大​的​能力​值​,​能​使​系统​开始​受损</p>
 </blockquote>
 <p><em>（​提示​工具​（​Tip​）​与​物品​名​相同​，​没有​额外​说明​。​）</em></p>
@@ -4557,19 +4554,19 @@
 <p>这是 <code>war3map.w3t</code> 里这件物品的<strong>全部​字​段​原始​值</strong>，​字段名​保留​魔兽​内部​id​（<strong>加粗</strong>的​是​中文名​）​—​—​字​段​id​与​中文名​的​完整​对照​见<a href="../../../info/%E5%AF%B9%E8%B1%A1%E5%AD%97%E6%AE%B5%E5%AF%B9%E7%85%A7%E8%A1%A8/">对象​字​段​对照表</a>。​正常​阅读​不用​看​这里​；​要​改​数值​请​看​上面​的​「​可改​数值​项​」​。</p>
 <ul>
 <li><code>iico</code> <strong>界面​图标</strong>（Art） = <code>ReplaceableTextures\CommandButtons\BTN2013zz5.blp</code></li>
-<li><code>ides</code> <strong>描述</strong>（Description） = <code>武器 / 攻击力:280 / 体力:150 / 能力:裂魂 / 品质:传说 / 这把武器不被纳入SAO的装备系统,因为这把武器根本属于SAO里,强大的能力值,能使系统开始受损</code></li>
+<li><code>ides</code> <strong>描述</strong>（Description） = <code>武器 / 攻击力:280 / 体力:550 / 能力:裂魂 / 品质:传说 / 这把武器不被纳入SAO的装备系统,因为这把武器根本属于SAO里,强大的能力值,能使系统开始受损</code></li>
 <li><code>unam</code> <strong>名字</strong>（Name） = <code>裂牙魂镰</code></li>
 <li><code>utip</code> <strong>提示​工具​-​基础</strong>（Tip） = <code>裂牙魂镰</code></li>
-<li><code>utub</code> <strong>提示​工具​-​扩展​的</strong>（Ubertip） = <code>武器 / 攻击力:280 / 体力:150 / 能力:裂魂 / 品质:传说 / 这把武器不被纳入SAO的装备系统,因为这把武器根本属于SAO里,强大的能力值,能使系统开始受损</code></li>
-<li><code>iabi</code> <strong>技能</strong>（abilList） = <code>A0JY,A0VH,A04K,A01K</code></li>
+<li><code>utub</code> <strong>提示​工具​-​扩展​的</strong>（Ubertip） = <code>武器 / 攻击力:280 / 体力:550 / 能力:裂魂 / 品质:传说 / 这把武器不被纳入SAO的装备系统,因为这把武器根本属于SAO里,强大的能力值,能使系统开始受损</code></li>
+<li><code>iabi</code> <strong>技能</strong>（abilList） = <code>A0JY,A0VH,Y003,A01K</code></li>
 <li><code>icla</code> <strong>分类</strong>（class） = <code>（对象数据里没有这个字段）</code></li>
 </ul>
 </details>
 <hr>
 <div class="wiki-source-note">
-<p><strong>数据​来源</strong>：<code>刀剑物语 happy丶FISH v1.0 正式版</code>（母图 SHA256 <code>62A1122ACEDA220B746DF730B1625C2AF8E3C149048E26FDC2AF5C37BDA6BD6D</code>）</p>
+<p><strong>数据​来源</strong>：<code>刀剑物语 happy丶FISH v1.1 正式版</code>（母图 SHA256 <code>8CD69840B265DA0ABE207575DB4DE9D07D961B59BA3491A390D07A923A17775C</code>）</p>
 <p>本页数值由该图的 <code>war3map.w3u</code> / <code>war3map.w3a</code> / <code>war3map.w3t</code> 与 <code>war3map.j</code> 解析生成；<strong>未​经过​实机​验证</strong>—​—​「​数据​来自​哪个​成员​」​不​等于​「​游戏​里​就是​这个​表现​」​。​哪些​内容​已​被​交叉​验证​、​有​哪些​已知​限制​，​见<a href="../../../info/%E5%9C%B0%E5%9B%BE%E8%BA%AB%E4%BB%BD/">地图​身份</a>；本页符号（<code>—</code> / <code>未判定（证据不足）</code> / <code>⚠️ 不可选</code>）的含义见 <a href="../../../info/%E6%9C%AF%E8%AF%AD%E4%B8%8E%E7%94%A8%E8%AF%AD/">术语​与​用语</a>。</p>
-<p>物品字段：<code>war3map.w3t</code>（SHA256 <code>98164862404eee98a28c5b5ba01f88fceb7fca896b3b06457f1853d75bac896d</code>）；物品技能：<code>war3map.w3a</code>（SHA256 <code>80675c0549e25604b5b97bb05cd7f6594f92dfec95639cbdf6a6480ba2ffa9d3</code>）；物品技能字段中文名来自客户端 <code>War3Patch.mpq</code> 的 <code>Units\AbilityMetaData.slk</code> + <code>UI\WorldEditStrings.txt</code>。</p>
+<p>物品字段：<code>war3map.w3t</code>（SHA256 <code>5fe1ba0251226e4e0172e364aef1fbc35c6ea0726c7b8452c02018ba9ab01c0c</code>）；物品技能：<code>war3map.w3a</code>（SHA256 <code>b530c6578cb81d256e8b921993d5440242aef63a123a6d0a4bb128d0dfa71b8c</code>）；物品技能字段中文名来自客户端 <code>War3Patch.mpq</code> 的 <code>Units\AbilityMetaData.slk</code> + <code>UI\WorldEditStrings.txt</code>。</p>
 <p><strong>说明​文字​（​Tip​/​Ubertip​）​是​策划​手写​的​，​可能​与​实际​触发器​数值​不​一致</strong>；​本页​数值​列​取自​对象​数据​的​真实​字​段​。</p>
 </div>
 
@@ -4590,7 +4587,7 @@
         <span class="md-icon" title="最后更新">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
         </span>
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月8日 17:07:49 UTC">2026年10月8日</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月9日 16:30:24 UTC">2026年10月9日</span>
       </span>
     
     
