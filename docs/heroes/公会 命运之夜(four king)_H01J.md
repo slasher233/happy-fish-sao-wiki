@@ -36,7 +36,7 @@ _本图技能对象全部只有 1 级（`alev=1`，`arlv` 多为 1），**解锁
 
 > **类型判定（三态）**：`Cost` / `Cool` / `Rng` / `Area` 任一 > 0 → **主动**；无主动信号但对象带 `Order` 字段 → **被动**；四种信号全 0/缺失且 `Order` 也缺 → **未判定（证据不足）**，只说明对象数据里没有可用证据，**不等于**游戏里一定是被动。
 
-## v1.0 正式版 技能数据
+## v1.1 正式版 技能数据
 
 ??? note "Q · 朱雀院椿/切割"
 
@@ -143,10 +143,10 @@ _本图技能对象全部只有 1 级（`alev=1`，`arlv` 多为 1），**解锁
 
 <div class="wiki-source-note" markdown="1">
 
-**数据来源**：`刀剑物语 happy丶FISH v1.0 正式版`（母图 SHA256 `62A1122ACEDA220B746DF730B1625C2AF8E3C149048E26FDC2AF5C37BDA6BD6D`）
+**数据来源**：`刀剑物语 happy丶FISH v1.1 正式版`（母图 SHA256 `8CD69840B265DA0ABE207575DB4DE9D07D961B59BA3491A390D07A923A17775C`）
 
 本页数值由该图的 `war3map.w3u` / `war3map.w3a` / `war3map.w3t` 与 `war3map.j` 解析生成；**未经过实机验证**——「数据来自哪个成员」不等于「游戏里就是这个表现」。哪些内容已被交叉验证、有哪些已知限制，见 [地图身份](../info/地图身份.md)；本页符号（`—` / `未判定（证据不足）` / `⚠️ 不可选`）的含义见 [术语与用语](../info/术语与用语.md)。
 
-英雄单位对象来自 `war3map.w3u`（SHA256 `e8612c55afc5219e30c45c19dcff26b63cd8966a94d740853c5ef39085804294`），技能对象来自 `war3map.w3a`（SHA256 `80675c0549e25604b5b97bb05cd7f6594f92dfec95639cbdf6a6480ba2ffa9d3`）。技能绑定关系由 `war3map.j` 的 `PH_BindUnit` / `P2SV_FillAbilities` 取证得出。
+英雄单位对象来自 `war3map.w3u`（SHA256 `e8612c55afc5219e30c45c19dcff26b63cd8966a94d740853c5ef39085804294`），技能对象来自 `war3map.w3a`（SHA256 `b530c6578cb81d256e8b921993d5440242aef63a123a6d0a4bb128d0dfa71b8c`）。技能绑定关系由 `war3map.j` 的 `PH_BindUnit` / `P2SV_FillAbilities` 取证得出。
 
 </div>

@@ -7,7 +7,7 @@
 
 <div class="wiki-source-note" markdown="1">
 
-**数据来源**：`刀剑物语 happy丶FISH v1.0 正式版`（母图 SHA256 `62A1122ACEDA220B746DF730B1625C2AF8E3C149048E26FDC2AF5C37BDA6BD6D`）
+**数据来源**：`刀剑物语 happy丶FISH v1.1 正式版`（母图 SHA256 `8CD69840B265DA0ABE207575DB4DE9D07D961B59BA3491A390D07A923A17775C`）
 
 本页数值由该图的 `war3map.w3u` / `war3map.w3a` / `war3map.w3t` 与 `war3map.j` 解析生成；**未经过实机验证**——「数据来自哪个成员」不等于「游戏里就是这个表现」。哪些内容已被交叉验证、有哪些已知限制，见 [地图身份](../info/地图身份.md)；本页符号（`—` / `未判定（证据不足）` / `⚠️ 不可选`）的含义见 [术语与用语](../info/术语与用语.md)。
 

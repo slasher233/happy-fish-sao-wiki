@@ -854,7 +854,7 @@ def render_item(p, abils, fdict, sources, used_in, item_names, unit_names,
     proto = f"`{p['base']}`"
     if p["base_name"]:
         proto += f"（{p['base_name']}）"
-    ver = MAP_VERSION + ("（本版新增，母图 v1.0 正式版中尚无此对象）" if p.get("new_item") else "")
+    ver = MAP_VERSION + ("（本版新增物品对象，v1.0 正式版中尚无）" if p.get("new_item") else "")
     lines.append(f"**物品 ID**：`{p['code']}`　·　**原型**：{proto}　·　**版本**：{ver}")
     lines.append("")
 

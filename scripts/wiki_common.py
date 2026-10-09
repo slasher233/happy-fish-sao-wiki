@@ -25,11 +25,16 @@ RECON_DIR = os.path.join(NOTE_LOG, "recon")
 EXTRACT_DIR = os.path.join(NOTE_LOG, "extract")
 DOCS = os.path.join(WIKI_DIR, "docs")
 
-MAP_NAME = "刀剑物语 happy丶FISH v1.0 正式版"
-MAP_SHA256 = "62A1122ACEDA220B746DF730B1625C2AF8E3C149048E26FDC2AF5C37BDA6BD6D"
-MAP_VERSION = "v1.0 正式版"
+# ── 地图身份（基准 = 最新正式版） ──────────────────────────────────────
+# 身份不再写死：以 `patch_plan\maps_sha256.json`（schema map_identity/v1）为准，
+# 换基线时由 `note_log\tools\rebase_baseline.py --map latest --steps identity` 改写。
+# 读不到那个文件（例如 patch_plan 不在旁边）才退回下面的兜底常量。
+IDENTITY_PATH = os.path.join(W, "patch_plan", "maps_sha256.json")
 
-MEMBER_SHA = {
+_FALLBACK_NAME = "刀剑物语 happy丶FISH v1.0 正式版"
+_FALLBACK_SHA256 = "62A1122ACEDA220B746DF730B1625C2AF8E3C149048E26FDC2AF5C37BDA6BD6D"
+_FALLBACK_VERSION = "v1.0 正式版"
+_FALLBACK_MEMBER_SHA = {
     "war3map.j": "13bafcf0c1e91848fbf8ee72cbc48017e711cae7b6198e69cb01136c7064a4a2",
     "war3map.w3i": "e5ff90f74a533be08ded10e529348317335f3ad4a0c4385882e2df81cea2b455",
     "war3map.w3u": "e8612c55afc5219e30c45c19dcff26b63cd8966a94d740853c5ef39085804294",
@@ -42,6 +47,32 @@ MEMBER_SHA = {
     "hf16_save_step.lua": "ec5c1eae4ceb542ee0642788cc224cc7770665ed74e8eb8f7842751fffa189e8",
     "hf22_stability.lua": "0f79764b742951f06b8bec4feb6ab64d6be6eb7fe380e491b1047e9fa3ea0c95",
 }
+
+
+def _load_identity() -> dict:
+    try:
+        with open(IDENTITY_PATH, "r", encoding="utf-8") as fh:
+            return json.load(fh)
+    except Exception:
+        return {}
+
+
+def _version_from_name(name: str) -> str:
+    stem = re.sub(r"\.w3x$", "", os.path.basename(name or ""), flags=re.I)
+    m = re.search(r"(v\d+(?:\.\d+)*\s*.*)$", stem)
+    return m.group(1).strip() if m else ""
+
+
+_IDENTITY = _load_identity()
+MAP_NAME = _IDENTITY.get("internal_title") or _FALLBACK_NAME
+MAP_SHA256 = (_IDENTITY.get("baseline_sha256") or _FALLBACK_SHA256).upper()
+MAP_VERSION = _version_from_name(_IDENTITY.get("baseline_file") or "") or _FALLBACK_VERSION
+MEMBER_SHA = _FALLBACK_MEMBER_SHA
+if _IDENTITY.get("key_members"):
+    MEMBER_SHA = {
+        k: (v.get("sha256") if isinstance(v, dict) else v)
+        for k, v in _IDENTITY["key_members"].items()
+    }
 
 
 def utf8() -> None:
