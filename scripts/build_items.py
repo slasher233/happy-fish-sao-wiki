@@ -47,7 +47,9 @@ PLAN_ITEM_ABILITY = os.path.join(PLAN_DATA, "item_ability_data.csv")
 PLAN_ITEMS_CSV = os.path.join(PLAN_DATA, "items.csv")
 PLAN_ISSUE2_JSON = os.path.join(PLAN_DATA, "issue2_plan.json")
 # 只有这两个需求单的 new_value 才是「本版计划值」
-PLAN_CHANGE_REQS = ("issue2", "issue3")
+PLAN_CLONES_CSV = os.path.join(PLAN_DATA, "ability_clones.csv")
+# issue #4（花姬扇）的改动落在「技能副本」上，来源表是 ability_clones.csv。
+PLAN_CHANGE_REQS = ("issue2", "issue3", "issue4")
 NEW_ITEM_BANNER = "🆕 **本版本新增物品**"
 # 需求单（2.61 源）里的类别用词 → 站内已有分类；不新增目录，避免无关页面跟着变
 EXTRA_CLASS_CAT = {"装备道具": "灵魂装备"}
@@ -206,6 +208,38 @@ def load_plan_change_rows(path: str) -> dict:
         c = (r.get("item_code") or "").strip()
         if c:
             out.setdefault(c, []).append(r)
+    return out
+
+
+def load_plan_clone_rows(path: str, reqs=("issue4",)) -> dict:
+    """`item_code` → [本版计划改动行]（改动落在**技能副本**上的那些，如 issue #4 花姬扇）。
+
+    `ability_clones.csv` 的行没有 `level` 列：`anam` 是技能显示名（按等级 0 归位），其余是等级 1 的
+    `Data` 字段。这里生成的记录与 `item_ability_data.csv` 的计划行同形，页面可以统一渲染
+    「现值 → 本版计划值」；`ability_code` 写**源技能**码（副本是从它复制出来的）。
+    """
+    out: dict[str, list] = {}
+    for r in load_csv(path):
+        if (r.get("req_id") or "").strip() not in reqs:
+            continue
+        c = (r.get("item_code") or "").strip()
+        fid = (r.get("field") or "").strip()
+        if not c or not fid:
+            continue
+        name = (r.get("item_name") or "").strip()
+        out.setdefault(c, []).append({
+            "req_id": (r.get("req_id") or "").strip(),
+            "item_code": c,
+            "item_name": name,
+            "ability_code": (r.get("src_ability") or "").strip(),
+            "field": fid,
+            "level": "0" if fid == "anam" else "1",
+            "cur_value": (r.get("old_value") or "").strip(),
+            "new_value": (r.get("new_value") or "").strip(),
+            "note": "本版为「%s」新建技能副本 %s（源技能 %s 保持原样，避免连带影响其它装备）"
+                    % (name, (r.get("new_ability") or "").strip(), (r.get("src_ability") or "").strip()),
+            "source": "ability_clones.csv",
+        })
     return out
 
 
@@ -587,6 +621,10 @@ def main() -> None:
     # ── 本版需求单：计划改动行（issue2/issue3）+ issue #2 的 10 件新物品 ──
     # 计划行：item_ability_data.csv 里 new_value 非空的行，页面显示「现值 → 本版计划值」
     plan_rows = load_plan_change_rows(PLAN_ITEM_ABILITY)
+    # issue #4（花姬扇）：改动在技能副本上，来源 ability_clones.csv，并进同一份计划行
+    clone_rows = load_plan_clone_rows(PLAN_CLONES_CSV)
+    for _c, _rs in clone_rows.items():
+        plan_rows.setdefault(_c, []).extend(_rs)
     plan_csv = load_plan_items_csv(PLAN_ITEMS_CSV)
     # 新物品：母图快照里不存在，用 issue2_plan.json 合成记录 + 新建技能对象
     new_items, new_abils = build_issue2_new_items(PLAN_ISSUE2_JSON, plan_csv, base_names, fdict)
@@ -602,7 +640,8 @@ def main() -> None:
             abils[_c] = _a
     parsed += new_items
     print(f"  · 本版计划改动行：{sum(len(x) for x in plan_rows.values())} 行 / {len(plan_rows)} 件物品"
-          "（item_ability_data.csv，req_id ∈ issue2/issue3 且 new_value 非空）")
+          f"（item_ability_data.csv req_id ∈ {'/'.join(PLAN_CHANGE_REQS)} 且 new_value 非空"
+          f"；另有技能副本行 {sum(len(x) for x in clone_rows.values())} 行来自 ability_clones.csv）")
     print(f"  · 本版新增物品：{len(new_items)} 件（issue #2，母图快照里不存在）；"
           f"新建技能对象 {len(new_abils)} 个")
 
@@ -1147,11 +1186,25 @@ def render_changeable(p, anchor, zh_to_fid, hdr_rows=None, plan_rows=None, plan_
                 return plan_rows[i]
         return None
 
-    def cell(cur_text: str, pr, scale: str = "") -> list:
+    # 本版会被换掉的技能（`items.csv` 的 `cur_iabi` 减 `new_iabi`）：这些技能带来的数值本版**下线**，
+    # 不能显示成「—（不变）」——玩家会以为还在。例：issue #4 花姬扇删掉全属性加成技能 `A0EF`。
+    def _ids(s) -> set:
+        return {x.strip() for x in str(s or "").replace("，", ",").split(",") if x.strip()}
+
+    dropped_abils = set()
+    if plan_csv_row:
+        dropped_abils = _ids(plan_csv_row.get("cur_iabi")) - _ids(plan_csv_row.get("new_iabi"))
+
+    def cell(cur_text: str, pr, scale: str = "", ability: str = "") -> list:
         """有计划的物品才多这一格「本版计划值」。"""
         if not show_plan:
             return []
-        return [_plan_cell(cur_text, _plan_new_value(pr, scale)) if pr else "—"]
+        if pr:
+            return [_plan_cell(cur_text, _plan_new_value(pr, scale))]
+        able = (ability or "").strip()
+        if able and able in dropped_abils:
+            return [f"**本版移除**（技能列表换掉 {code(able)}）"]
+        return ["—"]
 
     rows = []
     for v in vals:
@@ -1167,7 +1220,8 @@ def render_changeable(p, anchor, zh_to_fid, hdr_rows=None, plan_rows=None, plan_
         rows.append([
             ("✔ " if v.get("in_desc") else "") + esc(attr_unify(zh, attr_seen)),
             cur,
-        ] + cell(cur, take_plan(v.get("ability"), fid, v.get("level")), v.get("scale") or "") + [
+        ] + cell(cur, take_plan(v.get("ability"), fid, v.get("level")), v.get("scale") or "",
+                 v.get("ability")) + [
             code(fid),
             blank(v.get("level"), ""),
             "每级数值",
@@ -1210,7 +1264,10 @@ def render_changeable(p, anchor, zh_to_fid, hdr_rows=None, plan_rows=None, plan_
             "「表头字段」是技能级的冷却/耗魔/距离/范围/持续（与等级无关）。", ""]
     if show_plan:
         reqs = sorted({(r.get("req_id") or "").strip() for r in plan_rows if (r.get("req_id") or "").strip()})
-        out += ["**本版计划改动**：「本版计划值」列来自需求单 `patch_plan/data/item_ability_data.csv`"
+        srcs = sorted({(r.get("source") or "item_ability_data.csv").strip() for r in plan_rows
+                       if isinstance(r, dict)})
+        out += ["**本版计划改动**：「本版计划值」列来自需求单 "
+                + "、".join("`patch_plan/data/%s`" % s for s in srcs)
                 + (f"（本页改动行 `req_id` = {'、'.join('`%s`' % x for x in reqs)}）" if reqs else "")
                 + "；把目标值写进 `new_value` **即生效，随下一版补丁上线**。"
                 "单元格 `50 → 20` 读作「现值 50，本版上线后为 20」。", ""]
@@ -1226,7 +1283,8 @@ def render_changeable(p, anchor, zh_to_fid, hdr_rows=None, plan_rows=None, plan_
     if plan_extra:
         out += ["### 本版计划新增的数值（上面现值表里没有对应行）", "",
                 table(["数值项", "本版计划值", "字段 id", "等级", "来源技能", "备注"], plan_extra), "",
-                "> 这些是需求单里**新增**的字段/技能（母图现在还没有这一行）；"
+                "> 这些是本版计划里的字段/技能，当前技能列表（现值表）里没有对应行——"
+                "多数情况是本版换了技能副本，所以数值挂在副本上；"
                 "写 `new_value` 即生效，随下一版补丁上线。", ""]
     out += ["**怎么改**：到需求单仓库 `happy-fish-patch-plan` 打开 `data/item_ability_data.csv`，"
             "按 `item_code` + `ability_code` + `field` + `level` 找到对应行，把目标值写进 `new_value`，"
