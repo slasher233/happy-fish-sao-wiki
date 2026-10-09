@@ -3795,7 +3795,7 @@
 <h1 id="i0q8">I0Q8​·​禁忌​之戒<a class="headerlink" href="#i0q8" title="复制链接">¶</a></h1>
 <blockquote>
 <p>🆕 <strong>本​版本​新增​物品</strong>（<strong>随下​一​版补丁​上线</strong>，母图 v1.0 正式版里还没有这件物品）：由母图模板 <code>K000</code> 深拷贝新建（原始原型 <code>ches</code> 奶酪）。</p>
-<p>本版新建的技能对象：<code>Y02B</code>、<code>Y02C</code>、<code>Y02D</code>。页内数值取自需求单 <code>patch_plan/data/issue2_plan.json</code> 与 <code>patch_plan/data/item_ability_data.csv</code>（<code>req_id=issue2</code>），掉落取自 <code>patch_plan/data/drops_by_boss.csv</code>；本页<strong>未经​实机​验证</strong>。</p>
+<p>本版新建的技能对象：<code>Y02B</code>、<code>Y02C</code>、<code>Y02D</code>、<code>Y039</code>、<code>Y03A</code>。页内数值取自需求单 <code>patch_plan/data/issue2_plan.json</code> 与 <code>patch_plan/data/item_ability_data.csv</code>（<code>req_id=issue2</code>），掉落取自 <code>patch_plan/data/drops_by_boss.csv</code>；本页<strong>未经​实机​验证</strong>。</p>
 <p><strong>分类</strong>：​灵魂​装备<strong>品质</strong>：​传说<strong>类型</strong>：​战役<strong>物品​等级</strong>：​未​设置​（​对象​数据​里​没有​这​一项​）<strong>价格</strong>：​0​金</p>
 </blockquote>
 <p><strong>物品​ID</strong>：<code>I0Q8</code>　·　<strong>原型</strong>：<code>K000</code>（奶酪）　·　<strong>版本</strong>：​v1.0​正式版​（​本版​新增​，​母图​v1.0​正式版​中​尚无​此​对象​）</p>
@@ -3808,7 +3808,7 @@
 <p><strong>类别</strong>列里「每级数值」是技能对象 <code>Data</code> 里的分级数值，「表头字段」是技能级的冷却/耗魔/距离/范围/持续（与等级无关）。</p>
 <p><strong>本版​计划​改动</strong>：「本版计划值」列来自需求单 <code>patch_plan/data/item_ability_data.csv</code>（本页改动行 <code>req_id</code> = <code>issue2</code>）；把目标值写进 <code>new_value</code> <strong>即​生效​，​随下​一​版补丁​上线</strong>。单元格 <code>50 → 20</code> 读作「现值 50，本版上线后为 20」。</p>
 <blockquote>
-<p>本版还会把技能列表从 <code>（空）</code> 换成 <code>Y02B,Y02C,Y02D</code>（换上的技能是母图技能的副本，见 <code>patch_plan/data/items.csv</code> 的 <code>new_iabi</code>）。</p>
+<p>本版还会把技能列表从 <code>（空）</code> 换成 <code>Y02B,Y02C,Y02D,Y039,Y03A</code>（换上的技能是母图技能的副本，见 <code>patch_plan/data/items.csv</code> 的 <code>new_iabi</code>）。</p>
 </blockquote>
 <h3 id="_3">本版​计划​新增​的​数值​（​上面​现值​表里​没有​对应​行​）<a class="headerlink" href="#_3" title="复制链接">¶</a></h3>
 <table>
@@ -3947,6 +3947,16 @@
 <td>全​能力​增加​150</td>
 <td>筋力​奖励​=​150​,​敏捷​奖励​=​150​,​体力​奖励​=​150</td>
 </tr>
+<tr>
+<td><code>Y039</code></td>
+<td>体力​恢复​Lv5​（​禁忌​之戒​）</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Y03A</code></td>
+<td>瞬间​加速​（​向​面向​方向​位移​，​CD​12​秒​）</td>
+<td>魔法​施放​时间​间隔​=​12</td>
+</tr>
 </tbody>
 </table>
 <blockquote>
@@ -4005,7 +4015,7 @@
 <li><code>unam</code> <strong>名字</strong>（Name） = <code>禁忌之戒</code></li>
 <li><code>utip</code> <strong>提示​工具​-​基础</strong>（Tip） = <code>禁忌之戒</code></li>
 <li><code>utub</code> <strong>提示​工具​-​扩展​的</strong>（Ubertip） = <code>装备道具 / 生命值:20000 / 攻击力:10000 / 全属性:150 / 能力:体力恢复lv5 / 能力:禁忌(每1点全属性增加自身10点攻击力) / 能力:瞬间加速(向面向方向快速位移,CD12秒) / 品质:传说</code></li>
-<li><code>iabi</code> <strong>技能</strong>（abilList） = <code>Y02B,Y02C,Y02D</code></li>
+<li><code>iabi</code> <strong>技能</strong>（abilList） = <code>Y02B,Y02C,Y02D,Y039,Y03A</code></li>
 <li><code>icla</code> <strong>分类</strong>（class） = <code>Campaign</code></li>
 <li><code>igol</code> <strong>金子​消耗</strong>（goldcost） = <code>0</code></li>
 </ul>
@@ -4035,7 +4045,7 @@
         <span class="md-icon" title="最后更新">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
         </span>
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月9日 04:31:04 UTC">2026年10月9日</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年10月9日 11:11:28 UTC">2026年10月9日</span>
       </span>
     
     
