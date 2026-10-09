@@ -49,7 +49,7 @@ PLAN_ISSUE2_JSON = os.path.join(PLAN_DATA, "issue2_plan.json")
 # 只有这两个需求单的 new_value 才是「本版计划值」
 PLAN_CLONES_CSV = os.path.join(PLAN_DATA, "ability_clones.csv")
 # issue #4（花姬扇）的改动落在「技能副本」上，来源表是 ability_clones.csv。
-PLAN_CHANGE_REQS = ("issue2", "issue3", "issue4")
+PLAN_CHANGE_REQS = ("issue2", "issue3", "issue4", "issue6")
 NEW_ITEM_BANNER = "🆕 **本版本新增物品**"
 # 需求单（2.61 源）里的类别用词 → 站内已有分类；不新增目录，避免无关页面跟着变
 EXTRA_CLASS_CAT = {"装备道具": "灵魂装备"}
@@ -211,7 +211,7 @@ def load_plan_change_rows(path: str) -> dict:
     return out
 
 
-def load_plan_clone_rows(path: str, reqs=("issue4",)) -> dict:
+def load_plan_clone_rows(path: str, reqs=("issue4", "issue6")) -> dict:
     """`item_code` → [本版计划改动行]（改动落在**技能副本**上的那些，如 issue #4 花姬扇）。
 
     `ability_clones.csv` 的行没有 `level` 列：`anam` 是技能显示名（按等级 0 归位），其余是等级 1 的
